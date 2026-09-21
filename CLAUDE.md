@@ -4,17 +4,17 @@ Herramienta de gestión para equipos de hackathon: objetivos, features en kanban
 
 ## Normas básicas
 
-- Las specs de `docs/specs/` son documentación viva y la fuente de verdad del proyecto.
+- Las specs de `specs/` son documentación viva y la fuente de verdad del proyecto.
 - Responde siempre en español.
 - Los commits nunca llevan atribución a Claude: nada de `Co-Authored-By: Claude` ni menciones a Claude o a IA en el mensaje.
 
 ## Las specs son la fuente de verdad
 
-- Las especificaciones están en `docs/specs/`. Empieza por `docs/specs/README.md`.
-- **Todo cambio de comportamiento, modelo de datos, API, integraciones, prompts o tratamiento de datos debe actualizar la spec correspondiente en el mismo cambio**, añadir una línea en `docs/specs/CHANGELOG.md` y, si cambia el estado de un requisito, reflejarlo (`Propuesto` → `Aceptado` → `Implementado`).
+- Las especificaciones están en `specs/`. Empieza por `specs/README.md`.
+- **Todo cambio de comportamiento, modelo de datos, API, integraciones, prompts o tratamiento de datos debe actualizar la spec correspondiente en el mismo cambio**, añadir una línea en `specs/CHANGELOG.md` y, si cambia el estado de un requisito, reflejarlo (`Propuesto` → `Aceptado` → `Implementado`).
 - Antes de implementar algo, localiza su requisito (`RF-…` / `RNF-…`) y cítalo en el commit o el PR.
 - Si la spec y el código se contradicen, no elijas en silencio: señálalo y resuélvelo en ambos.
-- Las decisiones con alternativas se registran como ADR en `docs/specs/decisiones.md`.
+- Las decisiones con alternativas se registran como ADR en `specs/decisiones.md`.
 - No implementes nada marcado como `[ABIERTO]` sin resolverlo antes con el usuario.
 
 ## Stack

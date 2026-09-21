@@ -54,7 +54,7 @@ La IA de la app usa **Gemini** detrás de una interfaz de proveedor, de modo que
 ├── packages/
 │   ├── cli/                 # npm: hackboard (hooks de Claude Code)
 │   └── shared-schemas/      # JSON Schemas compartidos (eventos de ingesta, salida de IA)
-├── docs/specs/              # ESTAS specs
+├── specs/                   # ESTAS specs
 ├── docker-compose.yml       # mongo, redis, api, worker, web para desarrollo
 └── CLAUDE.md
 ```
