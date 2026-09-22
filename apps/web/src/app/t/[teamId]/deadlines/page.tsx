@@ -1,14 +1,25 @@
 "use client";
 
 import { use, useState } from "react";
-import { CalendarClock } from "lucide-react";
+import { CalendarClockIcon, PlusIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
+import { PageHeader } from "@/components/f0/page-header";
+import { SectionHeader } from "@/components/f0/section-header";
 import { useCreateMilestone } from "@/hooks/use-milestones";
 import { useTimeline } from "@/hooks/use-milestones";
 import type { TimelineItem } from "@/types/api";
@@ -28,6 +39,7 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
   const { teamId } = use(params);
   const { data: items, isLoading, isError, refetch } = useTimeline(teamId);
   const createMilestone = useCreateMilestone(teamId);
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState("checkpoint");
   const [dueAt, setDueAt] = useState("");
@@ -43,83 +55,100 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
     await createMilestone.mutateAsync({ title, kind, due_at: new Date(dueAt).toISOString() });
     setTitle("");
     setDueAt("");
+    setOpen(false);
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Deadlines</h1>
+      <PageHeader
+        icon={CalendarClockIcon}
+        title="Deadlines"
+        actions={
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger render={<Button />}>
+              <PlusIcon className="size-4" /> Nuevo milestone
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Nuevo milestone</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="m-title">Título</Label>
+                  <Input id="m-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="m-kind">Tipo</Label>
+                  <Select value={kind} onValueChange={(value) => value && setKind(value)}>
+                    <SelectTrigger id="m-kind" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="checkpoint">Checkpoint</SelectItem>
+                      <SelectItem value="demo">Demo</SelectItem>
+                      <SelectItem value="submission">Entrega</SelectItem>
+                      <SelectItem value="custom">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="m-due">Fecha</Label>
+                  <Input id="m-due" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
+                </div>
+                <DialogFooter>
+                  <DialogClose render={<Button type="button" variant="ghost" />}>Cancelar</DialogClose>
+                  <Button type="submit" loading={createMilestone.isPending}>
+                    Añadir milestone
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
       {(items ?? []).length === 0 ? (
-        <EmptyState icon={CalendarClock} title="No hay milestones ni deadlines todavía" />
+        <EmptyState
+          icon={CalendarClockIcon}
+          title="No hay milestones ni deadlines todavía"
+          actionLabel="Nuevo milestone"
+          onAction={() => setOpen(true)}
+        />
       ) : (
-        <>
-          <Group title="Vencidas" items={overdue} tone="destructive" />
+        <div className="flex flex-col gap-4">
+          <Group title="Vencidas" items={overdue} tone="critical" />
           <Group title="Próximas 6 h" items={soon} tone="warning" />
-          <Group title="Más adelante" items={later} tone="default" />
-        </>
+          <Group title="Más adelante" items={later} tone="neutral" />
+        </div>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Nuevo milestone</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="m-title">Título</Label>
-              <Input id="m-title" value={title} onChange={(e) => setTitle(e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="m-kind">Tipo</Label>
-              <Select value={kind} onValueChange={(value) => value && setKind(value)}>
-                <SelectTrigger id="m-kind" className="w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="checkpoint">Checkpoint</SelectItem>
-                  <SelectItem value="demo">Demo</SelectItem>
-                  <SelectItem value="submission">Entrega</SelectItem>
-                  <SelectItem value="custom">Otro</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="m-due">Fecha</Label>
-              <Input id="m-due" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
-            </div>
-            <Button type="submit" disabled={createMilestone.isPending}>
-              Añadir
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
-function Group({ title, items, tone }: { title: string; items: TimelineItem[]; tone: "destructive" | "warning" | "default" }) {
+function Group({ title, items, tone }: { title: string; items: TimelineItem[]; tone: "critical" | "warning" | "neutral" }) {
   if (items.length === 0) return null;
 
+  const dueClass =
+    tone === "critical"
+      ? "text-f1-foreground-critical"
+      : tone === "warning"
+        ? "text-f1-foreground-warning"
+        : "text-f1-foreground-secondary";
+
   return (
-    <div>
-      <h2 className="text-muted-foreground mb-2 text-sm font-semibold">{title}</h2>
-      <ul className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
+      <SectionHeader title={title} />
+      <Card className="divide-y divide-f1-border-secondary py-0">
         {items.map((item) => (
-          <li key={`${item.type}-${item.id}`} className="flex items-center gap-3 rounded-md border p-2 text-sm">
+          <div key={`${item.type}-${item.id}`} className="flex items-center gap-3 px-3 py-2.5">
             <Badge variant={item.type === "milestone" ? "secondary" : "outline"}>
               {item.type === "milestone" ? item.kind : item.key}
             </Badge>
-            <span className="flex-1">{item.title}</span>
-            <span
-              className={
-                tone === "destructive" ? "text-destructive" : tone === "warning" ? "text-amber-600" : "text-muted-foreground"
-              }
-            >
-              {new Date(item.due_at).toLocaleString("es-ES")}
-            </span>
-          </li>
+            <span className="flex-1 text-base">{item.title}</span>
+            <span className={`text-sm ${dueClass}`}>{new Date(item.due_at).toLocaleString("es-ES")}</span>
+          </div>
         ))}
-      </ul>
+      </Card>
     </div>
   );
 }

@@ -2,12 +2,40 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Copy, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeftIcon, CopyIcon, EllipsisVerticalIcon, ThumbsDownIcon, ThumbsUpIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ErrorState, LoadingState } from "@/components/states";
+import { PageHeader } from "@/components/f0/page-header";
 import { useDeleteFeature, useFeature, useUpdateFeature } from "@/hooks/use-features";
 import { useCreateArgument, useDeleteArgument, useVoteArgument } from "@/hooks/use-arguments";
 import { useMe } from "@/hooks/use-me";
@@ -26,6 +54,9 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   const deleteArgument = useDeleteArgument(teamId, key);
   const [description, setDescription] = useState<string | null>(null);
   const [newArgumentText, setNewArgumentText] = useState({ pro: "", con: "" });
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const [discardReason, setDiscardReason] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (isLoading) return <LoadingState />;
   if (isError || !feature) return <ErrorState onRetry={() => refetch()} />;
@@ -35,8 +66,9 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   const cons = (feature.arguments ?? []).filter((a) => a.kind === "con").sort((a, b) => b.votes - a.votes);
 
   async function handleDiscard() {
-    const reason = window.prompt("Motivo (opcional):") ?? undefined;
-    await updateFeature.mutateAsync({ key, status: "discarded", discarded_reason: reason });
+    await updateFeature.mutateAsync({ key, status: "discarded", discarded_reason: discardReason || undefined });
+    setDiscardOpen(false);
+    setDiscardReason("");
   }
 
   async function handleDelete() {
@@ -47,31 +79,79 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <Button variant="ghost" size="sm" className="w-fit" onClick={() => router.push(`/t/${teamId}/features`)}>
-        <ArrowLeft className="size-4" /> Volver al kanban
+        <ArrowLeftIcon className="size-4" /> Volver al kanban
       </Button>
 
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <Badge variant="outline" className="mb-1">
-            {feature.key}
-          </Badge>
-          <h1 className="text-2xl font-semibold">{feature.title}</h1>
-        </div>
-        <div className="flex gap-2">
-          {feature.status !== "discarded" && (
-            <Button variant="outline" onClick={handleDiscard}>
-              Descartar
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" aria-label="Borrar feature" onClick={handleDelete}>
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title={feature.title}
+        breadcrumbs={
+          <>
+            <span>Features</span>
+            <span aria-hidden>›</span>
+            <Badge variant="outline">{feature.key}</Badge>
+          </>
+        }
+        actions={
+          <>
+            {feature.status !== "discarded" && (
+              <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
+                <Button variant="outline" onClick={() => setDiscardOpen(true)}>
+                  Descartar feature
+                </Button>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Descartar «{feature.title}»</DialogTitle>
+                    <DialogDescription>El motivo es opcional y queda registrado en la actividad.</DialogDescription>
+                  </DialogHeader>
+                  <Input
+                    placeholder="Motivo (opcional)"
+                    value={discardReason}
+                    onChange={(e) => setDiscardReason(e.target.value)}
+                  />
+                  <DialogFooter>
+                    <DialogClose render={<Button variant="ghost" />}>Cancelar</DialogClose>
+                    <Button onClick={handleDiscard} loading={updateFeature.isPending}>
+                      Descartar feature
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+            <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<Button variant="ghost" size="icon" aria-label="Más acciones de la feature" />}
+                >
+                  <EllipsisVerticalIcon />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+                    <Trash2Icon className="size-4" /> Eliminar feature
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Eliminar «{feature.title}»</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se pierden sus pros y contras.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
+                    Eliminar feature
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        }
+      />
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Descripción</CardTitle>
+          <CardTitle className="text-base">Descripción</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
@@ -85,12 +165,19 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Cómo vincular trabajo</CardTitle>
+          <CardTitle className="text-base">Cómo vincular trabajo</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center gap-2">
-          <code className="bg-muted rounded px-2 py-1 text-sm">{branchName}</code>
-          <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(branchName)}>
-            <Copy className="size-3.5" /> Copiar
+          <code className="rounded bg-muted px-2 py-1 text-sm">{branchName}</code>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(branchName);
+              toast.success("Rama copiada");
+            }}
+          >
+            <CopyIcon className="size-3.5" /> Copiar
           </Button>
         </CardContent>
       </Card>
@@ -150,19 +237,20 @@ function ArgumentColumn({
   onVote: (id: string, voted: boolean) => void;
   onDelete: (id: string) => void;
 }) {
-  const Icon = kind === "pro" ? ThumbsUp : ThumbsDown;
+  const Icon = kind === "pro" ? ThumbsUpIcon : ThumbsDownIcon;
+  const tone = kind === "pro" ? "text-f1-foreground-positive" : "text-f1-foreground-critical";
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {args.map((argument) => (
-          <div key={argument.id} className="flex items-center gap-2 rounded-md border p-2 text-sm">
+          <div key={argument.id} className="flex items-center gap-2 rounded-md border border-f1-border p-2 text-base">
             <button
               onClick={() => onVote(argument.id, Boolean(argument.voted_by_me))}
-              className="flex items-center gap-1"
+              className={`focus-ring flex items-center gap-1 rounded ${argument.voted_by_me ? tone : "text-f1-foreground-secondary"}`}
               aria-label="Votar"
             >
               <Icon className={argument.voted_by_me ? "size-4 fill-current" : "size-4"} />
@@ -170,8 +258,12 @@ function ArgumentColumn({
             </button>
             <span className="flex-1">{argument.text}</span>
             {argument.author_id === myUserId && (
-              <button onClick={() => onDelete(argument.id)} aria-label="Borrar">
-                <Trash2 className="text-muted-foreground size-3.5" />
+              <button
+                onClick={() => onDelete(argument.id)}
+                aria-label="Eliminar argumento"
+                className="focus-ring rounded text-f1-foreground-secondary hover:text-f1-foreground-critical"
+              >
+                <Trash2Icon className="size-3.5" />
               </button>
             )}
           </div>
@@ -184,8 +276,7 @@ function ArgumentColumn({
           }}
           className="flex gap-2"
         >
-          <input
-            className="flex-1 rounded-md border px-2 py-1 text-sm"
+          <Input
             placeholder={`Añadir ${title.toLowerCase()}…`}
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
