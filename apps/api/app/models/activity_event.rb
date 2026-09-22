@@ -1,0 +1,71 @@
+class ActivityEvent
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  include TeamScoped
+
+  SOURCES = %w[github claude_code mcp system].freeze
+
+  KINDS_BY_SOURCE = {
+    "github" => %w[commit pr_opened pr_merged pr_closed pr_reopened branch_created branch_deleted],
+    "claude_code" => %w[cc_session_start cc_session_end cc_turn cc_prompt],
+    "mcp" => %w[progress_report],
+    "system" => %w[feature_status_changed feature_assigned member_joined api_change]
+  }.freeze
+
+  MAX_FILES = 50
+
+  field :source, type: String
+  field :kind, type: String
+  field :dedupe_key, type: String
+  field :occurred_at, type: Time
+  field :received_at, type: Time, default: -> { Time.current }
+  field :actor, type: Hash, default: {}
+  field :repository_id, type: BSON::ObjectId
+  field :branch, type: String
+  field :sha, type: String
+  field :pr_number, type: Integer
+  field :url, type: String
+  field :title, type: String
+  field :summary, type: String
+  field :files, type: Array, default: []
+  field :stats, type: Hash, default: {}
+  field :payload, type: Hash, default: {}
+  field :mentioned_feature_keys, type: Array, default: []
+  field :session_ref, type: String
+  field :via, type: Hash
+
+  embeds_one :attribution
+
+  belongs_to :repository, optional: true
+
+  validates :source, inclusion: { in: SOURCES }
+  validates :dedupe_key, presence: true, uniqueness: { scope: :team_id }
+  validates :occurred_at, presence: true
+  validates :title, length: { maximum: 200 }
+  validates :summary, length: { maximum: 500 }
+  validate :kind_matches_source
+  validate :files_within_limit
+
+  index({ team_id: 1, dedupe_key: 1 }, { unique: true })
+  index({ team_id: 1, occurred_at: -1 })
+  index({ team_id: 1, "attribution.feature_id" => 1, occurred_at: -1 })
+  index({ team_id: 1, "actor.user_id" => 1, occurred_at: -1 })
+  index({ team_id: 1, "attribution.status" => 1 })
+  index({ team_id: 1, "via.token_id" => 1, occurred_at: -1 }, { sparse: true })
+
+  scope :pending_attribution, -> { where("attribution.status" => "suggested") }
+  scope :for_feature, ->(feature) { where("attribution.feature_id" => feature.id) }
+
+  private
+
+  def kind_matches_source
+    allowed = KINDS_BY_SOURCE[source]
+    return if allowed.nil? # ya se marca el error de source por separado
+
+    errors.add(:kind, "no es válido para el source #{source}") unless allowed.include?(kind)
+  end
+
+  def files_within_limit
+    errors.add(:files, "no puede tener más de #{MAX_FILES} elementos") if files.size > MAX_FILES
+  end
+end

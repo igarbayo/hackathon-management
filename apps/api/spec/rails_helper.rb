@@ -59,7 +59,6 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 
   config.include FactoryBot::Syntax::Methods
-  config.include Mongoid::Matchers, type: :model
 
   config.before(:suite) do
     raise "Refusing to run specs against a non-test database" unless Rails.env.test?
@@ -67,12 +66,5 @@ RSpec.configure do |config|
 
   config.after do
     Mongoid.default_client.collections.reject { |c| c.name.start_with?("system.") }.each(&:drop)
-  end
-end
-
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
   end
 end

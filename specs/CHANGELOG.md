@@ -2,6 +2,8 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-22 · 02 · Corrige una contradicción: la sección de `OAuthClient` decía que `OAuthGrant` no lleva `team_id`, pero su propia tabla de campos sí lo incluye (y `AccessToken.kind: oauth` lo necesita). Se aclara que solo `User`, `Session` y `OAuthClient` son la excepción a la regla multi-tenant.
+
 - 2026-09-22 · 12, 00, 01, 02, 03, 04, 08, 09, 10, 11, decisiones, README · Login con Google (RF-AUTH-008…010). Servidor de autorización OAuth 2.1 propio, con identidad vía Google, GitHub o contraseña (ADR-0011, se resuelve el [ABIERTO] de RF-API-010). claude.ai como connector (RF-MCP-020, 011). Tokens de integración de equipo (RF-API-011) y webhooks salientes (RF-API-009) pasan a Aceptado. Nueva Fase 6 · Integraciones. `hackboard init` registra el MCP (RF-CC-026, Aceptado).
 - 2026-09-22 · 12 (nuevo), 00, 01, 02, 03, 04, 08, 09, 10, 11, decisiones, README · Acceso programático: API REST con tokens de acceso personales (`hb_pat_`) y scopes, servidor MCP con herramientas de lectura (`get_team_status`, actividad, análisis…) y de escritura, trazabilidad `via` en el feed, OpenAPI e idempotencia. El MCP pasa de "si da tiempo" a comprometido en F5 y su especificación se mueve de 08 a 12. ADR-0009 y ADR-0010.
 - 2026-09-21 · todas · Las specs se mueven de `docs/specs/` a `specs/` en la raíz del repo.

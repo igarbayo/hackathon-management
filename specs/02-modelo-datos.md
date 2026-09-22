@@ -130,7 +130,7 @@ Invariantes: máximo 10 PATs activos por `membership_id` y 10 tokens de integrac
 
 ## OAuthClient
 
-Clientes de [OAuth 2.1](12-acceso-programatico.md#oauth-21). **No tiene `team_id`**: un cliente (p. ej. claude.ai) sirve para cualquier equipo. Es la única excepción, junto con `User`, `Session` y `OAuthGrant`, a la regla multi-tenant; los tokens que emite sí van acotados a un equipo.
+Clientes de [OAuth 2.1](12-acceso-programatico.md#oauth-21). **No tiene `team_id`**: un cliente (p. ej. claude.ai) sirve para cualquier equipo. Es la única excepción, junto con `User` y `Session`, a la regla multi-tenant; los tokens y los `OAuthGrant` que emite sí van acotados a un equipo (llevan `team_id`, ver [OAuthGrant](#oauthgrant)).
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
