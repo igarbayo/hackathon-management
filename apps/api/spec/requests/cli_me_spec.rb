@@ -45,4 +45,29 @@ RSpec.describe "PATCH/DELETE /api/v1/cli/me", type: :request do
     expect(response).to have_http_status(:no_content)
     expect(ActivityEvent.where(id: event.id).first).to be_nil
   end
+
+  it "DELETE ?purge=true borra también los eventos de mcp (RF-SEC-002), no solo los de claude_code" do
+    mcp_event = create(
+      :activity_event,
+      team: membership.team,
+      source: "mcp",
+      kind: "progress_report",
+      dedupe_key: "mcp:1",
+      actor: { "membership_id" => membership.id.to_s }
+    )
+    other_membership = create(:membership, team: membership.team)
+    others_event = create(
+      :activity_event,
+      team: membership.team,
+      source: "mcp",
+      kind: "progress_report",
+      dedupe_key: "mcp:2",
+      actor: { "membership_id" => other_membership.id.to_s }
+    )
+
+    delete "/api/v1/cli/me?purge=true", headers: { "Authorization" => "Bearer #{raw_token}" }
+
+    expect(ActivityEvent.where(id: mcp_event.id).first).to be_nil
+    expect(ActivityEvent.where(id: others_event.id).first).to be_present
+  end
 end

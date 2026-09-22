@@ -1,6 +1,6 @@
 # 09 · Privacidad y seguridad
 
-> **Estado de implementación:** En proceso (aplicado de forma transversal en lo ya construido: sesión, CSRF, aislamiento por equipo, cifrado de secretos, hash de contraseñas; revisión dedicada pendiente) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** Implementada (revisión dedicada contra el catálogo de RNF-SEC-\*/RF-SEC-\*, ver CHANGELOG) · **Última actualización:** 2026-09-22. `[ABIERTO]` sin resolver: plazo exacto de retención y política de privacidad/términos antes de lanzar (RF-SEC-005, exportación en JSON, sigue en `Propuesto`).
 
 ## Principios
 
@@ -53,7 +53,7 @@
 | RNF-SEC-002 | Tokens de sesión, de miembro y de acceso personal: 32 bytes aleatorios, con prefijo (`hb_s_`, `hb_mt_` y `hb_pat_`). Solo se guarda el SHA-256, comparado en tiempo constante. Los tokens de miembro y los PAT se muestran una sola vez. Los prefijos son distintivos para que el escaneo de secretos los detecte. | Aceptado [F1/F2/F5] |
 | RNF-SEC-003 | Cookies `httpOnly`, `Secure` y `SameSite=Lax`. Protección CSRF con token de doble envío en los endpoints de sesión que cambian estado. | Aceptado [F1] |
 | RNF-SEC-004 | CORS limitado a `APP_URL`. | Aceptado [F1] |
-| RNF-SEC-005 | Rate limiting con `rack-attack` sobre Redis: login, signup, join, ingesta, análisis manual, peticiones con PAT y MCP (valores en [03](03-api.md) y [12](12-acceso-programatico.md#requisitos-no-funcionales)). | Aceptado [F1] |
+| RNF-SEC-005 | Rate limiting con `RateLimiter` (contador propio sobre `Sidekiq.redis`, [ADR-0012](decisiones.md#adr-0012)): login, signup, join, ingesta, análisis manual, peticiones con PAT y MCP (valores en [03](03-api.md) y [12](12-acceso-programatico.md#requisitos-no-funcionales)). | Aceptado [F1] |
 | RNF-SEC-006 | Verificación HMAC de webhooks con comparación en tiempo constante. Se rechazan las entregas sin firma. | Aceptado [F3] |
 | RNF-SEC-007 | Las respuestas de la IA se tratan como **datos no confiables**: se validan con el esquema, se escapan al renderizar (el Markdown se sanea) y nunca se ejecutan ni se usan para autorizar. | Aceptado [F4] |
 | RNF-SEC-008 | **Inyección de prompts:** los mensajes de commit, títulos y descripciones se envían al modelo delimitados y marcados como datos del usuario. La salida solo puede referirse a claves existentes (posvalidación). La IA no tiene acceso a herramientas con efectos. | Aceptado [F4] |

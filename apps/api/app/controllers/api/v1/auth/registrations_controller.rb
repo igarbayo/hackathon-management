@@ -6,7 +6,8 @@ module Api
           user = ::Auth::SignUp.call(
             email: params[:email],
             name: params[:name],
-            password: params[:password]
+            password: params[:password],
+            ip: request.remote_ip
           )
           start_session!(user, request: request)
 

@@ -7,7 +7,11 @@ module Cli
       raise ApiError::NotFound.new(message: "Claude Code no está conectado") unless link
 
       if purge
-        ActivityEvent.where(team_id: membership.team_id, source: "claude_code", "actor.membership_id" => membership.id.to_s).delete_all
+        # RF-SEC-002: "desconectar y borrar mis eventos" incluye tanto los de
+        # Claude Code como los del MCP (spec 12), no solo los del CLI.
+        ActivityEvent.where(team_id: membership.team_id, "actor.membership_id" => membership.id.to_s)
+                     .any_in(source: %w[claude_code mcp])
+                     .delete_all
       end
 
       membership.claude_code = nil

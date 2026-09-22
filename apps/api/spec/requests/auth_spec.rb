@@ -21,6 +21,18 @@ RSpec.describe "Auth", type: :request do
       expect(json_response["error"]["code"]).to eq("validation_failed")
     end
 
+    it "aplica rate limit tras 10 registros por IP (RNF-SEC-005)" do
+      headers = csrf_headers
+
+      10.times do |i|
+        post "/api/v1/auth/signup", params: { email: "user#{i}@example.com", name: "U#{i}", password: "supersecret123" }, headers: headers, as: :json
+      end
+
+      post "/api/v1/auth/signup", params: { email: "one-more@example.com", name: "Uno más", password: "supersecret123" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:too_many_requests)
+    end
+
     it "exige X-CSRF-Token" do
       post "/api/v1/auth/signup", params: { email: "ada@example.com", name: "Ada", password: "supersecret123" }, as: :json
 

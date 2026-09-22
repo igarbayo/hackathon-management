@@ -68,7 +68,7 @@ Sesiones web con cookie opaca.
 | `feature_seq` | Integer | Contador para `F-n`. Empieza en 0 |
 | `objective_seq` | Integer | Contador para `O-n` |
 | `plan` | String | `free` \| `pro` |
-| `settings` | Hash | `ai_enabled` (bool, true), `ai_attribution_enabled` (bool, true), `analysis_interval_min` (int, según el plan), `claude_code_enabled` (bool, true) |
+| `settings` | Hash | `ai_enabled` (bool, true), `ai_attribution_enabled` (bool, true), `analysis_interval_min` (int, según el plan), `claude_code_enabled` (bool, true), `retain_data` (bool, false — si el owner lo marca, `Maintenance::RetentionJob` ([09](09-privacidad-seguridad.md#retención)) no borra la actividad ni los análisis del equipo a los 90 días) |
 | `github_installation_ids` | Array<Integer> | Instalaciones de la GitHub App vinculadas |
 | `deleted_at` | Time | Borrado lógico. El borrado físico lo hace el job de retención |
 

@@ -7,6 +7,13 @@ module Api
       class ClaudeCodeController < ApplicationController
         include TokenAuthentication
         before_action :authenticate_member_token!
+        before_action :enforce_rate_limit!
+
+        # RNF-SEC-005 (03-api.md#contrato-de-ingesta): 120 peticiones por
+        # minuto por token. Los 200 eventos por petición ya los limita el
+        # esquema (maxItems).
+        RATE_LIMIT = 120
+        RATE_PERIOD = 1.minute
 
         def create
           events = Array(params[:events]).map { |e| e.to_unsafe_h.as_json }
@@ -19,6 +26,12 @@ module Api
           )
 
           render json: result.as_json
+        end
+
+        private
+
+        def enforce_rate_limit!
+          RateLimiter.check!("ingest:#{current_membership.id}", limit: RATE_LIMIT, period: RATE_PERIOD)
         end
       end
     end

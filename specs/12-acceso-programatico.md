@@ -204,7 +204,7 @@ En Ajustes → API y MCP, cada token muestra la última vez que se usó y un enl
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RNF-API-001 | **Rate limit por token** (rack-attack sobre Redis): 120 peticiones por minuto en total y 30 escrituras por minuto. Las llamadas MCP cuentan igual que las REST. `report_progress` mantiene además su límite de 30 al día por miembro y feature. Respuesta `429` con `Retry-After`. | Aceptado [F2] |
+| RNF-API-001 | **Rate limit por token** (`RateLimiter`, [ADR-0012](decisiones.md#adr-0012)): 120 peticiones por minuto en total y 30 escrituras por minuto. Las llamadas MCP cuentan igual que las REST. `report_progress` mantiene además su límite de 30 al día por miembro y feature. Respuesta `429` con `Retry-After`. | Aceptado [F2] |
 | RNF-API-002 | El test de aislamiento de RNF-SEC-001 se ejecuta también con PATs: un token de un equipo contra cada endpoint de otro equipo espera `404`, y un token sin el scope necesario espera `403`. Otro test comprueba que ningún endpoint `session_only` acepta Bearer. | Aceptado [F2] |
 | RNF-API-003 | Versionado de la API y de las herramientas MCP ([arriba](#versionado--rnf-api-003-f2-aceptado)). | Aceptado [F2] |
 | RNF-API-004 | Los tests de RNF-API-002 cubren también los tokens OAuth y de integración. Hay tests del flujo OAuth completo: PKCE incorrecto, `redirect_uri` distinto, `resource` ajeno, código reutilizado y refresh token reutilizado (que debe revocar la conexión). | Aceptado [F6] |

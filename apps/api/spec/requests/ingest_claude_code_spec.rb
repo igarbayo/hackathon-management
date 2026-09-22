@@ -45,6 +45,18 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
     expect(created.actor["membership_id"]).to eq(membership.id.to_s)
   end
 
+  it "aplica rate limit de 120 peticiones por minuto por token (RNF-SEC-005)" do
+    body = { cli_version: "0.3.1", events: [] }
+
+    120.times do
+      post "/api/v1/ingest/claude_code", params: body, headers: { "Authorization" => "Bearer #{raw_token}" }, as: :json
+    end
+
+    post "/api/v1/ingest/claude_code", params: body, headers: { "Authorization" => "Bearer #{raw_token}" }, as: :json
+
+    expect(response).to have_http_status(:too_many_requests)
+  end
+
   def perform_enqueued_ingest_jobs
     Ingest::ProcessBatchJob.drain
   end

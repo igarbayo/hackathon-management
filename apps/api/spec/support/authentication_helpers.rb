@@ -1,6 +1,6 @@
 module AuthenticationHelpers
   def sign_in_as(user)
-    raw_token = SecureRandom.hex(32)
+    raw_token = "hb_s_#{SecureRandom.hex(32)}"
     Session.create!(
       user: user,
       token_digest: Digest::SHA256.hexdigest(raw_token),

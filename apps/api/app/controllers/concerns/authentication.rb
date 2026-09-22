@@ -5,6 +5,7 @@ module Authentication
   extend ActiveSupport::Concern
 
   SESSION_COOKIE = :hb_session
+  SESSION_TOKEN_PREFIX = "hb_s_" # RNF-SEC-002: prefijo distintivo para escaneo de secretos
 
   included do
     helper_method :current_user, :current_session if respond_to?(:helper_method)
@@ -30,7 +31,7 @@ module Authentication
   end
 
   def start_session!(user, request:)
-    raw_token = SecureRandom.hex(32)
+    raw_token = "#{SESSION_TOKEN_PREFIX}#{SecureRandom.hex(32)}"
     session = Session.create!(
       user: user,
       token_digest: digest(raw_token),

@@ -1,0 +1,19 @@
+# RNF-SEC-011 (specs/09-privacidad-seguridad.md): escaneo de dependencias en
+# CI para api, web y cli. Dependabot no necesita un workflow: GitHub lo
+# ejecuta solo a partir de este fichero.
+version: 2
+updates:
+  - package-ecosystem: bundler
+    directory: /apps/api
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

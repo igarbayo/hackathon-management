@@ -14,7 +14,12 @@ Sidekiq.configure_server do |config|
       class: "Attribution::AiSuggestJob"
     )
 
-    # Webhooks::MilestoneDueSoonJob (spec 12) y Maintenance::RetentionJob
-    # (spec 09) se registran aquí cuando existan sus clases.
+    Sidekiq::Cron::Job.create(
+      name: "maintenance-retention",
+      cron: "0 4 * * *",
+      class: "Maintenance::RetentionJob"
+    )
+
+    # Webhooks::MilestoneDueSoonJob (spec 12) se registra aquí cuando exista.
   end
 end
