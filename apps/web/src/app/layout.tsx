@@ -29,6 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es"
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+      // next-themes cambia `class` y `style` en el cliente antes del primer
+      // pintado; sin esto, React avisa de un mismatch de hidratación en cada
+      // carga aunque el resultado final sea correcto.
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
