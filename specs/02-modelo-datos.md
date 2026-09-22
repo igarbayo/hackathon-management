@@ -281,6 +281,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `attribution` | embebido `Attribution` | Ver abajo |
 | `session_ref` | String | Hash de la sesión de Claude Code, para agrupar |
 | `via` | Hash | Solo en cambios hechos con un token: `{channel: "api" \| "mcp", token_kind: "member" \| "pat" \| "oauth" \| "integration", token_id, token_prefix, client}`. `client` es el nombre del cliente OAuth o el `clientInfo.name` del cliente MCP (máx. 40 caracteres, no confiable). `nil` si el cambio viene de la web ([RF-API-006](12-acceso-programatico.md#trazabilidad)) |
+| `ai_suggestion_attempted_at` | Time | Nullable. Cuándo se intentó la capa 3 de atribución con IA y salió con `confidence < 0.5`. No se reintenta hasta que llegue un evento nuevo en el mismo grupo (actor, rama, sesión) ([05](05-atribucion.md#capa-3--inferencia-con-ia)) |
 
 **Catálogo de `kind`:**
 

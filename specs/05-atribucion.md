@@ -1,6 +1,6 @@
 # 05 · Atribución de trabajo a features
 
-> **Estado de implementación:** En proceso (capas 1-2 y acción humana implementadas; capa 3 con IA pendiente de la spec 06) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-22
 
 Atribuir es **la clave del producto**: convierte la actividad en respuestas del tipo "quién hizo qué, y para qué feature". Se resuelve en tres capas, de más fiable a menos. Cada evento pasa por ellas en orden y se detiene en la primera que da resultado.
 

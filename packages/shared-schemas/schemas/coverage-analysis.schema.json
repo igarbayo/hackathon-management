@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CoverageAnalysis",
+  "description": "Salida del análisis de cobertura con IA (06-analisis-ia.md#esquema-de-salida)",
+  "type": "object",
+  "required": ["summary", "coverage", "orphan_features", "gaps", "risks"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": { "type": "string", "maxLength": 600 },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["objective_key", "status", "feature_keys", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "objective_key": { "type": "string" },
+          "status": { "type": "string", "enum": ["covered", "partial", "uncovered"] },
+          "feature_keys": { "type": "array", "items": { "type": "string" } },
+          "rationale": { "type": "string", "maxLength": 300 }
+        }
+      }
+    },
+    "orphan_features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature_key", "rationale", "recommendation", "suggested_objective_key"],
+        "additionalProperties": false,
+        "properties": {
+          "feature_key": { "type": "string" },
+          "rationale": { "type": "string", "maxLength": 300 },
+          "recommendation": { "type": "string", "enum": ["discard", "link_objective", "keep"] },
+          "suggested_objective_key": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["objective_key", "description", "suggested_feature_title"],
+        "additionalProperties": false,
+        "properties": {
+          "objective_key": { "type": ["string", "null"] },
+          "description": { "type": "string", "maxLength": 300 },
+          "suggested_feature_title": { "type": "string", "maxLength": 120 }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "kind", "description", "related_keys"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "kind": { "type": "string", "enum": ["deadline", "scope", "unassigned", "inactivity", "quality", "other"] },
+          "description": { "type": "string", "maxLength": 300 },
+          "related_keys": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

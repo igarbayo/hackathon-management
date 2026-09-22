@@ -1,6 +1,6 @@
 # 06 · Análisis con IA (Gemini)
 
-> **Estado de implementación:** En proceso · **Última actualización:** 2026-09-22
+> **Estado de implementación:** En proceso (pipeline de análisis, disparo, cuotas, alertas deterministas y capa 3 de atribución implementados; falta RNF-AI-002, el dataset de evaluación y `rake ai:eval`) · **Última actualización:** 2026-09-22
 
 ## Proveedor
 

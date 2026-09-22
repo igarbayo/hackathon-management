@@ -25,6 +25,9 @@ gem "mongoid", "~> 9.0"
 # Jobs en background (ADR-0002)
 gem "sidekiq", "~> 7.3"
 gem "sidekiq-cron", "~> 2.1"
+# connection_pool 3.x cambió la firma de #pop y rompe el hilo interno de
+# Sidekiq::Scheduled ("wrong number of arguments") con sidekiq 7.3.x.
+gem "connection_pool", "~> 2.5"
 
 # Validación de JSON Schema para ingesta y salida de IA (01-arquitectura)
 gem "json_schemer", "~> 2.3"

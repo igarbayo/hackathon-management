@@ -1,6 +1,6 @@
 # 03 · API
 
-> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones y actividad implementados; faltan los endpoints de IA, GitHub, Claude Code y acceso programático) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones, actividad y análisis IA implementados; faltan los endpoints de GitHub, Claude Code y acceso programático) · **Última actualización:** 2026-09-22
 
 ## Convenciones generales
 

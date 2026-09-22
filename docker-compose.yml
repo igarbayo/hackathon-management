@@ -29,6 +29,7 @@ services:
       - redis
     volumes:
       - ./apps/api:/app
+      - ./packages:/packages
       - api_bundle:/usr/local/bundle
 
   worker:
@@ -44,6 +45,7 @@ services:
       - redis
     volumes:
       - ./apps/api:/app
+      - ./packages:/packages
       - api_bundle:/usr/local/bundle
 
   web:

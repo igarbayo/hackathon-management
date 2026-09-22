@@ -38,6 +38,10 @@ Rails.application.routes.draw do
         resources :milestones, only: %i[index create update destroy]
         get "timeline", to: "timeline#show"
 
+        resources :analyses, only: %i[index show create] do
+          get :latest, on: :collection
+        end
+
         get "activity", to: "activity#index"
         get "activity/summary", to: "activity#summary"
         post "activity/attribution/bulk", to: "activity_attributions#bulk"

@@ -1,6 +1,6 @@
 # 04 · Pantallas y requisitos funcionales
 
-> **Estado de implementación:** En proceso (F1/F2 y actividad implementadas; faltan análisis IA, GitHub, Claude Code e integraciones) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** En proceso (F1/F2, actividad y análisis IA implementadas; faltan GitHub, Claude Code e integraciones) · **Última actualización:** 2026-09-22
 
 ## Layout general — `RF-UX`
 

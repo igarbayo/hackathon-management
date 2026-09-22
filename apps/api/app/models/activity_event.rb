@@ -37,6 +37,11 @@ class ActivityEvent
   field :session_ref, type: String
   field :via, type: Hash
 
+  # Capa 3 (05-atribucion.md#capa-3): cuándo se intentó sugerir con IA y
+  # salió con confidence < 0.5. No se reintenta hasta que llegue un evento
+  # nuevo en el mismo grupo (actor, rama, sesión).
+  field :ai_suggestion_attempted_at, type: Time
+
   embeds_one :attribution, class_name: "EventAttribution"
 
   belongs_to :repository, optional: true
