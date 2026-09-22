@@ -9,12 +9,12 @@ export function TeamSelector({ memberships, currentTeamId }: { memberships: Memb
   const router = useRouter();
 
   if (memberships.length <= 1) {
-    return <p className="truncate text-sm font-semibold">{memberships[0]?.team_name}</p>;
+    return <p className="truncate text-base font-semibold text-f1-foreground">{memberships[0]?.team_name}</p>;
   }
 
   return (
     <Select value={currentTeamId} onValueChange={(teamId) => teamId && router.push(`/t/${teamId}/home`)}>
-      <SelectTrigger className="w-full" aria-label="Seleccionar equipo">
+      <SelectTrigger className="w-full border-none bg-transparent px-0 font-semibold hover:bg-transparent" aria-label="Seleccionar equipo">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
