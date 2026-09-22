@@ -49,6 +49,7 @@ Rails.application.routes.draw do
 
         resources :milestones, only: %i[index create update destroy]
         resources :tokens, only: %i[index create destroy]
+        resources :integrations, only: %i[index create destroy]
         get "timeline", to: "timeline#show"
 
         resources :analyses, only: %i[index show create] do

@@ -37,6 +37,7 @@ class AccessToken
   validates :expires_at, presence: true
   validates :revoke_reason, inclusion: { in: REVOKE_REASONS }, allow_nil: true
   validate :scopes_never_include_ingest
+  validate :integration_scopes_restricted, if: -> { kind == "integration" }
   validate :expires_within_max_lifetime, on: :create
   validate :pat_limit_per_membership, on: :create, if: -> { kind == "pat" }
   validate :integration_limit_per_team, on: :create, if: -> { kind == "integration" }
@@ -60,6 +61,12 @@ class AccessToken
 
   def scopes_never_include_ingest
     errors.add(:scopes, "no puede incluir el scope ingest") if scopes&.include?("ingest")
+  end
+
+  # Un token de integración actúa como el equipo, no como una persona: no
+  # puede informar de progreso, que es de alguien (12-acceso-programatico.md#tokens-de-integración-de-equipo).
+  def integration_scopes_restricted
+    errors.add(:scopes, "no puede incluir progress:write en un token de integración") if scopes&.include?("progress:write")
   end
 
   def expires_within_max_lifetime

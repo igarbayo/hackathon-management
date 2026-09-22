@@ -12,6 +12,7 @@ module Tokens
   class Resolve
     MEMBER_PREFIX = "hb_mt_"
     PAT_PREFIX = "hb_pat_"
+    INTEGRATION_PREFIX = "hb_it_"
 
     # Scopes fijos del token de miembro (12-acceso-programatico.md#tipos-de-token):
     # CLI de hooks y MCP básico.
@@ -24,6 +25,8 @@ module Tokens
         resolve_member(raw_token)
       elsif raw_token.start_with?(PAT_PREFIX)
         resolve_pat(raw_token)
+      elsif raw_token.start_with?(INTEGRATION_PREFIX)
+        resolve_integration(raw_token)
       end
     end
 
@@ -43,6 +46,15 @@ module Tokens
       Resolved.new(kind: "pat", team: token.team, membership: token.membership, scopes: token.scopes, token_record: token, token_prefix: token.token_prefix)
     end
     private_class_method :resolve_pat
+
+    def self.resolve_integration(raw_token)
+      token = AccessToken.active.where(kind: "integration", token_digest: Digest::SHA256.hexdigest(raw_token)).first
+      return nil unless token
+
+      touch_last_used(token)
+      Resolved.new(kind: "integration", team: token.team, membership: nil, scopes: token.scopes, token_record: token, token_prefix: token.token_prefix)
+    end
+    private_class_method :resolve_integration
 
     # Resolución de 1 min (RF-API-003): no escribe en cada petición.
     def self.touch_last_used(token)

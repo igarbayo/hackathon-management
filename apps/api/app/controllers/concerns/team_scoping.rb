@@ -86,7 +86,10 @@ module TeamScoping
     if @resolved_token
       @team = @resolved_token.team
       @membership = @resolved_token.membership
-      raise ApiError::NotFound.new(message: "equipo no encontrado") if @team.nil? || @membership.nil? || @team.id.to_s != team_id_param.to_s
+      # Un token de integración no tiene membership propia: actúa como el
+      # equipo, no como una persona (12-acceso-programatico.md#tokens-de-integración-de-equipo).
+      membership_required = @resolved_token.kind != "integration"
+      raise ApiError::NotFound.new(message: "equipo no encontrado") if @team.nil? || (membership_required && @membership.nil?) || @team.id.to_s != team_id_param.to_s
     else
       @team = Team.active.where(id: team_id_param).first
       @membership = @team && Membership.where(team_id: @team.id, user_id: current_user.id).first
@@ -181,10 +184,21 @@ module TeamScoping
       kind: "api_change",
       dedupe_key: "api:#{SecureRandom.uuid}",
       occurred_at: Time.current,
-      actor: { "user_id" => current_membership.user_id.to_s, "membership_id" => current_membership.id.to_s, "display" => current_membership.display_name },
+      actor: current_actor_for_via,
       title: "#{entity} #{key} editado por API/MCP",
       payload: { "entity" => entity, "key" => key.to_s, "fields" => fields },
       via: current_via
     )
+  end
+
+  # Con un token de integración el actor es la propia integración, no una
+  # persona (12-acceso-programatico.md#tokens-de-integración-de-equipo).
+  def current_actor_for_via
+    if current_membership
+      { "user_id" => current_membership.user_id.to_s, "membership_id" => current_membership.id.to_s, "display" => current_membership.display_name }
+    else
+      token = @resolved_token.token_record
+      { "user_id" => nil, "membership_id" => nil, "integration_id" => token.id.to_s, "display" => "#{token.name} (integración)" }
+    end
   end
 end

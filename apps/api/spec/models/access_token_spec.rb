@@ -46,4 +46,17 @@ RSpec.describe AccessToken, type: :model do
 
     expect(eleventh).not_to be_valid
   end
+
+  it "un token de integración nunca acepta progress:write (el progreso es de una persona)" do
+    token = build(:access_token, :integration, scopes: ["read", "progress:write"])
+
+    expect(token).not_to be_valid
+    expect(token.errors[:scopes]).to be_present
+  end
+
+  it "un PAT sí puede llevar progress:write" do
+    token = build(:access_token, scopes: ["read", "progress:write"])
+
+    expect(token).to be_valid
+  end
 end

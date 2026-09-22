@@ -15,7 +15,7 @@ module Api
       def create
         objective = Objective.new(objective_params)
         objective.team = current_team
-        objective.created_by_id = current_user.id
+        objective.created_by_id = current_user&.id
         objective.save!
         record_api_change!(entity: "objective", key: objective.key, fields: objective_params.keys)
 

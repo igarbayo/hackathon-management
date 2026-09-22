@@ -1,8 +1,6 @@
 # POST /teams/:team_id/tokens (RF-API-001). Un miembro solo crea PATs para
 # sí mismo. El valor en claro solo se devuelve aquí, una vez (RNF-SEC-002).
 module Pat
-  Result = Struct.new(:raw_token, :record, keyword_init: true)
-
   PRESETS = {
     "observar" => %w[read],
     "agente" => %w[read features:write arguments:write progress:write],
@@ -27,7 +25,7 @@ module Pat
         expires_at: expires_at || default_expiry(membership.team)
       )
 
-      Result.new(raw_token: raw_token, record: token)
+      Tokens::MintResult.new(raw_token: raw_token, record: token)
     end
 
     def self.default_expiry(team)
