@@ -2,6 +2,8 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-22 · 03 · Añade `GET /teams/:id/repositories` (listar repos vinculados) y `POST /teams/:id/repositories/:rid/resync`: faltaban en la spec pero RF-GH-010 y RNF-GH-003 ya los mencionaban en prosa sin darles una ruta concreta.
+
 - 2026-09-22 · 02, 05 · Añade `ActivityEvent.ai_suggestion_attempted_at`, necesario para implementar la regla de 05 "no se reintenta [la capa 3] hasta que llegue un evento nuevo del mismo grupo", que no tenía dónde guardar ese estado en el modelo de datos existente.
 
 - 2026-09-22 · README, 00-12 · Cada spec numerada añade una cabecera con su estado de implementación (Implementada / En proceso / Pendiente / No aplica) y la fecha de la última actualización, para trazabilidad (regla 9 de mantenimiento).

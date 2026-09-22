@@ -33,5 +33,8 @@ test("las pantallas de Actividad y Análisis IA cargan sin errores para un equip
   await expect(page.getByText("Todavía no hay ningún análisis")).toBeVisible();
   await expect(page.getByRole("button", { name: "Analizar ahora" })).toBeVisible();
 
+  await page.getByRole("link", { name: "Equipo y ajustes" }).click();
+  await expect(page.getByText("Todavía no hay repos vinculados.")).toBeVisible();
+
   expect(consoleErrors).toEqual([]);
 });

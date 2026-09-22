@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       delete "me", to: "me#destroy"
       delete "me/identities/:provider", to: "me#destroy_identity"
 
+      post "webhooks/github", to: "/webhooks/github#create"
+      get "github/setup", to: "github_setup#show"
+
       resources :teams, only: %i[create show update destroy] do
         post "code/rotate", to: "teams#rotate_code"
 
@@ -40,6 +43,12 @@ Rails.application.routes.draw do
 
         resources :analyses, only: %i[index show create] do
           get :latest, on: :collection
+        end
+
+        get "github/install_url", to: "github#install_url"
+        get "github/available_repos", to: "github#available_repos"
+        resources :repositories, only: %i[index create destroy] do
+          post :resync, on: :member
         end
 
         get "activity", to: "activity#index"

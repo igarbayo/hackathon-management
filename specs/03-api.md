@@ -1,6 +1,6 @@
 # 03 · API
 
-> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones, actividad y análisis IA implementados; faltan los endpoints de GitHub, Claude Code y acceso programático) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones, actividad, análisis IA y GitHub implementados; faltan los endpoints de Claude Code y acceso programático) · **Última actualización:** 2026-09-22
 
 ## Convenciones generales
 
@@ -132,8 +132,10 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 | GET | `/teams/:id/github/install_url` | URL de instalación de la App con `state` firmado (team_id, user_id, exp) | RF-GH-001 [F3] |
 | GET | `/github/setup` | Setup URL de la App: recibe `installation_id` y `state`, vincula la instalación al equipo y redirige a la web | RF-GH-002 [F3] |
 | GET | `/teams/:id/github/available_repos` | Repos accesibles por las instalaciones del equipo | RF-GH-003 [F3] |
+| GET | `/teams/:id/repositories` | Repos vinculados y activos del equipo, para la sección GitHub de ajustes (RF-GH-010) | RF-GH-004 [F3] |
 | POST | `/teams/:id/repositories` | `{full_name}` o `{url}`. Pegar el repo: si la App ya tiene acceso, lo vincula; si no, responde `needs_install` con la URL | RF-GH-004 [F3] |
 | DELETE | `/teams/:id/repositories/:rid` | Desvincula el repo (no borra los eventos) | RF-GH-005 [F3] |
+| POST | `/teams/:id/repositories/:rid/resync` | "Resincronizar": relanza la importación del histórico reciente | RNF-GH-003 [F3] |
 | POST | `/webhooks/github` | Receptor de webhooks ([07](07-integracion-github.md)) | RF-GH-006 [F3] |
 
 ## Claude Code — `RF-CC`

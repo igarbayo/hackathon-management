@@ -1,9 +1,10 @@
 "use client";
 
 import { use, useState } from "react";
-import { Copy, RefreshCw, Trash2 } from "lucide-react";
+import { Copy, GitBranch, RefreshCw, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,8 @@ import {
   useUpdateMember,
   useUpdateTeam,
 } from "@/hooks/use-teams";
+import { useLinkRepository, useRepositories, useResyncRepository, useUnlinkRepository } from "@/hooks/use-github";
+import { ApiError } from "@/lib/api-client";
 
 export default function SettingsPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
@@ -38,6 +41,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
       <TeamCodeCard teamId={teamId} code={team.code} formattedCode={team.formatted_code} isOwner={isOwner} />
       <HackathonCard teamId={teamId} team={team} isOwner={isOwner} />
       <MembersCard teamId={teamId} members={members ?? []} myUserId={me?.id} isOwner={isOwner} />
+      <GitHubCard teamId={teamId} />
     </div>
   );
 }
@@ -181,6 +185,90 @@ function MembersCard({
             </div>
           );
         })}
+      </CardContent>
+    </Card>
+  );
+}
+
+// RF-GH-010: repos vinculados, botón "Añadir repo" y estado de la instalación.
+function GitHubCard({ teamId }: { teamId: string }) {
+  const { data: repositories, isLoading } = useRepositories(teamId);
+  const linkRepository = useLinkRepository(teamId);
+  const unlinkRepository = useUnlinkRepository(teamId);
+  const resyncRepository = useResyncRepository(teamId);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [installUrl, setInstallUrl] = useState<string | null>(null);
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setError(null);
+    setInstallUrl(null);
+
+    try {
+      const result = await linkRepository.mutateAsync(input.trim());
+      if (result.needs_install && result.install_url) {
+        setInstallUrl(result.install_url);
+      } else {
+        setInput("");
+      }
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se ha podido vincular el repositorio");
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <GitBranch className="size-4" /> GitHub
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {isLoading && <p className="text-muted-foreground text-sm">Cargando…</p>}
+        {repositories?.map((repo) => (
+          <div key={repo.id} className="flex items-center gap-3 rounded-md border p-2 text-sm">
+            <Badge variant="default">Conectado ✓</Badge>
+            <span className="flex-1">{repo.full_name}</span>
+            <span className="text-muted-foreground text-xs">{repo.default_branch}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Resincronizar"
+              onClick={() => resyncRepository.mutate(repo.id)}
+              disabled={resyncRepository.isPending}
+            >
+              <RefreshCw className="size-4" />
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Desvincular" onClick={() => unlinkRepository.mutate(repo.id)}>
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        ))}
+        {repositories?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay repos vinculados.</p>}
+
+        <form onSubmit={handleAdd} className="flex gap-2">
+          <Input
+            placeholder="org/repo o https://github.com/org/repo"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <Button type="submit" disabled={linkRepository.isPending}>
+            Añadir repo
+          </Button>
+        </form>
+
+        {error && <p className="text-destructive text-sm">{error}</p>}
+
+        {installUrl && (
+          <div className="rounded-md border p-2 text-sm">
+            <p>Hace falta instalar la GitHub App para acceder a este repositorio.</p>
+            <a href={installUrl} className="text-primary underline">
+              Instalar la App en GitHub
+            </a>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
