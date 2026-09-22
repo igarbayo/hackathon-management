@@ -21,6 +21,7 @@ class User
   validates :name, presence: true, length: { minimum: 1, maximum: 80 }
   validates :github_uid, uniqueness: true, allow_nil: true
   validates :google_sub, uniqueness: true, allow_nil: true
+  validates :password, length: { minimum: 10 }, if: -> { password.present? }
   validate :has_login_method
 
   has_many :memberships, dependent: :destroy

@@ -40,5 +40,9 @@ module Api
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # La sesión web es una cookie opaca propia (ADR-0008), no el session
+    # store de Rails: solo hace falta el middleware de cookies.
+    config.middleware.use ActionDispatch::Cookies
   end
 end

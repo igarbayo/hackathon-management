@@ -63,17 +63,23 @@ class Team
     result["objective_seq"]
   end
 
+  # El owner puede regenerarlo (RF-TEAM-005); el anterior deja de servir.
+  def regenerate_code!
+    update!(code: generate_unique_code)
+  end
+
   private
 
   def assign_code
-    return if code.present?
+    self.code = generate_unique_code if code.blank?
+  end
 
+  def generate_unique_code
     loop do
       candidate = Array.new(CODE_LENGTH) { CODE_ALPHABET.sample }.join
       next if self.class.where(code: candidate).exists?
 
-      self.code = candidate
-      break
+      return candidate
     end
   end
 end

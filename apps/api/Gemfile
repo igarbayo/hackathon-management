@@ -29,9 +29,18 @@ gem "sidekiq-cron", "~> 2.1"
 # Validación de JSON Schema para ingesta y salida de IA (01-arquitectura)
 gem "json_schemer", "~> 2.3"
 
+# Fijado a la versión que trae de serie la imagen de Ruby: bundler resolvía
+# json 3.0.2 (pedido por json_schemer con ">= 2.3"), cuya extensión nativa
+# no coincide con la que ya carga esta imagen y provocaba
+# `ArgumentError: wrong number of arguments` en cualquier JSON.parse.
+gem "json", "2.7.2"
+
 # Cliente HTTP para GitHub API y Gemini API
 gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
+
+# Verificación del ID token de Google (login OpenID Connect, ADR-0011)
+gem "jwt", "~> 2.9"
 
 # Variables de entorno en desarrollo y test
 gem "dotenv-rails", groups: [:development, :test]

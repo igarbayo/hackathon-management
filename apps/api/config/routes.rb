@@ -1,10 +1,47 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  namespace :api do
+    namespace :v1 do
+      get "csrf", to: "csrf#show"
+
+      namespace :auth do
+        post "signup", to: "registrations#create"
+        post "login", to: "sessions#create"
+        post "logout", to: "sessions#destroy"
+        get "github", to: "github#new"
+        get "github/callback", to: "github#callback"
+        get "google", to: "google#new"
+        get "google/callback", to: "google#callback"
+      end
+
+      get "me", to: "me#show"
+      patch "me", to: "me#update"
+      delete "me", to: "me#destroy"
+      delete "me/identities/:provider", to: "me#destroy_identity"
+
+      resources :teams, only: %i[create show update destroy] do
+        post "code/rotate", to: "teams#rotate_code"
+
+        resources :members, only: %i[index update destroy], controller: "team_members"
+        resources :objectives, only: %i[index create update destroy]
+
+        resources :features, only: %i[index show create update destroy], param: :key do
+          post :move, on: :member
+
+          resources :arguments, only: %i[create update destroy] do
+            put :vote, on: :member
+            delete :vote, on: :member
+          end
+        end
+
+        resources :milestones, only: %i[index create update destroy]
+        get "timeline", to: "timeline#show"
+
+        collection do
+          post :join
+        end
+      end
+    end
+  end
 end
