@@ -1,0 +1,16 @@
+{
+  "name": "hackboard",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "packages/cli",
+    "packages/shared-schemas"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web",
+    "build:web": "npm run build --workspace apps/web",
+    "test:web": "npm run test --workspace apps/web",
+    "test:cli": "npm run test --workspace packages/cli",
+    "test:schemas": "npm run test --workspace packages/shared-schemas"
+  }
+}

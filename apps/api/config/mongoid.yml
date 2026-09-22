@@ -1,0 +1,21 @@
+development:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI", "mongodb://localhost:27017/hackboard_development") %>
+  options:
+    log_level: :info
+
+test:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI", "mongodb://localhost:27017/hackboard_test") %>
+  options:
+    log_level: :fatal
+    raise_not_found_error: true
+
+production:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI") %>
+  options:
+    log_level: :warn

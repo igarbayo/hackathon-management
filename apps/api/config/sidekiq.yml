@@ -1,0 +1,8 @@
+:queues:
+  - [webhooks, 5]
+  - [ingest, 5]
+  - [attribution, 3]
+  - [github, 2]
+  - [outbound, 2]
+  - [ai, 1]
+  - [low, 1]

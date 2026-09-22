@@ -1,0 +1,42 @@
+# Node / npm
+node_modules/
+npm-debug.log*
+.pnpm-debug.log*
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+
+# Ruby / Rails
+apps/api/config/master.key
+apps/api/log/*
+apps/api/tmp/*
+apps/api/storage/*
+apps/api/.byebug_history
+apps/api/vendor/bundle/
+apps/api/public/assets/
+!apps/api/log/.keep
+!apps/api/tmp/.keep
+!apps/api/storage/.keep
+
+# CLI build output
+packages/cli/dist/
+packages/shared-schemas/dist/
+
+# Env files
+.env
+.env.*
+!.env.example
+!apps/web/.env.example
+!apps/api/.env.example
+!packages/cli/.env.example
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Coverage
+coverage/

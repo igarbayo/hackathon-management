@@ -1,0 +1,30 @@
+{
+  "name": "hackboard",
+  "version": "0.1.0",
+  "description": "CLI de Hackboard: instala hooks de Claude Code y envía eventos de actividad a la API.",
+  "license": "UNLICENSED",
+  "private": true,
+  "bin": {
+    "hackboard": "dist/bin/hackboard.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hackboard/shared-schemas": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.1"
+  }
+}
