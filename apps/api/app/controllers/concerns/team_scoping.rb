@@ -17,6 +17,8 @@ module TeamScoping
     before_action :enforce_session_only!
     before_action :load_team_and_membership
     before_action :enforce_required_scope!
+    before_action :check_idempotency_cache!
+    after_action :store_idempotency_response!
   end
 
   class_methods do
@@ -119,7 +121,70 @@ module TeamScoping
     @resolved_token.via(channel: "api", client: client)
   end
 
+  # RF-API-005: Idempotency-Key en POST. Se guarda la respuesta 24 h por
+  # (identidad, clave); repetirla con el mismo cuerpo la devuelve tal cual
+  # con Idempotent-Replayed, y con otro cuerpo da 422.
+  IDEMPOTENCY_TTL = 24.hours
+
+  def idempotency_key
+    request.headers["Idempotency-Key"]
+  end
+
+  def check_idempotency_cache!
+    return unless request.post? && idempotency_key.present?
+    raise ApiError::BadRequest.new(message: "Idempotency-Key tiene que tener entre 1 y 64 caracteres") if idempotency_key.length > 64
+
+    cached = Sidekiq.redis { |conn| conn.call("GET", idempotency_redis_key) }
+    return unless cached
+
+    payload = JSON.parse(cached)
+    raise ApiError::IdempotencyKeyReused.new if payload["body_hash"] != idempotency_body_hash
+
+    response.headers["Idempotent-Replayed"] = "true"
+    render json: JSON.parse(payload["body"]), status: payload["status"]
+  end
+
+  def store_idempotency_response!
+    return unless request.post? && idempotency_key.present?
+    return unless response.status.between?(200, 299)
+
+    value = { body_hash: idempotency_body_hash, body: response.body, status: response.status }.to_json
+    Sidekiq.redis { |conn| conn.call("SET", idempotency_redis_key, value, "EX", IDEMPOTENCY_TTL.to_i) }
+  end
+
+  def idempotency_identity
+    @resolved_token&.token_record&.id || @resolved_token&.membership&.id || current_user&.id
+  end
+
+  def idempotency_redis_key
+    "idempotency:#{idempotency_identity}:#{idempotency_key}"
+  end
+
+  def idempotency_body_hash
+    Digest::SHA256.hexdigest(params.except(:controller, :action).to_unsafe_h.sort.to_h.to_json)
+  end
+
   def require_owner!
     raise ApiError::Forbidden.new(message: "hace falta ser owner del equipo") unless current_membership.owner?
+  end
+
+  # RF-API-006: si una escritura hecha con un token no genera ya su propio
+  # evento (feature_status_changed, feature_assigned…), se deja constancia
+  # con system/api_change y la lista de campos, no sus valores. Las
+  # escrituras hechas desde la web no llevan via, así que no crean nada aquí.
+  def record_api_change!(entity:, key:, fields:)
+    return if current_via.blank? || fields.blank?
+
+    ActivityEvent.create!(
+      team_id: current_team.id,
+      source: "system",
+      kind: "api_change",
+      dedupe_key: "api:#{SecureRandom.uuid}",
+      occurred_at: Time.current,
+      actor: { "user_id" => current_membership.user_id.to_s, "membership_id" => current_membership.id.to_s, "display" => current_membership.display_name },
+      title: "#{entity} #{key} editado por API/MCP",
+      payload: { "entity" => entity, "key" => key.to_s, "fields" => fields },
+      via: current_via
+    )
   end
 end

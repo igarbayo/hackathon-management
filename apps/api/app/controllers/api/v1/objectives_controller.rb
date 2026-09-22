@@ -17,6 +17,7 @@ module Api
         objective.team = current_team
         objective.created_by_id = current_user.id
         objective.save!
+        record_api_change!(entity: "objective", key: objective.key, fields: objective_params.keys)
 
         render json: ObjectiveSerializer.new(objective).as_json, status: :created
       end
@@ -27,6 +28,8 @@ module Api
         attrs["archived_at"] = archived_at_from_param if params.key?(:archived)
 
         objective.update!(attrs)
+        record_api_change!(entity: "objective", key: objective.key, fields: attrs.keys)
+
         render json: ObjectiveSerializer.new(objective).as_json
       end
 

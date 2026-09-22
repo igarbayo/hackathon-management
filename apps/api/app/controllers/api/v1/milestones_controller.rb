@@ -16,6 +16,7 @@ module Api
         milestone = Milestone.new(milestone_params)
         milestone.team = current_team
         milestone.save!
+        record_api_change!(entity: "milestone", key: milestone.id.to_s, fields: milestone_params.keys)
 
         render json: milestone_json(milestone), status: :created
       end
@@ -23,6 +24,8 @@ module Api
       def update
         milestone = find_milestone
         milestone.update!(milestone_params)
+        record_api_change!(entity: "milestone", key: milestone.id.to_s, fields: milestone_params.keys)
+
         render json: milestone_json(milestone)
       end
 

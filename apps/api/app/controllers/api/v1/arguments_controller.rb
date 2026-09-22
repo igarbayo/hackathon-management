@@ -14,6 +14,7 @@ module Api
           text: params[:text],
           author_id: current_user.id
         )
+        record_api_change!(entity: "argument", key: "#{feature.key}/#{argument.id}", fields: %w[kind text])
 
         render json: argument_json(argument), status: :created
       end
@@ -23,6 +24,8 @@ module Api
         raise ApiError::Forbidden.new(message: "solo el autor puede editarlo") unless argument.author_id == current_user.id
 
         argument.update!(text: params[:text])
+        record_api_change!(entity: "argument", key: "#{argument.feature.key}/#{argument.id}", fields: %w[text])
+
         render json: argument_json(argument)
       end
 
@@ -43,6 +46,7 @@ module Api
         else
           argument.pull(voter_ids: current_user.id)
         end
+        record_api_change!(entity: "argument", key: "#{argument.feature.key}/#{argument.id}", fields: %w[vote])
 
         render json: argument_json(argument.reload)
       end

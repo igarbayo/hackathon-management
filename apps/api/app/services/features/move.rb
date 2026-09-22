@@ -2,7 +2,7 @@
 # float entre sus vecinos, para no tener que reindexar el resto de la columna.
 module Features
   class Move
-    def self.call(feature:, status:, before_id: nil, after_id: nil)
+    def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil)
       siblings = Feature.where(team_id: feature.team_id, status: status).and(:id.ne => feature.id)
                          .order(position: :asc).to_a
 
@@ -21,7 +21,8 @@ module Features
           dedupe_key: "system:feature_status_changed:#{feature.id}:#{feature.updated_at.to_f}",
           occurred_at: Time.current,
           title: "#{feature.key} pasó a #{status}",
-          payload: { entity: "feature", key: feature.key, action: "status_changed", fields: ["status"] }
+          payload: { entity: "feature", key: feature.key, action: "status_changed", fields: ["status"] },
+          via: via
         )
       end
 
