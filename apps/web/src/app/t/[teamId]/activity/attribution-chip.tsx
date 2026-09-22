@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Feature } from "@/types/api";
 import type { Attribution } from "@/types/activity";
 
-// RF-ACT-012: confirmada (sólido), sugerida (con ✓/✗) o sin atribuir (Asignar a…).
+// RF-ACT-012: confirmada (sólido), sugerida (borde discontinuo, con ✓/✗ y
+// el motivo en un tooltip) o sin atribuir (Asignar a…).
 export function AttributionChip({
   attribution,
   features,
@@ -34,16 +36,22 @@ export function AttributionChip({
   }
 
   if (attribution?.status === "suggested") {
+    const suggestedBadge = <Badge variant="outline-dashed">{feature?.key ?? "F-?"}?</Badge>;
     return (
       <div className="flex items-center gap-1">
-        <Badge variant="outline" title={attribution.reason ?? undefined}>
-          {feature?.key ?? "F-?"}?
-        </Badge>
+        {attribution.reason ? (
+          <Tooltip>
+            <TooltipTrigger>{suggestedBadge}</TooltipTrigger>
+            <TooltipContent>{attribution.reason}</TooltipContent>
+          </Tooltip>
+        ) : (
+          suggestedBadge
+        )}
         <Button variant="ghost" size="icon-xs" aria-label="Confirmar" onClick={onConfirm}>
-          <Check className="size-3.5" />
+          <CheckIcon className="size-3.5" />
         </Button>
         <Button variant="ghost" size="icon-xs" aria-label="Rechazar" onClick={onReject}>
-          <X className="size-3.5" />
+          <XIcon className="size-3.5" />
         </Button>
       </div>
     );
@@ -57,7 +65,7 @@ export function AttributionChip({
           setAssigning(false);
         }}
       >
-        <SelectTrigger className="h-6 w-32 text-xs">
+        <SelectTrigger className="h-6 w-32 text-sm" data-size="sm">
           <SelectValue placeholder="Elige…" />
         </SelectTrigger>
         <SelectContent>
