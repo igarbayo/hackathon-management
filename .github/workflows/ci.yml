@@ -52,7 +52,7 @@ jobs:
         run: docker compose down -v
 
   web:
-    name: web · eslint, tsc, vitest, next build
+    name: web · eslint, vitest, next build (con typecheck)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -67,13 +67,14 @@ jobs:
       - name: ESLint
         run: npm run lint --workspace apps/web
 
-      - name: TypeScript
-        run: npx tsc --noEmit -p apps/web/tsconfig.json
-
       - name: Vitest
         run: npm run test --workspace apps/web
 
-      - name: Next build
+      # next build ya corre "tsc" como parte del build (genera antes los
+      # tipos de .next/types que layout.tsx necesita); un tsc --noEmit
+      # suelto aquí falla en un checkout limpio porque esos tipos todavía
+      # no existen.
+      - name: Next build (incluye TypeScript)
         run: npm run build --workspace apps/web
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001
