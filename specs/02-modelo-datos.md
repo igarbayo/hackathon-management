@@ -1,5 +1,7 @@
 # 02 · Modelo de datos (Mongoid)
 
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-22
+
 ## Convenciones
 
 - Todos los documentos incluyen `Mongoid::Timestamps` (`created_at`, `updated_at`).

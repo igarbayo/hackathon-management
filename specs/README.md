@@ -38,6 +38,7 @@ Hackboard es una herramienta de gestión para equipos de hackathon. Sirve para d
 6. **Hay una fase por requisito.** `[F1]`…`[F6]` indica en qué fase del [roadmap](10-roadmap.md) se entrega.
 7. **El CHANGELOG se actualiza.** Cada cambio de spec añade una línea en [CHANGELOG.md](CHANGELOG.md) con la fecha, el documento y un resumen.
 8. **Se escribe en español y en presente:** "El sistema hace X", no "hará X".
+9. **Cada documento (00-12) empieza con su estado de implementación.** Justo debajo del título: `> **Estado de implementación:** Implementada | En proceso | Pendiente | No aplica (…) · **Última actualización:** AAAA-MM-DD`. Es el estado del *código* frente a esta spec, no el estado de discusión de la spec (eso lo dice la tabla del índice). Se actualiza en el mismo cambio que toque la implementación de ese documento, para que la fecha sea trazable.
 
 ## Áreas de requisitos
 

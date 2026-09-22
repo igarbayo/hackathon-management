@@ -1,5 +1,7 @@
 # 06 · Análisis con IA (Gemini)
 
+> **Estado de implementación:** En proceso · **Última actualización:** 2026-09-22
+
 ## Proveedor
 
 - La IA de la app se consume mediante la interfaz `Ai::Provider`:

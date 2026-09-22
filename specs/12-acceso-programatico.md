@@ -1,5 +1,7 @@
 # 12 · Acceso programático: API, MCP, OAuth y webhooks
 
+> **Estado de implementación:** Pendiente · **Última actualización:** 2026-09-22
+
 Hackboard se puede usar sin la web. Hay varias puertas de entrada, todas autorizadas:
 
 - **API REST** (`/api/v1`): es la misma API que usa la web ([03](03-api.md)), abierta a scripts, bots y aplicaciones externas con un **token de acceso personal**.

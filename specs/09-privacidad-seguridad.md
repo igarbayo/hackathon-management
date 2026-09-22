@@ -1,5 +1,7 @@
 # 09 · Privacidad y seguridad
 
+> **Estado de implementación:** En proceso (aplicado de forma transversal en lo ya construido: sesión, CSRF, aislamiento por equipo, cifrado de secretos, hash de contraseñas; revisión dedicada pendiente) · **Última actualización:** 2026-09-22
+
 ## Principios
 
 1. **Opt-in por persona.** Nadie puede conectar el Claude Code de otro miembro ni cambiar su nivel de privacidad. El owner solo puede ver el estado.

@@ -1,5 +1,7 @@
 # 10 · Roadmap
 
+> **Estado de implementación:** No aplica (documento de planificación) · **Última actualización:** 2026-09-22
+
 Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que cumple su **Definition of Done (DoD)**. Además de los criterios de cada fase, todas deben cumplir el DoD común.
 
 **DoD común:**

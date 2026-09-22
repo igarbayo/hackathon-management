@@ -1,5 +1,7 @@
 # 01 · Arquitectura
 
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-22
+
 ## Vista general
 
 ```

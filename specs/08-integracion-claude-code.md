@@ -1,5 +1,7 @@
 # 08 · Integración con Claude Code
 
+> **Estado de implementación:** Pendiente · **Última actualización:** 2026-09-22
+
 ## Qué es posible y qué no
 
 - **claude.ai (el chat web)** no tiene una API pública para leer las conversaciones de un usuario, así que **no** se integra leyendo historial. La única vía es que Claude use el MCP de Hackboard añadido como *connector* con OAuth ([RF-MCP-020](12-acceso-programatico.md#claudeai-como-connector--rf-mcp-020-f6-aceptado)): así puede consultar el tablero y dejar resúmenes, pero Hackboard nunca lee las conversaciones.

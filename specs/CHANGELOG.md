@@ -2,6 +2,8 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-22 · README, 00-12 · Cada spec numerada añade una cabecera con su estado de implementación (Implementada / En proceso / Pendiente / No aplica) y la fecha de la última actualización, para trazabilidad (regla 9 de mantenimiento).
+
 - 2026-09-22 · 05 · Corrige la regex de la capa 1 de atribución: la que daba la spec (`(?![0-9])` al final) sí matchea `F-123a` (extrae 123), contradiciendo el propio texto ("No acepta... F-123a"). Se cambia el lookahead final a `(?![0-9A-Za-z])`.
 - 2026-09-22 · 02 · Corrige una contradicción: la sección de `OAuthClient` decía que `OAuthGrant` no lleva `team_id`, pero su propia tabla de campos sí lo incluye (y `AccessToken.kind: oauth` lo necesita). Se aclara que solo `User`, `Session` y `OAuthClient` son la excepción a la regla multi-tenant.
 

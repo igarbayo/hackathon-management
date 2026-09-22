@@ -1,5 +1,7 @@
 # 11 · Riesgos
 
+> **Estado de implementación:** No aplica (registro de riesgos) · **Última actualización:** 2026-09-22
+
 Probabilidad (P) e impacto (I): Alta / Media / Baja. Hay que revisar los riesgos al cerrar cada fase.
 
 | # | Riesgo | P | I | Mitigación | Dueño / estado |

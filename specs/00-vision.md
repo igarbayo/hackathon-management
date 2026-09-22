@@ -1,5 +1,7 @@
 # 00 · Visión y alcance
 
+> **Estado de implementación:** No aplica (documento de principios y glosario, sin código) · **Última actualización:** 2026-09-22
+
 ## Problema
 
 Durante un hackathon, un equipo de 2 a 6 personas trabaja con muy poco tiempo y mucha presión. Suelen fallar tres cosas:

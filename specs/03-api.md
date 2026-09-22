@@ -1,5 +1,7 @@
 # 03 · API
 
+> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones y actividad implementados; faltan los endpoints de IA, GitHub, Claude Code y acceso programático) · **Última actualización:** 2026-09-22
+
 ## Convenciones generales
 
 - Base: `/api/v1`. Todo es JSON (`application/json`). Los nombres van en `snake_case`.

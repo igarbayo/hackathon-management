@@ -1,5 +1,7 @@
 # 07 · Integración con GitHub
 
+> **Estado de implementación:** Pendiente · **Última actualización:** 2026-09-22
+
 Se usa una **GitHub App** en lugar de OAuth personal: los webhooks van por repo, los permisos son acotados y no depende del token de una persona. Ver [ADR-0004](decisiones.md#adr-0004).
 
 ## Configuración de la App
