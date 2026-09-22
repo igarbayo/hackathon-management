@@ -26,6 +26,8 @@ module Api
       "api/v1/me#update" => "session_only",
       "api/v1/me#destroy" => "session_only",
       "api/v1/me#destroy_identity" => "session_only",
+      "api/v1/oauth_connections#index" => "session_only",
+      "api/v1/oauth_connections#destroy" => "session_only",
       "api/v1/github_setup#show" => "public",
       "api/v1/cli/device#create" => "public",
       "api/v1/cli/device#token" => "public",

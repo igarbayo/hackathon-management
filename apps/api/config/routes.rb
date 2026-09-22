@@ -38,6 +38,8 @@ Rails.application.routes.draw do
       patch "me", to: "me#update"
       delete "me", to: "me#destroy"
       delete "me/identities/:provider", to: "me#destroy_identity"
+      get "me/oauth_connections", to: "oauth_connections#index"
+      delete "me/oauth_connections/:id", to: "oauth_connections#destroy"
 
       post "webhooks/github", to: "/webhooks/github#create"
       get "github/setup", to: "github_setup#show"
