@@ -41,7 +41,7 @@ export default function SignupPage() {
           <OAuthButtons />
           <div className="flex items-center gap-2">
             <Separator className="flex-1" />
-            <span className="text-muted-foreground text-xs">o con email</span>
+            <span className="text-muted-foreground text-sm">o con email</span>
             <Separator className="flex-1" />
           </div>
 
@@ -64,15 +64,15 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <p className="text-muted-foreground text-xs">Mínimo 10 caracteres.</p>
+              <p className="text-muted-foreground text-sm">Mínimo 10 caracteres.</p>
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
-            <Button type="submit" disabled={signUp.isPending}>
-              {signUp.isPending ? "Creando…" : "Crear cuenta"}
+            {error && <p className="text-destructive text-base">{error}</p>}
+            <Button type="submit" loading={signUp.isPending}>
+              Crear cuenta
             </Button>
           </form>
 
-          <p className="text-muted-foreground text-center text-sm">
+          <p className="text-muted-foreground text-center text-base">
             ¿Ya tienes cuenta?{" "}
             <Link href="/login" className="text-foreground underline">
               Entra

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LoadingState } from "@/components/states";
 import { useMe } from "@/hooks/use-me";
 import { useApproveDevice, useDenyDevice } from "@/hooks/use-claude-code";
@@ -44,7 +45,7 @@ function DeviceApprovalContent() {
   if (me.memberships.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <p className="text-muted-foreground text-sm">Todavía no tienes ningún equipo. Únete a uno antes de conectar el CLI.</p>
+        <p className="text-muted-foreground text-base">Todavía no tienes ningún equipo. Únete a uno antes de conectar el CLI.</p>
       </div>
     );
   }
@@ -57,7 +58,7 @@ function DeviceApprovalContent() {
             <CardTitle>{done === "approved" ? "Dispositivo aprobado" : "Solicitud rechazada"}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-base">
               {done === "approved"
                 ? "Ya puedes volver a la terminal: hackboard debería continuar solo."
                 : "El CLI recibirá el rechazo la próxima vez que compruebe el estado."}
@@ -129,34 +130,30 @@ function DeviceApprovalContent() {
 
             <div className="flex flex-col gap-2">
               <Label>Qué se envía</Label>
-              {PRIVACY_LEVELS.map((level) => (
-                <label
-                  key={level.value}
-                  className="flex cursor-pointer flex-col gap-0.5 rounded-md border p-2 has-[:checked]:border-primary"
-                >
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <input
-                      type="radio"
-                      name="privacy_level"
-                      value={level.value}
-                      checked={privacyLevel === level.value}
-                      onChange={() => setPrivacyLevel(level.value)}
-                    />
-                    {level.label}
-                  </span>
-                  <span className="text-muted-foreground pl-6 text-xs">{level.description}</span>
-                </label>
-              ))}
+              <RadioGroup value={privacyLevel} onValueChange={(v) => v && setPrivacyLevel(v)}>
+                {PRIVACY_LEVELS.map((level) => (
+                  <label
+                    key={level.value}
+                    className="flex cursor-pointer flex-col gap-0.5 rounded-md border border-input p-2 has-data-[checked]:border-primary"
+                  >
+                    <span className="flex items-center gap-2 text-base font-medium">
+                      <RadioGroupItem value={level.value} />
+                      {level.label}
+                    </span>
+                    <span className="text-muted-foreground pl-6 text-sm">{level.description}</span>
+                  </label>
+                ))}
+              </RadioGroup>
             </div>
 
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && <p className="text-destructive text-base">{error}</p>}
 
             <div className="flex gap-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={handleDeny} disabled={deny.isPending}>
+              <Button type="button" variant="outline" className="flex-1" onClick={handleDeny} loading={deny.isPending}>
                 Rechazar
               </Button>
-              <Button type="submit" className="flex-1" disabled={approve.isPending || !teamId}>
-                {approve.isPending ? "Aprobando…" : "Aprobar"}
+              <Button type="submit" className="flex-1" loading={approve.isPending} disabled={!teamId}>
+                Aprobar
               </Button>
             </div>
           </form>

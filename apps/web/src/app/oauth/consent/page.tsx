@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { LoadingState, ErrorState } from "@/components/states";
 import { useMe } from "@/hooks/use-me";
 import { useConsentInfo, useDecideAuthorization } from "@/hooks/use-oauth";
@@ -49,7 +50,7 @@ function ConsentContent() {
   if (me.memberships.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <p className="text-muted-foreground text-sm">Todavía no tienes ningún equipo. Únete a uno antes de conectar {consent.client.name}.</p>
+        <p className="text-muted-foreground text-base">Todavía no tienes ningún equipo. Únete a uno antes de conectar {consent.client.name}.</p>
       </div>
     );
   }
@@ -75,7 +76,7 @@ function ConsentContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {consent.client.name} quiere acceder a Hackboard
-            {!consent.client.first_party && <Badge variant="outline">no verificada</Badge>}
+            {!consent.client.first_party && <Badge variant="warning">No verificada</Badge>}
           </CardTitle>
           <CardDescription>
             Elige el equipo y revisa los permisos antes de aprobar. Volverás a{" "}
@@ -104,27 +105,31 @@ function ConsentContent() {
           <div className="flex flex-col gap-2">
             <Label>Permisos</Label>
             {consent.scopes.map((scope) => (
-              <label key={scope} className="flex cursor-pointer items-start gap-2 rounded-md border p-2 text-sm has-[:checked]:border-primary">
-                <input type="checkbox" className="mt-0.5" checked={scopes.includes(scope)} onChange={() => toggleScope(scope)} />
+              <label key={scope} className="flex cursor-pointer items-start gap-2 rounded-md border border-input p-2 text-base has-data-[checked]:border-primary">
+                <Checkbox
+                  className="mt-0.5"
+                  checked={scopes.includes(scope)}
+                  onCheckedChange={() => toggleScope(scope)}
+                />
                 <span>{SCOPE_LABELS[scope] ?? scope}</span>
               </label>
             ))}
-            {consent.scopes.length === 0 && <p className="text-muted-foreground text-xs">Solo lectura del equipo.</p>}
+            {consent.scopes.length === 0 && <p className="text-muted-foreground text-sm">Solo lectura del equipo.</p>}
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && <p className="text-destructive text-base">{error}</p>}
 
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-sm">
             {consent.client.name} podrá actuar en tu nombre en el equipo elegido, con los permisos marcados arriba, hasta que
             revoques el acceso desde Apps conectadas.
           </p>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => handleDecision(false)} disabled={decide.isPending}>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => handleDecision(false)} loading={decide.isPending}>
               Rechazar
             </Button>
-            <Button type="button" className="flex-1" onClick={() => handleDecision(true)} disabled={decide.isPending || !teamId}>
-              {decide.isPending ? "Autorizando…" : "Aprobar"}
+            <Button type="button" className="flex-1" onClick={() => handleDecision(true)} loading={decide.isPending} disabled={!teamId}>
+              Aprobar
             </Button>
           </div>
         </CardContent>

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,11 @@ import { LoadingState } from "@/components/states";
 import { useMe } from "@/hooks/use-me";
 import { useCreateTeam, useJoinTeam } from "@/hooks/use-teams";
 import { ApiError } from "@/lib/api-client";
+
+function copyToClipboard(text: string, message: string) {
+  navigator.clipboard.writeText(text);
+  toast.success(message);
+}
 
 function OnboardingContent() {
   const router = useRouter();
@@ -36,15 +42,21 @@ function OnboardingContent() {
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-xl font-semibold">¿Cómo empezamos?</h1>
+      <h1 className="text-xl font-semibold text-f1-foreground">¿Cómo empezamos?</h1>
       <div className="flex gap-4">
-        <Card className="w-56 cursor-pointer" onClick={() => setMode("create")}>
+        <Card
+          className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
+          onClick={() => setMode("create")}
+        >
           <CardHeader>
             <CardTitle>Crear equipo</CardTitle>
             <CardDescription>Empieza un hackathon nuevo</CardDescription>
           </CardHeader>
         </Card>
-        <Card className="w-56 cursor-pointer" onClick={() => setMode("join")}>
+        <Card
+          className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
+          onClick={() => setMode("join")}
+        >
           <CardHeader>
             <CardTitle>Unirme con código</CardTitle>
             <CardDescription>Ya tengo el código de mi equipo</CardDescription>
@@ -89,11 +101,19 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
             <CardDescription>Comparte este código o el enlace</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <p className="text-center font-mono text-2xl">{created.formatted_code}</p>
-            <Button variant="outline" onClick={() => navigator.clipboard.writeText(created.code)}>
+            <p className="rounded-md bg-f1-background-secondary py-3 text-center font-mono text-2xl tracking-wide text-f1-foreground">
+              {created.formatted_code}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => copyToClipboard(created.code, "Código copiado")}
+            >
               Copiar código
             </Button>
-            <Button variant="outline" onClick={() => navigator.clipboard.writeText(joinUrl)}>
+            <Button
+              variant="outline"
+              onClick={() => copyToClipboard(joinUrl, "Enlace copiado")}
+            >
               Copiar enlace de invitación
             </Button>
             <Button onClick={() => router.push(`/t/${created.id}/home`)}>Continuar</Button>
@@ -128,13 +148,13 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
               <Label htmlFor="ends-at">Fecha de fin</Label>
               <Input id="ends-at" type="datetime-local" required value={endsAt} onChange={(e) => setEndsAt(e.target.value)} />
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && <p className="text-destructive text-base">{error}</p>}
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={onBack}>
                 Atrás
               </Button>
-              <Button type="submit" disabled={createTeam.isPending} className="flex-1">
-                {createTeam.isPending ? "Creando…" : "Crear equipo"}
+              <Button type="submit" loading={createTeam.isPending} className="flex-1">
+                Crear equipo
               </Button>
             </div>
           </form>
@@ -179,13 +199,13 @@ function JoinTeamForm({ onBack, initialCode }: { onBack: () => void; initialCode
                 onChange={(e) => setCode(e.target.value)}
               />
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && <p className="text-destructive text-base">{error}</p>}
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={onBack}>
                 Atrás
               </Button>
-              <Button type="submit" disabled={joinTeam.isPending} className="flex-1">
-                {joinTeam.isPending ? "Uniéndome…" : "Unirme"}
+              <Button type="submit" loading={joinTeam.isPending} className="flex-1">
+                Unirme
               </Button>
             </div>
           </form>

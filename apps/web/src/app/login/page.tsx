@@ -42,7 +42,7 @@ function LoginContent() {
           <OAuthButtons />
           <div className="flex items-center gap-2">
             <Separator className="flex-1" />
-            <span className="text-muted-foreground text-xs">o con email</span>
+            <span className="text-muted-foreground text-sm">o con email</span>
             <Separator className="flex-1" />
           </div>
 
@@ -61,13 +61,13 @@ function LoginContent() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
-            <Button type="submit" disabled={logIn.isPending}>
-              {logIn.isPending ? "Entrando…" : "Entrar"}
+            {error && <p className="text-destructive text-base">{error}</p>}
+            <Button type="submit" loading={logIn.isPending}>
+              Entrar
             </Button>
           </form>
 
-          <p className="text-muted-foreground text-center text-sm">
+          <p className="text-muted-foreground text-center text-base">
             ¿No tienes cuenta?{" "}
             <Link href="/signup" className="text-foreground underline">
               Regístrate
