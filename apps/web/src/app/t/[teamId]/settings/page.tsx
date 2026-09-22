@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { Copy, GitBranch, RefreshCw, Trash2 } from "lucide-react";
+import { Bot, Copy, GitBranch, RefreshCw, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,9 @@ import {
   useUpdateTeam,
 } from "@/hooks/use-teams";
 import { useLinkRepository, useRepositories, useResyncRepository, useUnlinkRepository } from "@/hooks/use-github";
+import { useDisconnectMyClaudeCode, useUpdateMyClaudeCode } from "@/hooks/use-claude-code";
 import { ApiError } from "@/lib/api-client";
+import type { ClaudeCodeStatus, Member } from "@/types/api";
 
 export default function SettingsPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
@@ -33,6 +35,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
 
   const myRole = me?.memberships.find((m) => m.team_id === teamId)?.role;
   const isOwner = myRole === "owner";
+  const myMember = members?.find((m) => m.user_id === me?.id);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
@@ -42,6 +45,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
       <HackathonCard teamId={teamId} team={team} isOwner={isOwner} />
       <MembersCard teamId={teamId} members={members ?? []} myUserId={me?.id} isOwner={isOwner} />
       <GitHubCard teamId={teamId} />
+      {myMember && <ClaudeCodeCard teamId={teamId} member={myMember} />}
     </div>
   );
 }
@@ -268,6 +272,94 @@ function GitHubCard({ teamId }: { teamId: string }) {
               Instalar la App en GitHub
             </a>
           </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// RF-CC-010: cada persona solo ve y toca su propio enlace, nunca el de otro
+// miembro (es opt-in e individual, 08-integracion-claude-code.md).
+function ClaudeCodeCard({ teamId, member }: { teamId: string; member: Member }) {
+  const update = useUpdateMyClaudeCode(teamId);
+  const disconnect = useDisconnectMyClaudeCode(teamId);
+  const [confirmingPurge, setConfirmingPurge] = useState(false);
+  const link: ClaudeCodeStatus | null = member.claude_code;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Bot className="size-4" /> Claude Code (personal)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {!link ? (
+          <>
+            <p className="text-muted-foreground text-sm">
+              No está conectado. Instala el CLI y ejecuta <code className="font-mono">hackboard init --team {teamId}</code> para
+              enviar tu actividad de Claude Code a este equipo.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 text-sm">
+              <Badge variant={link.paused ? "outline" : "default"}>{link.paused ? "Pausado" : "Conectado"}</Badge>
+              <span className="text-muted-foreground font-mono text-xs">{link.token_prefix}…</span>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label>Nivel de privacidad</Label>
+              <Select
+                value={link.privacy_level}
+                onValueChange={(privacy_level) => privacy_level && update.mutate({ privacy_level })}
+              >
+                <SelectTrigger className="w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="metadata">Metadata</SelectItem>
+                  <SelectItem value="summaries">Metadata + resúmenes</SelectItem>
+                  <SelectItem value="off">Desactivado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <p className="text-muted-foreground text-xs">
+              Último evento: {link.last_event_at ? new Date(link.last_event_at).toLocaleString() : "todavía ninguno"}
+            </p>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => update.mutate({ paused: !link.paused })}
+                disabled={update.isPending}
+              >
+                {link.paused ? "Reanudar" : "Pausar"}
+              </Button>
+              {!confirmingPurge ? (
+                <Button variant="ghost" size="sm" onClick={() => setConfirmingPurge(true)}>
+                  <Trash2 className="size-3.5" /> Desconectar
+                </Button>
+              ) : (
+                <div className="flex flex-col gap-1.5 rounded-md border p-2">
+                  <p className="text-xs">¿Solo desconectar, o también borrar tus eventos ya enviados?</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => disconnect.mutate(false)} disabled={disconnect.isPending}>
+                      Solo desconectar
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => disconnect.mutate(true)} disabled={disconnect.isPending}>
+                      Desconectar y borrar mis eventos
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setConfirmingPurge(false)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

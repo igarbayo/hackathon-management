@@ -1,6 +1,6 @@
 # 08 · Integración con Claude Code
 
-> **Estado de implementación:** Pendiente · **Última actualización:** 2026-09-22
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-22. RF-CC-024 (versión N/N-1 del esquema) no tiene efecto todavía: solo existe una versión del esquema de ingesta, así que no hay una N-1 real que soportar; se implementará cuando haya un cambio incompatible que forzarlo.
 
 ## Qué es posible y qué no
 
@@ -40,6 +40,20 @@ Se recomienda instalarlo en global porque cada hook ejecuta el binario, y `npx` 
 | `hackboard uninstall [--purge]` | Quita los hooks, borra la credencial y revoca el token. `--purge` borra también los eventos en el servidor |
 | `hackboard hook <evento>` | **Uso interno.** Lo que invocan los hooks |
 | `hackboard flush` | **Uso interno.** Envía la cola |
+
+### Contrato del device flow — `RF-CC-001`/`RF-CC-002` [F5] Aceptado
+
+No estaba especificado el JSON de cada paso; se define aquí siguiendo el patrón estándar de OAuth 2.0 Device Authorization Grant (RFC 8628), que es lo que "device flow" ya daba a entender en el resto de la spec.
+
+1. `POST /cli/device` (sin auth) · body opcional `{ "team_code": "K7Q2-M9XA" }` → `{ "device_code", "user_code": "XXXX-XXXX", "verification_url": "<APP_URL>/cli/device?user_code=XXXX-XXXX", "expires_in": 900, "interval": 5 }`. El servidor solo guarda el hash de `device_code`.
+2. La persona entra en `verification_url` (pide sesión si no la hay), ve el equipo (si no vino `team_code`, lo elige entre los suyos), la explicación de qué datos se envían y el nivel de privacidad, y aprueba o rechaza:
+   - `POST /teams/:team_id/cli/device/approve` · body `{ "user_code": "XXXX-XXXX", "privacy_level": "metadata" }` → `204`.
+   - `POST /teams/:team_id/cli/device/deny` · body `{ "user_code": "XXXX-XXXX" }` → `204`.
+3. El CLI hace polling con `POST /cli/device/token` (sin auth) · body `{ "device_code" }`:
+   - Pendiente → `400 { "error": "authorization_pending" }`.
+   - Rechazado → `400 { "error": "access_denied" }`.
+   - Caducado (15 min) → `400 { "error": "expired_token" }`.
+   - Aprobado → `200 { "token": "hb_mt_…", "team": { "id", "name", "code" }, "member": { "id", "display_name" } }`. Un solo uso: la segunda vez que se pide, `invalid_grant`. El token solo se muestra esta vez; el servidor solo guarda su hash (`Membership.claude_code.token_digest`), igual que el resto de tokens de acceso.
 
 ### Flujo de `init` — `RF-CC-021` [F5] Aceptado
 
@@ -143,7 +157,7 @@ Hasta que se decida, en el MVP `summaries` = opción A.
 }
 ```
 
-- El esquema está en `packages/shared-schemas/ingest-claude-code.schema.json`. Los eventos inválidos se descartan de forma individual y la respuesta los lista:
+- El esquema está en `packages/shared-schemas/schemas/ingest-claude-code.schema.json` (misma carpeta que el resto de schemas, ver [01](01-arquitectura.md#estructura-del-repositorio-monorepo)). Los eventos inválidos se descartan de forma individual y la respuesta los lista:
   ```json
   { "accepted": 12, "duplicates": 1, "rejected": [ { "client_event_id": "…", "reason": "repo_not_linked" } ] }
   ```
@@ -153,6 +167,16 @@ Hasta que se decida, en el MVP `summaries` = opción A.
 - El procesamiento es asíncrono (`Ingest::ProcessBatchJob`) y después pasa por la atribución (capas 1–3).
 
 ---
+
+### Gestión personal y `/cli/config`
+
+Tampoco estaban especificados; se definen aquí porque el CLI y la sección de ajustes de Claude Code en la web ([04](04-pantallas.md)) los necesitan:
+
+- `GET /cli/config` · `Authorization: Bearer hb_mt_…` → `{ "repos": ["github.com/org/repo", …], "exclude_globs": [".env*", "**/secrets/**", "**/*.pem", "**/*.key", "**/credentials*"] }` (repos activos del equipo).
+- El CLI solo tiene el token de miembro, nunca la cookie de sesión, así que `hackboard pause`/`resume`/`privacy`/`uninstall` necesitan su propio endpoint autenticado con Bearer (la spec original solo daba la vía de sesión, que el CLI no puede usar):
+  - `PATCH /cli/me` · `Authorization: Bearer hb_mt_…` · body `{ "privacy_level" }` y/o `{ "paused" }` → sincroniza el propio enlace.
+  - `DELETE /cli/me` · `Authorization: Bearer hb_mt_…` · `?purge=true` → revoca el token (borra el enlace) y, con `purge`, borra también los `ActivityEvent` de `source: claude_code` de ese miembro. Es lo que usa `hackboard uninstall`.
+- Desde la web (sesión, sin el token a mano), la misma gestión personal (RF-CC-010, sección "Claude Code" de ajustes) usa `PATCH`/`DELETE /teams/:team_id/me/claude_code` con el mismo contrato de body. Nadie puede tocar el enlace de otro miembro por ninguna de las dos vías.
 
 ## Servidor MCP
 

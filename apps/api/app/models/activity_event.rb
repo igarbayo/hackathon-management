@@ -7,7 +7,7 @@ class ActivityEvent
 
   KINDS_BY_SOURCE = {
     "github" => %w[commit pr_opened pr_merged pr_closed pr_reopened branch_created branch_deleted],
-    "claude_code" => %w[cc_session_start cc_session_end cc_turn cc_prompt],
+    "claude_code" => %w[cc_session_start cc_session_end cc_turn cc_prompt system_test],
     "mcp" => %w[progress_report],
     "system" => %w[feature_status_changed feature_assigned member_joined api_change]
   }.freeze

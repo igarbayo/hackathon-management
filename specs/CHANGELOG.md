@@ -2,6 +2,11 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-22 · 08 · Implementación completa de la spec: backend del device flow y la ingesta, sección personal de Claude Code en ajustes y pantalla de aprobación en la web, y el paquete `packages/cli` (`hackboard`) con todos los comandos de RF-CC-020. Verificado con RSpec, Vitest y un e2e de Playwright del device flow completo, y una prueba manual del CLI real (compilado) contra la API en marcha, incluida la fusión de hooks en un `~/.claude/settings.json` real sin tocar el resto de su contenido.
+- 2026-09-22 · 08 · Añade `PATCH`/`DELETE /cli/me` (Bearer, mismo contrato que las rutas de sesión `.../me/claude_code`): `hackboard pause/resume/privacy/uninstall` solo tienen el token de miembro, nunca la cookie de sesión, y la spec solo daba la vía de sesión para sincronizar el enlace.
+- 2026-09-22 · 02, 08 · Define el contrato del device flow (`POST /cli/device`, `/cli/device/token`, `/teams/:id/cli/device/approve|deny`) siguiendo RFC 8628, y el de `/cli/config` y `/teams/:id/me/claude_code`: la spec ya exigía el device flow (RF-CC-001/002) y estos endpoints (RF-CC-004, RF-CC-010) pero no daba su JSON.
+- 2026-09-22 · 02, 08 · Añade el modelo `DeviceAuthorization` (device flow del CLI, RF-CC-001), que faltaba en el modelo de datos. Añade `system_test` al catálogo de `kind` de `claude_code`: el contrato de ingesta de 08 ya lo usaba (`hackboard test`) pero no estaba en el catálogo de 02. Corrige la ruta del schema de ingesta en 08 para que coincida con dónde vive de verdad el resto de schemas (`packages/shared-schemas/schemas/`, no en la raíz del paquete).
+
 - 2026-09-22 · 03 · Añade `GET /teams/:id/repositories` (listar repos vinculados) y `POST /teams/:id/repositories/:rid/resync`: faltaban en la spec pero RF-GH-010 y RNF-GH-003 ya los mencionaban en prosa sin darles una ruta concreta.
 
 - 2026-09-22 · 02, 05 · Añade `ActivityEvent.ai_suggestion_attempted_at`, necesario para implementar la regla de 05 "no se reintenta [la capa 3] hasta que llegue un evento nuevo del mismo grupo", que no tenía dónde guardar ese estado en el modelo de datos existente.

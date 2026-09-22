@@ -161,6 +161,23 @@ Código de autorización pendiente de canjear.
 
 Índices: `{code_digest: 1}` único, `{expires_at: 1}` TTL.
 
+## DeviceAuthorization
+
+Device flow del CLI ([08](08-integracion-claude-code.md#flujo-de-init--rf-cc-021-f5-aceptado)). No estaba en esta spec aunque `RF-CC-001` ya lo requería; análogo a `OAuthGrant` pero para el token de miembro (`hb_mt_`).
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `device_code_digest` | String | SHA-256 del `device_code` que usa el CLI para hacer polling |
+| `user_code` | String | 8 caracteres del alfabeto de `Team.code`, se muestra como `XXXX-XXXX`. Lo escribe la persona en `verification_url` |
+| `team_id` | ObjectId | Nullable hasta que se aprueba (si el CLI no mandó `team_code` en la petición inicial) |
+| `membership_id` | ObjectId | Nullable hasta que se aprueba |
+| `status` | String | `pending` \| `approved` \| `denied` |
+| `privacy_level` | String | Elegido al aprobar. Mismos valores que `Membership.claude_code.privacy_level` |
+| `consumed_at` | Time | Cuándo se canjeó por un token (un solo uso) |
+| `expires_at` | Time | 15 min. TTL |
+
+Índices: `{device_code_digest: 1}` único, `{user_code: 1}`, `{expires_at: 1}` TTL.
+
 ## OutboundWebhook
 
 | Campo | Tipo | Notas |
@@ -288,7 +305,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | Fuente | kind |
 |--------|------|
 | github | `commit`, `pr_opened`, `pr_merged`, `pr_closed`, `pr_reopened`, `branch_created`, `branch_deleted` |
-| claude_code | `cc_session_start`, `cc_session_end`, `cc_turn` (turno completo: prompt + herramientas + stop), `cc_prompt` (solo con nivel `summaries`) |
+| claude_code | `cc_session_start`, `cc_session_end`, `cc_turn` (turno completo: prompt + herramientas + stop), `cc_prompt` (solo con nivel `summaries`), `system_test` (`hackboard test`, [08](08-integracion-claude-code.md#contrato-de-ingesta)) |
 | mcp | `progress_report` |
 | system | `feature_status_changed`, `feature_assigned`, `member_joined`, `api_change` (escritura por API o MCP sin evento propio; `payload: {entity, key, action, fields[]}`, sin valores) |
 

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IngestClaudeCodeBatch",
+  "description": "Cuerpo de POST /api/v1/ingest/claude_code (08-integracion-claude-code.md#contrato-de-ingesta)",
+  "type": "object",
+  "required": ["cli_version", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "cli_version": { "type": "string" },
+    "events": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["client_event_id", "kind", "occurred_at", "session_ref", "repo", "data"],
+        "additionalProperties": false,
+        "properties": {
+          "client_event_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "kind": { "type": "string", "enum": ["cc_session_start", "cc_session_end", "cc_turn", "system_test"] },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "session_ref": { "type": "string", "maxLength": 32 },
+          "repo": {
+            "type": "object",
+            "required": ["remote"],
+            "additionalProperties": false,
+            "properties": {
+              "remote": { "type": "string" },
+              "branch": { "type": ["string", "null"] },
+              "head_sha": { "type": ["string", "null"] }
+            }
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "files": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "type": "object",
+                  "required": ["path", "tool"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": { "type": "string" },
+                    "tool": { "type": "string" }
+                  }
+                }
+              },
+              "tool_uses": { "type": "integer", "minimum": 0 },
+              "prompt_chars": { "type": "integer", "minimum": 0 },
+              "duration_ms": { "type": "integer", "minimum": 0 },
+              "summary": { "type": "string", "maxLength": 500 },
+              "reason": { "type": "string" },
+              "source": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

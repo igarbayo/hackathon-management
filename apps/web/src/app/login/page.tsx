@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,19 +12,21 @@ import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { useLogIn } from "@/hooks/use-me";
 import { ApiError } from "@/lib/api-client";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const logIn = useLogIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const next = searchParams.get("next");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     try {
       const me = await logIn.mutateAsync({ email, password });
-      router.push(me.last_team_id ? `/t/${me.last_team_id}/home` : "/onboarding");
+      router.push(next || (me.last_team_id ? `/t/${me.last_team_id}/home` : "/onboarding"));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se ha podido iniciar sesión");
     }
@@ -74,5 +76,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

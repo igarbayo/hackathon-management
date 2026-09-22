@@ -23,6 +23,13 @@ Rails.application.routes.draw do
       post "webhooks/github", to: "/webhooks/github#create"
       get "github/setup", to: "github_setup#show"
 
+      post "cli/device", to: "cli/device#create"
+      post "cli/device/token", to: "cli/device#token"
+      get "cli/config", to: "cli/config#show"
+      patch "cli/me", to: "cli/me#update"
+      delete "cli/me", to: "cli/me#destroy"
+      post "ingest/claude_code", to: "ingest/claude_code#create"
+
       resources :teams, only: %i[create show update destroy] do
         post "code/rotate", to: "teams#rotate_code"
 
@@ -50,6 +57,11 @@ Rails.application.routes.draw do
         resources :repositories, only: %i[index create destroy] do
           post :resync, on: :member
         end
+
+        post "cli/device/approve", to: "cli/device_approvals#approve"
+        post "cli/device/deny", to: "cli/device_approvals#deny"
+        patch "me/claude_code", to: "claude_code#update"
+        delete "me/claude_code", to: "claude_code#destroy"
 
         get "activity", to: "activity#index"
         get "activity/summary", to: "activity#summary"
