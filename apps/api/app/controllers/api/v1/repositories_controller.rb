@@ -3,6 +3,9 @@ module Api
     class RepositoriesController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :create, :destroy, :resync
+      requires_scope "read", only: :index
+
       # No está en 03-api.md, pero RF-GH-010 ("repos vinculados") lo necesita
       # y es el complemento natural de create/destroy.
       def index

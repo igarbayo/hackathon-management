@@ -3,6 +3,9 @@ module Api
     class TeamMembersController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :update, :destroy
+      requires_scope "read", only: :index
+
       def index
         memberships = Membership.where(team_id: current_team.id)
         render json: { data: memberships.map { |m| MemberSerializer.new(m).as_json } }

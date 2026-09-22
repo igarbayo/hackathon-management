@@ -3,6 +3,8 @@ module Api
     class ActivityController < Api::V1::BaseController
       include TeamScoping
 
+      requires_scope "read", only: %i[index summary]
+
       MAX_LIMIT = 100
       DEFAULT_LIMIT = 50
 

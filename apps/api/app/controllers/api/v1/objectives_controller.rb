@@ -3,6 +3,10 @@ module Api
     class ObjectivesController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :destroy
+      requires_scope "read", only: :index
+      requires_scope "objectives:write", only: %i[create update]
+
       def index
         objectives = Objective.where(team_id: current_team.id).order(position: :asc, number: :asc)
         render json: { data: objectives.map { |o| ObjectiveSerializer.new(o).as_json } }

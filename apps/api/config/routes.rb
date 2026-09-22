@@ -15,6 +15,8 @@ Rails.application.routes.draw do
         get "google/callback", to: "google#callback"
       end
 
+      get "token", to: "token_introspection#show"
+
       get "me", to: "me#show"
       patch "me", to: "me#update"
       delete "me", to: "me#destroy"
@@ -46,6 +48,7 @@ Rails.application.routes.draw do
         end
 
         resources :milestones, only: %i[index create update destroy]
+        resources :tokens, only: %i[index create destroy]
         get "timeline", to: "timeline#show"
 
         resources :analyses, only: %i[index show create] do

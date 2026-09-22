@@ -6,6 +6,8 @@ module Api
       class DeviceApprovalsController < Api::V1::BaseController
         include TeamScoping
 
+        session_only :approve, :deny
+
         def approve
           ::Cli::ApproveDevice.call(
             team: current_team,

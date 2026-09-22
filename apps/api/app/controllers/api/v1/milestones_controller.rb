@@ -3,6 +3,10 @@ module Api
     class MilestonesController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :destroy
+      requires_scope "read", only: :index
+      requires_scope "milestones:write", only: %i[create update]
+
       def index
         milestones = Milestone.where(team_id: current_team.id).order(due_at: :asc)
         render json: { data: milestones.map { |m| milestone_json(m) } }

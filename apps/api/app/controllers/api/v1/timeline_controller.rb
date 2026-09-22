@@ -4,6 +4,8 @@ module Api
     class TimelineController < Api::V1::BaseController
       include TeamScoping
 
+      requires_scope "read", only: :show
+
       def show
         now = Time.current
 

@@ -5,6 +5,10 @@ module Api
       include OptimisticConcurrency
       include FeatureLookup
 
+      session_only :destroy
+      requires_scope "read", only: %i[index show]
+      requires_scope "features:write", only: %i[create update move]
+
       def index
         scope = Feature.where(team_id: current_team.id)
         scope = scope.where(status: params[:status]) if params[:status].present?

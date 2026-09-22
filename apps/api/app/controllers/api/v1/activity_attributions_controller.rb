@@ -8,6 +8,8 @@ module Api
       include TeamScoping
       include FeatureLookup
 
+      requires_scope "attribution:write", only: %i[create bulk]
+
       BULK_LIMIT = 100
 
       def create

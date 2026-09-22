@@ -7,6 +7,8 @@ module Api
     class ClaudeCodeController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :update, :destroy
+
       def update
         ::Cli::UpdateLink.call(
           membership: current_membership,

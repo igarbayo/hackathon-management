@@ -3,6 +3,8 @@ module Api
     class GithubController < Api::V1::BaseController
       include TeamScoping
 
+      session_only :install_url, :available_repos
+
       def install_url
         state = Github::InstallState.generate(team: current_team, user: current_user)
         render json: { url: "https://github.com/apps/#{ENV.fetch('GITHUB_APP_SLUG', '')}/installations/new?state=#{state}" }

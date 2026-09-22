@@ -3,6 +3,9 @@ module Api
     class AnalysesController < Api::V1::BaseController
       include TeamScoping
 
+      requires_scope "read", only: %i[index latest show]
+      requires_scope "analyses:run", only: :create
+
       def index
         analyses = AiAnalysis.where(team_id: current_team.id).order(created_at: :desc).limit(50)
         render json: { data: analyses.map { |a| AiAnalysisSerializer.new(a, include_result: false).as_json } }

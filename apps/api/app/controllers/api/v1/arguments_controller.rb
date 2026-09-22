@@ -4,6 +4,9 @@ module Api
       include TeamScoping
       include FeatureLookup
 
+      session_only :destroy
+      requires_scope "arguments:write", only: %i[create update vote]
+
       def create
         feature = find_feature
         argument = feature.arguments.create!(

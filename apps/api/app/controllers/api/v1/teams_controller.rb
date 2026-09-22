@@ -4,6 +4,8 @@ module Api
       include TeamScoping
 
       skip_before_action :load_team_and_membership, only: %i[create join]
+      session_only :create, :join, :update, :rotate_code, :destroy
+      requires_scope "read", only: :show
 
       def create
         hackathon_params = params.require(:hackathon).permit(:name, :starts_at, :ends_at, :timezone, :url, :challenge_text)
