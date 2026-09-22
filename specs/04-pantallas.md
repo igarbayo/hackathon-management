@@ -13,7 +13,7 @@
 | RF-UX-007 | Buscador global `Ctrl/Cmd+K`: salta a una feature por clave o título, o a una pantalla. | Propuesto [F2] |
 | RF-UX-008 | Las claves `F-n` y `O-n` que aparecen en cualquier texto se renderizan como enlaces. | Aceptado [F2] |
 
-Rutas: `/login`, `/signup`, `/onboarding`, `/t/[teamId]/{home,objectives,features,features/[key],decisions,deadlines,activity,analysis,settings}`.
+Rutas: `/login`, `/signup`, `/onboarding`, `/oauth/consent`, `/t/[teamId]/{home,objectives,features,features/[key],decisions,deadlines,activity,analysis,settings}`.
 
 | Menú | Icono Lucide | Ruta |
 |------|--------------|------|
@@ -32,7 +32,7 @@ Rutas: `/login`, `/signup`, `/onboarding`, `/t/[teamId]/{home,objectives,feature
 
 Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 
-1. **Registro o login** (email + contraseña, o "Continuar con GitHub").
+1. **Registro o login** (email + contraseña, "Continuar con Google" o "Continuar con GitHub").
 2. **Elegir:** "Crear equipo" o "Unirme con código".
 3. **Crear:** nombre del equipo, nombre del hackathon y fecha de fin (el inicio es "ahora" por defecto y la zona horaria se detecta en el navegador). Un solo formulario.
 4. **Pegar repo:** un campo "URL del repositorio" con un botón que instala la GitHub App. Se puede saltar.
@@ -43,6 +43,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 |----|-----------|--------|
 | RF-TEAM-010 | El flujo de crear el equipo tiene como máximo 3 pantallas y los pasos 4 y 5 se pueden saltar. | Aceptado [F1] |
 | RF-TEAM-011 | El enlace `…/join?code=` hace login o registro y la unión en un solo paso. | Aceptado [F1] |
+| RF-AUTH-010 | Login y registro muestran "Continuar con Google" y "Continuar con GitHub" encima del formulario de email. En el perfil se ven los proveedores vinculados y se pueden desvincular (RF-AUTH-009). | Aceptado [F1] |
 | RF-TEAM-012 | Checklist de puesta en marcha en Inicio. Se oculta cuando está completo o si se descarta. | Aceptado [F2] |
 
 **Criterio de aceptación:** un usuario nuevo con cuenta de GitHub crea el equipo, vincula un repo e invita al equipo en menos de 2 minutos, medido en un test de usabilidad con 3 personas.
@@ -125,6 +126,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-ACT-014 | Los eventos consecutivos de un mismo actor en la misma rama en menos de 10 min se agrupan ("Ana hizo 4 commits en f-12") y se pueden expandir. | Aceptado [F3] |
 | RF-ACT-015 | Los eventos de Claude Code nunca muestran texto de prompts con el nivel `metadata`. Muestran "Sesión de Claude Code · 6 ficheros editados en `f-12-login`". | Aceptado [F5] |
 | RF-ACT-016 | Selección múltiple para confirmar o reasignar en bloque. | Aceptado [F4] |
+| RF-ACT-017 | Los eventos con `via` muestran una etiqueta "vía API" o "vía MCP · <cliente>" junto al actor, y el nombre del token en un tooltip. Filtro "Hecho por agentes/API" y filtro por token (RF-API-008). | Aceptado [F3] |
 
 ---
 
@@ -151,5 +153,10 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-TEAM-022 | **Hackathon:** nombre, fechas, zona horaria y texto del reto. | Aceptado [F1] |
 | RF-GH-010 | **GitHub:** repos vinculados, botón "Añadir repo" (pegar URL o elegir de la lista) y estado de la instalación. Indica si el último webhook tuvo éxito. | Aceptado [F3] |
 | RF-CC-010 | **Claude Code (sección personal):** instrucciones en 2 pasos (`npm i -g hackboard` y `hackboard init --team XXXX-XXXX`), estado, nivel de privacidad, botones de pausar, desconectar y "desconectar y borrar mis eventos". Explica en lenguaje llano qué se envía y qué no. | Aceptado [F5] |
-| RF-MCP-010 | **MCP (sección personal):** el comando `claude mcp add …` listo para copiar, con el token del miembro. | Aceptado [F5] |
+| RF-API-020 | **API y MCP (sección personal):** lista de mis tokens (nombre, prefijo, scopes, caducidad y último uso) con botón de revocar. "Nuevo token": nombre, preset (`observar` por defecto, `agente`, `completo` o personalizado) y caducidad; el token se muestra **una sola vez** con botón de copiar y un aviso de no subirlo al repo. Enlace a la documentación OpenAPI. Un owner ve además los tokens de todo el equipo y puede revocarlos. | Aceptado [F2] |
+| RF-MCP-010 | **MCP (dentro de API y MCP):** el comando `claude mcp add …` listo para copiar, con el token de miembro (lectura + progreso) o con un PAT recién creado (lo que permita su preset). Explica qué podrá ver y hacer el agente con cada opción. | Aceptado [F5] |
+| RF-API-021 | **Apps conectadas (sección personal):** conexiones OAuth (claude.ai, apps de terceros) con cliente, equipo, scopes, fecha y último uso, y botón de revocar. Un owner ve las de todo el equipo y puede revocarlas. | Aceptado [F6] |
+| RF-API-022 | **Pantalla de consentimiento** (`/oauth/consent`): si no hay sesión, primero login con Google, GitHub o contraseña. Después muestra el nombre de la app (con "no verificada" si se registró sola), el dominio al que volverá, un selector de equipo, los permisos agrupados en lenguaje llano ("Ver el tablero", "Crear y mover features"…) con los presets, y los botones Permitir y Cancelar. Un aviso recuerda que la app actuará en tu nombre. | Aceptado [F6] |
+| RF-API-023 | **Integraciones (owner):** tokens de integración (crear, rotar, revocar, último uso) y webhooks salientes (URL, eventos, estado, secreto mostrado una vez, botón Probar, últimas entregas con reenvío). | Aceptado [F6] |
+| RF-MCP-011 | **claude.ai (dentro de API y MCP):** la URL del MCP lista para copiar y los pasos para añadirla como *custom connector* en claude.ai, con enlace a Apps conectadas. | Aceptado [F6] |
 | RF-AI-020 | **IA (owner):** activar o desactivar el análisis y la atribución por IA, y fijar la frecuencia (dentro de lo que permite el plan). | Aceptado [F4] |

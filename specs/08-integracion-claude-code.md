@@ -2,7 +2,7 @@
 
 ## Qué es posible y qué no
 
-- **claude.ai (el chat web)** no tiene una API pública para leer las conversaciones de un usuario, así que **no** se integra leyendo historial. La única vía es que Claude informe por sí mismo con un servidor MCP registrado como *connector* (ver [MCP](#servidor-mcp)). [ABIERTO] Requiere OAuth y queda fuera del MVP.
+- **claude.ai (el chat web)** no tiene una API pública para leer las conversaciones de un usuario, así que **no** se integra leyendo historial. La única vía es que Claude use el MCP de Hackboard añadido como *connector* con OAuth ([RF-MCP-020](12-acceso-programatico.md#claudeai-como-connector--rf-mcp-020-f6-aceptado)): así puede consultar el tablero y dejar resúmenes, pero Hackboard nunca lee las conversaciones.
 - **Claude Code** sí se integra mediante **hooks**: comandos que Claude Code ejecuta en eventos de su ciclo de vida y que reciben por stdin un JSON con datos de la sesión y del evento. Es donde ocurre el trabajo de desarrollo durante un hackathon.
 
 La integración es **opcional y por persona** (opt-in). Nadie puede activarla por otro miembro. Ver [09](09-privacidad-seguridad.md).
@@ -11,7 +11,7 @@ La integración es **opcional y por persona** (opt-in). Nadie puede activarla po
 
 1. **CLI `hackboard`** (paquete npm en `packages/cli`): instala los hooks, guarda la credencial, encola los eventos y los envía.
 2. **Endpoint de ingesta** `POST /api/v1/ingest/claude_code`, autenticado con el token de miembro.
-3. **Servidor MCP** (opcional, F5 si da tiempo): herramientas para que Claude lea features e informe de su progreso.
+3. **Servidor MCP**: herramientas para que Claude vea el estado del tablero, informe de su progreso y, con un token que lo permita, lo modifique ([12](12-acceso-programatico.md#servidor-mcp)).
 
 ---
 
@@ -30,7 +30,7 @@ Se recomienda instalarlo en global porque cada hook ejecuta el binario, y `npx` 
 
 | Comando | Descripción |
 |---------|-------------|
-| `hackboard init [--team CODE] [--scope local\|user]` | Device flow, elección del nivel de privacidad, instalación de hooks y prueba de conexión. `--scope local` (por defecto) escribe en `<repo>/.claude/settings.local.json`; `user` escribe en `~/.claude/settings.json` |
+| `hackboard init [--team CODE] [--scope local\|user] [--mcp\|--no-mcp]` | Device flow, elección del nivel de privacidad, instalación de hooks, registro opcional del MCP (RF-CC-026) y prueba de conexión. `--scope local` (por defecto) escribe en `<repo>/.claude/settings.local.json`; `user` escribe en `~/.claude/settings.json` |
 | `hackboard status` | Equipo, miembro, nivel, pausado o no, eventos en cola, último envío correcto y repos vinculados |
 | `hackboard pause` / `resume` | Deja de enviar o reanuda (se sincroniza con el servidor) |
 | `hackboard privacy <metadata\|summaries\|off>` | Cambia el nivel (se sincroniza con el servidor) |
@@ -47,7 +47,8 @@ Se recomienda instalarlo en global porque cada hook ejecuta el binario, y `npx` 
 4. Descarga `/cli/config` (repos vinculados y reglas) y lo cachea en `~/.config/hackboard/config.json`. Se refresca cada 15 min en el `flush`.
 5. **Fusiona** los hooks en el fichero de settings elegido sin tocar lo que ya había. Las entradas propias se identifican porque el comando empieza por `hackboard hook`. Si el fichero existe, antes de escribir guarda una copia en `.bak`.
 6. Si el scope es `local`, comprueba que `.claude/settings.local.json` está ignorado por git. Si no lo está, lo añade a `.gitignore`.
-7. Ejecuta `hackboard test` y muestra "Listo. Tus eventos aparecerán en <url>/activity".
+7. Ofrece registrar el MCP en Claude Code (RF-CC-026).
+8. Ejecuta `hackboard test` y muestra "Listo. Tus eventos aparecerán en <url>/activity".
 
 **Criterio de aceptación:** de `init` a ver el primer evento en el feed, menos de 60 s.
 
@@ -153,26 +154,13 @@ Hasta que se decida, en el MVP `summaries` = opción A.
 
 ## Servidor MCP
 
-`RF-MCP-001` [F5] Aceptado (si da tiempo; si no, pasa a una fase posterior).
+El servidor MCP (RF-MCP-001…004) se especifica en [12 · Acceso programático](12-acceso-programatico.md#servidor-mcp), porque no es exclusivo de Claude Code: sirve a cualquier agente y admite escritura con tokens de acceso personales.
 
-- Transporte: **Streamable HTTP** en `POST /api/v1/mcp`, autenticado con el token de miembro. Así no hay que instalar nada más:
-  ```
-  claude mcp add --transport http hackboard https://<api>/api/v1/mcp --header "Authorization: Bearer hb_mt_…"
-  ```
-  La web muestra este comando listo para copiar (RF-MCP-010).
-- Herramientas:
+Lo específico de Claude Code:
 
-| Herramienta | Entrada | Salida | Efecto |
-|-------------|---------|--------|--------|
-| `list_features` | `{status?, mine?: bool}` | Lista de `{key, title, status, assignees, deadline}` | Solo lectura |
-| `get_feature` | `{key}` | Detalle con la descripción y los objetivos | Solo lectura |
-| `list_objectives` | `{}` | `{key, title, priority}` | Solo lectura |
-| `report_progress` | `{feature_key, summary (≤ 500), status_hint?: "started"\|"blocked"\|"ready_for_review"}` | `{ok, event_id}` | Crea `ActivityEvent{source: mcp, kind: progress_report}` con atribución `convention/confirmed` a esa feature. **No cambia** el estado de la feature: `status_hint` solo se muestra como sugerencia |
-| `suggest_branch_name` | `{feature_key}` | `"f-12-login-con-github"` | Solo lectura |
-
-- Las descripciones de las herramientas indican a Claude que use `report_progress` al terminar una unidad de trabajo significativa y que el resumen **no** debe incluir secretos ni código.
-- Rate limit de `report_progress`: 30 al día por miembro y feature.
-- **claude.ai como connector:** los connectors remotos requieren OAuth. [ABIERTO] Implementar un servidor de autorización OAuth 2.1 (o un proveedor externo) en una fase posterior.
+- Con el token de miembro (`hb_mt_`) que crea `hackboard init`, Claude Code tiene las herramientas de lectura y `report_progress`. Para que además pueda mover features, asignarse trabajo o añadir pros y contras, el miembro crea un PAT con el preset `agente` y lo usa en `claude mcp add`.
+- `report_progress` es la fuente de los resúmenes del nivel `summaries` (opción A).
+- **claude.ai como connector:** se conecta con OAuth 2.1, entrando con Google, GitHub o contraseña. Ver RF-MCP-020 en [12](12-acceso-programatico.md#claudeai-como-connector--rf-mcp-020-f6-aceptado).
 
 ## Requisitos adicionales
 
@@ -182,3 +170,4 @@ Hasta que se decida, en el MVP `summaries` = opción A.
 | RF-CC-023 | `hackboard uninstall` deja los ficheros de settings exactamente como estaban, salvo cambios de terceros hechos después. | Aceptado [F5] |
 | RF-CC-024 | Si cambia la versión del esquema de ingesta, el servidor acepta la versión N y la N−1. Con una versión más antigua responde `426` y el CLI propone actualizarse. | Aceptado [F5] |
 | RF-CC-025 | La web muestra a cada miembro **sus propios** eventos de Claude Code tal como se guardaron ("Ver lo que se ha enviado"). | Aceptado [F5] |
+| RF-CC-026 | `hackboard init` pregunta al final "¿Registrar también el MCP de Hackboard en Claude Code? (S/n)". Si se acepta y `claude` está en el PATH, ejecuta `claude mcp add --transport http --scope <local\|user> hackboard <API_URL>/api/v1/mcp --header "Authorization: Bearer hb_mt_…"`, con el mismo scope que los hooks (nunca `project`). Si `claude` no está, muestra el comando para copiarlo. Si ya existe un servidor `hackboard`, no lo toca y lo avisa. `hackboard uninstall` lo quita con `claude mcp remove hackboard`. Con el token de miembro el agente tiene lectura y `report_progress`; para escribir más, se crea un PAT `agente`. | Aceptado [F5] |

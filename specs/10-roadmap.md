@@ -14,7 +14,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 
 - Monorepo, `docker-compose`, CI (lint + tests + escaneo de secretos y dependencias).
 - Rails 8 API + Mongoid + Sidekiq (sin jobs de negocio aún). Next.js + Tailwind + shadcn/ui.
-- RF-AUTH-001…006 (incluido el login con GitHub, que ya usa la GitHub App).
+- RF-AUTH-001…006, 008, 010 (incluidos el login con GitHub, que ya usa la GitHub App, y el login con Google). RNF-SEC-015 en la parte de login.
 - RF-TEAM-001…006, 008, 010, 011, 020–022.
 - Layout RF-UX-001, 002, 004, 005, 006.
 - Objetivos RF-OBJ-001…004, 010, 011, 014.
@@ -32,10 +32,11 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - Pros y contras RF-PC-001…004, 010–013.
 - Milestones y timeline RF-DL-001…003, 010–014. Cuenta atrás RF-UX-003, 021.
 - Asignaciones con drag-and-drop RF-FEAT-013, 016, 017. Mis features RF-UX-023.
-- Gestión de miembros RF-TEAM-007, 009, 012. RF-AUTH-007. RF-SEC-003, 004.
+- Gestión de miembros RF-TEAM-007, 009, 012. RF-AUTH-007, 009. RF-SEC-003, 004.
 - Enlaces de claves RF-UX-008.
+- **Acceso programático por API:** tokens de acceso personales y scopes RF-API-001…005, 007, 020. Trazabilidad RF-API-006. RNF-API-001…003. RNF-SEC-014. RF-SEC-006.
 
-**DoD específico:** en la timeline, una feature con deadline vencido aparece en rojo, y un milestone a menos de 1 h pone la cuenta atrás en rojo.
+**DoD específico:** en la timeline, una feature con deadline vencido aparece en rojo, y un milestone a menos de 1 h pone la cuenta atrás en rojo. Con un PAT `agente`, un `curl` crea una feature y la mueve a `in_progress`; con un PAT `observar`, el mismo `curl` recibe `403 insufficient_scope`.
 
 ## Fase 3 · GitHub
 
@@ -46,6 +47,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - Feed de actividad RF-ACT-001, 002, 010–014. Inicio: últimas actividades (RF-UX-022).
 - Atribución, capas 1 y 2 (RF-ATR-001, 002) y acciones humanas (RF-ATR-004). RF-FEAT-018.
 - RNF-OPS-001, 003, 007.
+- Etiqueta "vía API/MCP" en el feed RF-ACT-017 y "Ver lo que ha hecho" cada token RF-API-008.
 
 **DoD específico:** hacer push de un commit con `F-3` en una rama `f-3-algo` lo muestra en el feed atribuido a F-3 en menos de 30 s, y los commits siguientes en esa rama sin clave también quedan atribuidos a F-3.
 
@@ -66,18 +68,27 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 
 **Objetivo:** que la actividad en Claude Code aparezca en el feed sin fricción y respetando la privacidad.
 
-- CLI `hackboard`: RF-CC-020…025, RNF-CC-001. Publicación en npm (RNF-SEC-012).
+- CLI `hackboard`: RF-CC-020…026, RNF-CC-001. Publicación en npm (RNF-SEC-012).
 - Device flow e ingesta RF-CC-001…006. RNF-OPS-002.
 - Ajustes RF-CC-010. Derechos RF-SEC-001, 002. Visualización RF-ACT-015.
-- Si da tiempo: MCP RF-MCP-001, 010.
+- Servidor MCP: RF-MCP-001…004, 010. RNF-MCP-001. RNF-SEC-013.
 - Resolver [ABIERTO]: el modo `summaries` (opción A o B).
 
-**DoD específico:** en macOS y Windows, `hackboard init` → editar un fichero con Claude Code en una rama `f-5-x` → el evento aparece en el feed atribuido a F-5 en < 60 s. Un repo no vinculado no genera tráfico de red (verificado con un proxy).
+**DoD específico:** con el MCP registrado con un PAT `agente`, Claude Code responde "¿qué me toca?" con `get_team_status`, se asigna una feature y la mueve a `in_progress`, y el cambio aparece en el feed como "vía MCP". En macOS y Windows, `hackboard init` → editar un fichero con Claude Code en una rama `f-5-x` → el evento aparece en el feed atribuido a F-5 en < 60 s. Un repo no vinculado no genera tráfico de red (verificado con un proxy).
+
+## Fase 6 · Integraciones
+
+**Objetivo:** conectar Hackboard con claude.ai y con otras apps sin copiar tokens a mano.
+
+- Servidor de autorización OAuth 2.1: RF-API-010, 012. Apps conectadas y consentimiento RF-API-021, 022. RNF-SEC-015, RNF-API-004.
+- claude.ai como connector: RF-MCP-020, 011.
+- Tokens de integración de equipo RF-API-011 y webhooks salientes RF-API-009. Pantalla de Integraciones RF-API-023. RNF-SEC-016.
+
+**DoD específico:** en claude.ai se añade la URL del MCP como connector, el usuario entra con Google, aprueba el preset `observar` y Claude responde en el chat "¿cómo va el equipo?" con datos reales; al revocarlo en "Apps conectadas", la siguiente llamada falla con `401`. Un webhook a un receptor de pruebas recibe `feature.status_changed` firmado en < 30 s tras mover una tarjeta, y un webhook apuntado a `http://169.254.169.254` se rechaza.
 
 ## Después del MVP (backlog)
 
 - Tiempo real con ActionCable.
-- MCP como connector de claude.ai (OAuth).
 - Vista de solo lectura para mentores y jueces.
 - Sugerencias de pros y contras con IA (RF-PC-014).
 - Buscador global (RF-UX-007).

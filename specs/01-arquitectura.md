@@ -27,6 +27,16 @@
  Portátil del miembro:
  Claude Code ──hooks──▶ hackboard CLI ──POST /ingest──▶ api
  Claude Code ──MCP (HTTP)──────────────────────────────▶ api /mcp
+
+ Agentes y apps externas (con PAT hb_pat_):
+ Cualquier cliente MCP ──MCP (HTTP)────────────────────▶ api /mcp
+ Scripts, bots, integraciones ──REST /api/v1 + Bearer──▶ api
+
+ Con OAuth 2.1 (hb_oat_), identidad vía Google, GitHub o contraseña:
+ claude.ai (connector) y apps de terceros ──/oauth/* + MCP/REST──▶ api
+
+ Salida:
+ api ──webhooks firmados (Webhooks::DeliverJob)──▶ Slack, n8n, apps externas
 ```
 
 ## Componentes
@@ -37,7 +47,7 @@
 | `api` | Rails 8 en modo `--api`, Mongoid, Ruby 3.3+ | Dominio, autenticación, API REST, webhooks, ingesta y MCP |
 | `workers` | Sidekiq y sidekiq-cron sobre Redis | Procesar webhooks, llamadas a la API de GitHub, atribución y análisis con IA |
 | `cli` | Node.js ≥ 20, TypeScript, paquete npm `hackboard` | Instalar hooks en Claude Code, encolar eventos en local y enviarlos |
-| `mcp` | Endpoint HTTP dentro de `api` (Streamable HTTP) | Herramientas MCP para que Claude informe del progreso ([08](08-integracion-claude-code.md)) |
+| `mcp` | Endpoint HTTP dentro de `api` (Streamable HTTP) | Herramientas MCP de lectura y escritura para agentes, sobre los mismos servicios de dominio que la REST ([12](12-acceso-programatico.md#servidor-mcp)) |
 | MongoDB | ≥ 7 | Persistencia |
 | Redis | ≥ 7 | Colas de Sidekiq, rate limiting y cachés efímeras |
 | Gemini API | Modelo configurable (`GEMINI_MODEL`) | Análisis de cobertura y atribución sugerida ([06](06-analisis-ia.md)) |
@@ -68,15 +78,17 @@ app/
   controllers/api/v1/…       # REST de la app
   controllers/webhooks/github_controller.rb
   controllers/ingest/…       # ingesta del CLI
-  controllers/mcp/…          # endpoint MCP
+  controllers/oauth/…        # servidor de autorización OAuth 2.1 y /.well-known
+  controllers/mcp/…          # endpoint MCP (cada herramienta llama a un servicio de services/)
+  controllers/concerns/token_authentication.rb  # Bearer hb_pat_ / hb_mt_ → current_token, current_team, scopes
   models/…                   # documentos Mongoid
   services/                  # lógica de dominio (verbo + sustantivo): Attribution::Resolve, Analysis::BuildContext…
   jobs/                      # workers de Sidekiq (sufijo Job)
   lib/ai/                    # Ai::Provider (interfaz), Ai::Gemini (implementación)
-  policies/                  # autorización por rol
+  policies/                  # autorización por rol y por scope del token
 ```
 
-- Los controladores son finos. La lógica va en `services/`.
+- Los controladores son finos. La lógica va en `services/`. La web, la API con token y el MCP usan **los mismos servicios**: no hay lógica de dominio duplicada por canal.
 - **Todos** los accesos a datos del dominio pasan por `current_team`. Nunca se busca por id sin acotar al equipo (ver [RNF-SEC-001](09-privacidad-seguridad.md)).
 
 ## Comunicación y tiempo real
@@ -94,9 +106,11 @@ app/
 | `Attribution::AiSuggestJob` | `ai` | Cron cada 10 min por equipo con eventos pendientes | Aplica la capa 3 |
 | `Analysis::RunJob` | `ai` | Cron (según el plan) o bajo demanda | Análisis de cobertura ([06](06-analisis-ia.md)) |
 | `Ingest::ProcessBatchJob` | `ingest` | POST a `/ingest` | Normaliza los eventos de Claude Code |
+| `Webhooks::DeliverJob` | `outbound` | Cambio en el dominio con webhooks suscritos | Envía y reintenta los webhooks salientes ([12](12-acceso-programatico.md#webhooks-salientes)) |
+| `Webhooks::MilestoneDueSoonJob` | `low` | Cron cada 5 min | Emite `milestone.due_soon` |
 | `Maintenance::RetentionJob` | `low` | Cron diario | Aplica la política de retención ([09](09-privacidad-seguridad.md)) |
 
-Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, ai: 1, low: 1`. Todos los jobs son **idempotentes**, porque pueden reintentarse.
+Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, outbound: 2, ai: 1, low: 1`. Todos los jobs son **idempotentes**, porque pueden reintentarse.
 
 ## Configuración (variables de entorno)
 
@@ -108,6 +122,8 @@ Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, ai: 1, l
 | `SESSION_SECRET` | api | Firma de cookies |
 | `GITHUB_APP_ID`, `GITHUB_APP_SLUG`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | api | GitHub App (incluye el login OAuth de usuario) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | api | Proveedor de IA |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | api | Login con Google (OpenID Connect) |
+| `WEBHOOK_SECRETS_KEY` | api | Clave para cifrar los secretos de los webhooks salientes |
 | `AI_PROVIDER` | api | `gemini` (por defecto). Deja preparado el cambio de proveedor |
 | `NEXT_PUBLIC_API_URL` | web | Base de la API |
 | `HACKBOARD_API_URL` | cli | Por defecto, la URL de producción |

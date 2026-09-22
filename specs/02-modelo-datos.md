@@ -13,6 +13,10 @@
 
 ```
 User 1──* Membership *──1 Team 1──* Repository
+              1                    1
+              └──* AccessToken ────┘ (kind: pat | oauth | integration)
+                                   Team 1──* OutboundWebhook 1──* OutboundDelivery
+ OAuthClient 1──* AccessToken (kind: oauth) · OAuthClient 1──* OAuthGrant
                            │
           ┌────────┬───────┼──────────┬─────────────┬────────────┐
           *        *       *          *             *            *
@@ -30,9 +34,10 @@ User 1──* Membership *──1 Team 1──* Repository
 |-------|------|-------|
 | `email` | String | Obligatorio, único, se guarda en minúsculas |
 | `name` | String | Obligatorio, 1–80 caracteres |
-| `password_digest` | String | Opcional si hay login con GitHub (`ActiveModel::SecurePassword`) |
+| `password_digest` | String | Opcional si hay login con GitHub o Google (`ActiveModel::SecurePassword`) |
 | `github_uid` | Integer | Único y disperso (`sparse`). Id numérico de GitHub |
 | `github_login` | String | Se actualiza en cada login con GitHub |
+| `google_sub` | String | Único y disperso. `sub` del ID token de Google |
 | `avatar_url` | String | |
 | `last_team_id` | ObjectId | Último equipo abierto, para redirigir tras el login |
 
@@ -93,6 +98,93 @@ Sesiones web con cookie opaca.
 Índices: `{team_id: 1, user_id: 1}` único y `{"claude_code.token_digest": 1}` único y disperso.
 
 Invariante: todo equipo tiene al menos un `owner`. No se puede degradar ni eliminar al último.
+
+## AccessToken
+
+Tokens para la API y el MCP ([12](12-acceso-programatico.md#tokens)): de acceso personal, de OAuth y de integración. El token de miembro del CLI sigue en `Membership.claude_code`.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `kind` | String | `pat` \| `oauth` \| `integration` |
+| `team_id` | ObjectId | El token solo sirve en ese equipo |
+| `membership_id`, `user_id` | ObjectId | El dueño. `nil` en `integration` |
+| `created_by_id` | ObjectId | Quién lo creó (en `integration`, el owner) |
+| `oauth_client_id` | ObjectId | Solo en `oauth` |
+| `refresh_token_digest` | String | Solo en `oauth`. Cambia en cada rotación |
+| `refresh_family_id` | String | Solo en `oauth`. Si se reutiliza un refresh ya rotado, se revoca toda la familia |
+| `resource` | String | Solo en `oauth`. Audiencia (RFC 8707) |
+| `name` | String | 1–60 caracteres. En `oauth`, el nombre del cliente |
+| `token_digest` | String | SHA-256 del token. El token en claro se muestra una sola vez |
+| `token_prefix` | String | Los primeros 12 caracteres, para mostrarlos (`hb_pat_ab12…`). En `oauth` el access token cambia cada hora; el digest es el del access token vigente |
+| `scopes` | Array<String> | Ver [12](12-acceso-programatico.md#scopes--rf-api-002-f2-aceptado). Nunca incluye `ingest` |
+| `expires_at` | Time | Obligatorio. Máx. 90 días desde la creación. En `oauth` es la caducidad de la conexión; el access token caduca en `access_expires_at` (1 h) |
+| `last_used_at` | Time | Resolución de 1 min |
+| `revoked_at`, `revoked_by_id` | Time, ObjectId | Revocado por el dueño, por un owner o por el sistema |
+| `revoke_reason` | String | `manual` \| `member_left` \| `account_deleted` \| `team_deleted` \| `refresh_reuse` |
+
+Índices: `{token_digest: 1}` único, `{team_id: 1, membership_id: 1, revoked_at: 1}`.
+
+Índices adicionales: `{refresh_token_digest: 1}` único y disperso, `{oauth_client_id: 1}`.
+
+Invariantes: máximo 10 PATs activos por `membership_id` y 10 tokens de integración activos por equipo.
+
+## OAuthClient
+
+Clientes de [OAuth 2.1](12-acceso-programatico.md#oauth-21). **No tiene `team_id`**: un cliente (p. ej. claude.ai) sirve para cualquier equipo. Es la única excepción, junto con `User`, `Session` y `OAuthGrant`, a la regla multi-tenant; los tokens que emite sí van acotados a un equipo.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `client_id` | String | Aleatorio, o la URL del *Client ID Metadata Document* |
+| `registration` | String | `dynamic` \| `metadata_document` \| `first_party` |
+| `name` | String | Máx. 60 caracteres. Se muestra como "no verificado" salvo en `first_party` |
+| `redirect_uris` | Array<String> | Coincidencia exacta |
+| `client_uri`, `logo_uri` | String | Opcionales. El logo solo se muestra en `first_party` |
+| `last_used_at` | Time | |
+
+Índice: `{client_id: 1}` único. Los clientes `dynamic` sin tokens activos se borran a los 30 días sin uso.
+
+## OAuthGrant
+
+Código de autorización pendiente de canjear.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `code_digest` | String | SHA-256 del código |
+| `oauth_client_id`, `user_id`, `team_id`, `membership_id` | ObjectId | |
+| `scopes` | Array<String> | Los aprobados |
+| `redirect_uri`, `resource` | String | Se comprueban al canjear |
+| `code_challenge` | String | PKCE `S256` |
+| `expires_at` | Time | 60 s. TTL |
+| `used_at` | Time | Un solo uso. Si se intenta canjear otra vez, se revocan los tokens emitidos con él |
+
+Índices: `{code_digest: 1}` único, `{expires_at: 1}` TTL.
+
+## OutboundWebhook
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `team_id` | ObjectId | |
+| `url` | String | Solo HTTPS |
+| `events` | Array<String> | Ver [12](12-acceso-programatico.md#webhooks-salientes) |
+| `secret_ciphertext` | String | El secreto de firma **cifrado** con `WEBHOOK_SECRETS_KEY` (hace falta para firmar, no basta con un hash) |
+| `active` | Boolean | |
+| `consecutive_failures` | Integer | A los 50 se pausa |
+| `created_by_id` | ObjectId | |
+
+Máximo 5 por equipo.
+
+## OutboundDelivery
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `team_id`, `outbound_webhook_id` | ObjectId | |
+| `event`, `delivery_id` | String | |
+| `status` | String | `pending` \| `succeeded` \| `failed` |
+| `attempts` | Integer | |
+| `response_status`, `duration_ms` | Integer | No se guarda el cuerpo de la respuesta |
+| `next_attempt_at` | Time | |
+
+Índices: `{team_id: 1, outbound_webhook_id: 1, created_at: -1}`, `{created_at: 1}` TTL de 14 días.
 
 ## Repository
 
@@ -172,7 +264,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `dedupe_key` | String | Único por equipo. P. ej. `gh:commit:<sha>`, `cc:<client_event_id>` |
 | `occurred_at` | Time | Cuándo ocurrió (según la fuente) |
 | `received_at` | Time | |
-| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `display` (String), `github_login` (nullable) |
+| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable) |
 | `repository_id` | ObjectId | Nullable |
 | `branch` | String | Nullable |
 | `sha` | String | Nullable |
@@ -186,6 +278,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `mentioned_feature_keys` | Array<String> | Claves `F-n` encontradas en la rama o el mensaje |
 | `attribution` | embebido `Attribution` | Ver abajo |
 | `session_ref` | String | Hash de la sesión de Claude Code, para agrupar |
+| `via` | Hash | Solo en cambios hechos con un token: `{channel: "api" \| "mcp", token_kind: "member" \| "pat" \| "oauth" \| "integration", token_id, token_prefix, client}`. `client` es el nombre del cliente OAuth o el `clientInfo.name` del cliente MCP (máx. 40 caracteres, no confiable). `nil` si el cambio viene de la web ([RF-API-006](12-acceso-programatico.md#trazabilidad)) |
 
 **Catálogo de `kind`:**
 
@@ -194,7 +287,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | github | `commit`, `pr_opened`, `pr_merged`, `pr_closed`, `pr_reopened`, `branch_created`, `branch_deleted` |
 | claude_code | `cc_session_start`, `cc_session_end`, `cc_turn` (turno completo: prompt + herramientas + stop), `cc_prompt` (solo con nivel `summaries`) |
 | mcp | `progress_report` |
-| system | `feature_status_changed`, `feature_assigned`, `member_joined` |
+| system | `feature_status_changed`, `feature_assigned`, `member_joined`, `api_change` (escritura por API o MCP sin evento propio; `payload: {entity, key, action, fields[]}`, sin valores) |
 
 **Attribution** (embebido, nullable):
 
@@ -214,6 +307,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 - `{team_id: 1, "attribution.feature_id": 1, occurred_at: -1}`
 - `{team_id: 1, "actor.user_id": 1, occurred_at: -1}`
 - `{team_id: 1, "attribution.status": 1}` (para buscar pendientes)
+- `{team_id: 1, "via.token_id": 1, occurred_at: -1}` disperso (para "Ver lo que ha hecho" un token)
 
 ## AiAnalysis
 
