@@ -1,15 +1,19 @@
 "use client";
 
 import { use, useState } from "react";
-import { Bot, Copy, GitBranch, Plug, RefreshCw, Trash2, Webhook as WebhookIcon } from "lucide-react";
+import { toast } from "sonner";
+import { BotIcon, CopyIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, Trash2Icon, WebhookIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorState, LoadingState } from "@/components/states";
+import { PageHeader } from "@/components/f0/page-header";
 import { useMe } from "@/hooks/use-me";
 import {
   useMembers,
@@ -44,6 +48,11 @@ import {
 } from "@/hooks/use-api-access";
 import { ApiError } from "@/lib/api-client";
 import type { ClaudeCodeStatus, Member } from "@/types/api";
+
+function copyToClipboard(text: string, message = "Copiado") {
+  navigator.clipboard.writeText(text);
+  toast.success(message);
+}
 
 const PAT_PRESETS = [
   { value: "observar", label: "Observar (solo lectura)" },
@@ -90,7 +99,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Equipo y ajustes</h1>
+      <PageHeader icon={SettingsIcon} title="Equipo y ajustes" />
 
       <TeamCodeCard teamId={teamId} code={team.code} formattedCode={team.formatted_code} isOwner={isOwner} />
       <HackathonCard teamId={teamId} team={team} isOwner={isOwner} />
@@ -123,19 +132,19 @@ function TeamCodeCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Código de equipo</CardTitle>
+        <CardTitle className="text-base">Código de equipo</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-lg">{formattedCode}</span>
-        <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(code)}>
-          <Copy className="size-3.5" /> Copiar código
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(code, "Código copiado")}>
+          <CopyIcon className="size-3.5" /> Copiar código
         </Button>
-        <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(joinUrl)}>
-          <Copy className="size-3.5" /> Copiar enlace
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(joinUrl, "Enlace copiado")}>
+          <CopyIcon className="size-3.5" /> Copiar enlace
         </Button>
         {isOwner && (
           <Button variant="outline" size="sm" onClick={() => rotateCode.mutate()} disabled={rotateCode.isPending}>
-            <RefreshCw className="size-3.5" /> Regenerar
+            <RefreshCwIcon className="size-3.5" /> Regenerar
           </Button>
         )}
       </CardContent>
@@ -158,16 +167,16 @@ function HackathonCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Hackathon</CardTitle>
+        <CardTitle className="text-base">Hackathon</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <div>
           <Label>Nombre del hackathon</Label>
-          <p className="text-sm">{team.hackathon?.name}</p>
+          <p className="text-base">{team.hackathon?.name}</p>
         </div>
         <div>
           <Label>Zona horaria</Label>
-          <p className="text-sm">{team.hackathon?.timezone}</p>
+          <p className="text-base">{team.hackathon?.timezone}</p>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="challenge">Texto del reto</Label>
@@ -203,18 +212,18 @@ function MembersCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Miembros</CardTitle>
+        <CardTitle className="text-base">Miembros</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {members.map((member) => {
           const isMe = member.user_id === myUserId;
           return (
-            <div key={member.id} className="flex items-center gap-3 rounded-md border p-2">
-              <div className="bg-muted flex size-8 items-center justify-center rounded-full text-xs">
-                {member.display_name.slice(0, 2).toUpperCase()}
-              </div>
-              <span className="flex-1 text-sm">{member.display_name}</span>
-              <Badge variant={member.claude_code ? "default" : "outline"}>
+            <div key={member.id} className="flex items-center gap-3 rounded-md border border-f1-border p-2">
+              <Avatar>
+                <AvatarFallback>{member.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <span className="flex-1 text-base text-f1-foreground">{member.display_name}</span>
+              <Badge variant={member.claude_code ? "positive" : "outline"}>
                 {member.claude_code ? "Claude Code conectado" : "Claude Code no conectado"}
               </Badge>
 
@@ -239,7 +248,7 @@ function MembersCard({
                   aria-label={isMe ? "Salir del equipo" : "Expulsar"}
                   onClick={() => removeMember.mutate(member.id)}
                 >
-                  <Trash2 className="size-4" />
+                  <Trash2Icon className="size-4" />
                 </Button>
               )}
             </div>
@@ -281,17 +290,17 @@ function GitHubCard({ teamId }: { teamId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <GitBranch className="size-4" /> GitHub
+        <CardTitle className="flex items-center gap-2 text-base">
+          <GitBranchIcon className="size-4" /> GitHub
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {isLoading && <p className="text-muted-foreground text-sm">Cargando…</p>}
+        {isLoading && <p className="text-muted-foreground text-base">Cargando…</p>}
         {repositories?.map((repo) => (
-          <div key={repo.id} className="flex items-center gap-3 rounded-md border p-2 text-sm">
-            <Badge variant="default">Conectado ✓</Badge>
+          <div key={repo.id} className="flex items-center gap-3 rounded-md border p-2 text-base">
+            <Badge variant="positive">Conectado</Badge>
             <span className="flex-1">{repo.full_name}</span>
-            <span className="text-muted-foreground text-xs">{repo.default_branch}</span>
+            <span className="text-muted-foreground text-sm">{repo.default_branch}</span>
             <Button
               variant="ghost"
               size="icon"
@@ -299,14 +308,14 @@ function GitHubCard({ teamId }: { teamId: string }) {
               onClick={() => resyncRepository.mutate(repo.id)}
               disabled={resyncRepository.isPending}
             >
-              <RefreshCw className="size-4" />
+              <RefreshCwIcon className="size-4" />
             </Button>
             <Button variant="ghost" size="icon" aria-label="Desvincular" onClick={() => unlinkRepository.mutate(repo.id)}>
-              <Trash2 className="size-4" />
+              <Trash2Icon className="size-4" />
             </Button>
           </div>
         ))}
-        {repositories?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay repos vinculados.</p>}
+        {repositories?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay repos vinculados.</p>}
 
         <form onSubmit={handleAdd} className="flex gap-2">
           <Input
@@ -319,10 +328,10 @@ function GitHubCard({ teamId }: { teamId: string }) {
           </Button>
         </form>
 
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && <p className="text-destructive text-base">{error}</p>}
 
         {installUrl && (
-          <div className="rounded-md border p-2 text-sm">
+          <div className="rounded-md border p-2 text-base">
             <p>Hace falta instalar la GitHub App para acceder a este repositorio.</p>
             <a href={installUrl} className="text-primary underline">
               Instalar la App en GitHub
@@ -353,17 +362,17 @@ function ClaudeCodeCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Bot className="size-4" /> Claude Code (personal)
+        <CardTitle className="flex items-center gap-2 text-base">
+          <BotIcon className="size-4" /> Claude Code (personal)
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {!link ? (
           <>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-base">
               No está conectado. Son dos pasos:
             </p>
-            <ol className="text-muted-foreground list-inside list-decimal text-sm">
+            <ol className="text-muted-foreground list-inside list-decimal text-base">
               <li>
                 <code className="font-mono">npm i -g hackboard</code>
               </li>
@@ -371,7 +380,7 @@ function ClaudeCodeCard({
                 <code className="font-mono">hackboard init --team {formattedCode}</code>
               </li>
             </ol>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               Esto registra tu Claude Code en este equipo y añade el hook que envía tu actividad. Se envían metadatos
               (qué archivo, qué comando, cuánto tardó) y, si eliges ese nivel de privacidad, un resumen corto — nunca
               el contenido de los archivos, diffs, ni el texto de tus prompts.
@@ -379,9 +388,9 @@ function ClaudeCodeCard({
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2 text-sm">
-              <Badge variant={link.paused ? "outline" : "default"}>{link.paused ? "Pausado" : "Conectado"}</Badge>
-              <span className="text-muted-foreground font-mono text-xs">{link.token_prefix}…</span>
+            <div className="flex items-center gap-2 text-base">
+              <Badge variant={link.paused ? "outline" : "positive"}>{link.paused ? "Pausado" : "Conectado"}</Badge>
+              <span className="text-muted-foreground font-mono text-sm">{link.token_prefix}…</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -401,7 +410,7 @@ function ClaudeCodeCard({
               </Select>
             </div>
 
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               Último evento: {link.last_event_at ? new Date(link.last_event_at).toLocaleString() : "todavía ninguno"}
             </p>
 
@@ -416,11 +425,11 @@ function ClaudeCodeCard({
               </Button>
               {!confirmingPurge ? (
                 <Button variant="ghost" size="sm" onClick={() => setConfirmingPurge(true)}>
-                  <Trash2 className="size-3.5" /> Desconectar
+                  <Trash2Icon className="size-3.5" /> Desconectar
                 </Button>
               ) : (
                 <div className="flex flex-col gap-1.5 rounded-md border p-2">
-                  <p className="text-xs">¿Solo desconectar, o también borrar tus eventos ya enviados?</p>
+                  <p className="text-sm">¿Solo desconectar, o también borrar tus eventos ya enviados?</p>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => disconnect.mutate(false)} disabled={disconnect.isPending}>
                       Solo desconectar
@@ -446,19 +455,19 @@ function RevealedToken({ label, token, apiUrl, onDismiss }: { label: string; tok
   const mcpCommand = `claude mcp add --transport http --scope local hackboard ${apiUrl}/api/v1/mcp --header "Authorization: Bearer ${token}"`;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-primary p-3 text-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-f1-border-warning-bold bg-f1-background-warning p-3 text-base">
       <p className="font-medium">{label}: apúntalo ahora, no se vuelve a mostrar.</p>
       <div className="flex items-center gap-2">
-        <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-xs">{token}</code>
-        <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(token)}>
-          <Copy className="size-3.5" /> Copiar
+        <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{token}</code>
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(token, "Token copiado")}>
+          <CopyIcon className="size-3.5" /> Copiar
         </Button>
       </div>
-      <p className="text-muted-foreground text-xs">Para registrar el MCP en Claude Code:</p>
+      <p className="text-muted-foreground text-sm">Para registrar el MCP en Claude Code:</p>
       <div className="flex items-center gap-2">
-        <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-xs">{mcpCommand}</code>
-        <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(mcpCommand)}>
-          <Copy className="size-3.5" /> Copiar
+        <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{mcpCommand}</code>
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(mcpCommand, "Comando copiado")}>
+          <CopyIcon className="size-3.5" /> Copiar
         </Button>
       </div>
       <Button variant="ghost" size="sm" className="self-start" onClick={onDismiss}>
@@ -497,7 +506,7 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Mis tokens de acceso (API y MCP)</CardTitle>
+        <CardTitle className="text-base">Mis tokens de acceso (API y MCP)</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {revealed && <RevealedToken label="Token" token={revealed} apiUrl={apiUrl} onDismiss={() => setRevealed(null)} />}
@@ -505,25 +514,25 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
         {tokens?.map((token) => {
           const owner = members.find((m) => m.id === token.membership_id);
           return (
-            <div key={token.id} className="flex flex-col gap-1 rounded-md border p-2 text-sm">
+            <div key={token.id} className="flex flex-col gap-1 rounded-md border p-2 text-base">
               <div className="flex items-center gap-3">
                 <span className="flex-1">
                   {token.name}
                   {isOwner && owner && <span className="text-muted-foreground"> · {owner.display_name}</span>}
                 </span>
-                <span className="text-muted-foreground font-mono text-xs">{token.token_prefix}…</span>
+                <span className="text-muted-foreground font-mono text-sm">{token.token_prefix}…</span>
                 <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(token.id)}>
-                  <Trash2 className="size-4" />
+                  <Trash2Icon className="size-4" />
                 </Button>
               </div>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-sm">
                 {token.scopes.join(", ")} · caduca {token.expires_at ? new Date(token.expires_at).toLocaleDateString() : "—"} ·
                 último uso: {token.last_used_at ? new Date(token.last_used_at).toLocaleString() : "todavía ninguno"}
               </p>
             </div>
           );
         })}
-        {tokens?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no tienes tokens.</p>}
+        {tokens?.length === 0 && <p className="text-muted-foreground text-base">Todavía no tienes tokens.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2 sm:flex-row">
           <Input placeholder="Nombre (p. ej. Claude Code portátil)" value={name} onChange={(e) => setName(e.target.value)} className="flex-1" />
@@ -543,8 +552,8 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
             Crear token
           </Button>
         </form>
-        {error && <p className="text-destructive text-sm">{error}</p>}
-        <p className="text-muted-foreground text-xs">
+        {error && <p className="text-destructive text-base">{error}</p>}
+        <p className="text-muted-foreground text-sm">
           No lo subas a un repositorio ni lo compartas: da acceso a la API con los permisos elegidos.{" "}
           <a href={`${apiUrl}/api/v1/openapi.json`} target="_blank" rel="noreferrer" className="text-primary underline">
             Documentación OpenAPI
@@ -552,14 +561,14 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
         </p>
 
         <div className="flex flex-col gap-1.5 rounded-md border p-3">
-          <p className="text-sm font-medium">claude.ai (custom connector)</p>
+          <p className="text-base font-medium">claude.ai (custom connector)</p>
           <div className="flex items-center gap-2">
-            <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-xs">{apiUrl}/api/v1/mcp</code>
-            <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${apiUrl}/api/v1/mcp`)}>
-              <Copy className="size-3.5" /> Copiar
+            <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{apiUrl}/api/v1/mcp</code>
+            <Button variant="outline" size="sm" onClick={() => copyToClipboard(`${apiUrl}/api/v1/mcp`, "URL copiada")}>
+              <CopyIcon className="size-3.5" /> Copiar
             </Button>
           </div>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-sm">
             En claude.ai: Ajustes → Connectors → Añadir custom connector, pega esta URL e inicia sesión cuando te lo pida.
             No hace falta copiar ningún token: claude.ai pedirá permiso con la pantalla de consentimiento. Las conexiones
             autorizadas aparecen en{" "}
@@ -611,34 +620,34 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Plug className="size-4" /> Tokens de integración
+        <CardTitle className="flex items-center gap-2 text-base">
+          <PlugIcon className="size-4" /> Tokens de integración
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {revealed && <RevealedToken label="Token de integración" token={revealed} apiUrl={apiUrl} onDismiss={() => setRevealed(null)} />}
 
         {integrations?.map((integration) => (
-          <div key={integration.id} className="flex items-center gap-3 rounded-md border p-2 text-sm">
+          <div key={integration.id} className="flex items-center gap-3 rounded-md border p-2 text-base">
             <span className="flex-1">{integration.name}</span>
-            <span className="text-muted-foreground font-mono text-xs">{integration.token_prefix}…</span>
-            <span className="text-muted-foreground text-xs">{integration.scopes.join(", ")}</span>
+            <span className="text-muted-foreground font-mono text-sm">{integration.token_prefix}…</span>
+            <span className="text-muted-foreground text-sm">{integration.scopes.join(", ")}</span>
             <Button variant="outline" size="sm" onClick={() => handleRotate(integration.id)}>
               Rotar
             </Button>
             <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(integration.id)}>
-              <Trash2 className="size-4" />
+              <Trash2Icon className="size-4" />
             </Button>
           </div>
         ))}
-        {integrations?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay integraciones.</p>}
+        {integrations?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay integraciones.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2">
           <Input placeholder="Nombre (p. ej. Bot de Slack)" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="flex flex-wrap gap-2">
             {INTEGRATION_SCOPES.map((scope) => (
-              <label key={scope} className="flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs has-[:checked]:border-primary">
-                <input type="checkbox" checked={scopes.includes(scope)} onChange={() => toggleScope(scope)} />
+              <label key={scope} className="flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm has-data-[checked]:border-primary">
+                <Checkbox checked={scopes.includes(scope)} onCheckedChange={() => toggleScope(scope)} />
                 {scope}
               </label>
             ))}
@@ -647,7 +656,7 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
             Crear integración
           </Button>
         </form>
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && <p className="text-destructive text-base">{error}</p>}
       </CardContent>
     </Card>
   );
@@ -693,18 +702,18 @@ function WebhooksCard({ teamId }: { teamId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
+        <CardTitle className="flex items-center gap-2 text-base">
           <WebhookIcon className="size-4" /> Webhooks salientes
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {revealedSecret && (
-          <div className="flex flex-col gap-2 rounded-md border border-primary p-3 text-sm">
+          <div className="flex flex-col gap-2 rounded-md border border-f1-border-warning-bold bg-f1-background-warning p-3 text-base">
             <p className="font-medium">Secreto de firma: apúntalo ahora, no se vuelve a mostrar.</p>
             <div className="flex items-center gap-2">
-              <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-xs">{revealedSecret}</code>
-              <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(revealedSecret)}>
-                <Copy className="size-3.5" /> Copiar
+              <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{revealedSecret}</code>
+              <Button variant="outline" size="sm" onClick={() => copyToClipboard(revealedSecret, "Secreto copiado")}>
+                <CopyIcon className="size-3.5" /> Copiar
               </Button>
             </div>
             <Button variant="ghost" size="sm" className="self-start" onClick={() => setRevealedSecret(null)}>
@@ -714,9 +723,9 @@ function WebhooksCard({ teamId }: { teamId: string }) {
         )}
 
         {webhooks?.map((webhook) => (
-          <div key={webhook.id} className="flex flex-col gap-2 rounded-md border p-2 text-sm">
+          <div key={webhook.id} className="flex flex-col gap-2 rounded-md border p-2 text-base">
             <div className="flex items-center gap-2">
-              <Badge variant={webhook.active ? "default" : "outline"}>{webhook.active ? "Activo" : "Pausado"}</Badge>
+              <Badge variant={webhook.active ? "positive" : "outline"}>{webhook.active ? "Activo" : "Pausado"}</Badge>
               <span className="flex-1 truncate">{webhook.url}</span>
               <Button
                 variant="ghost"
@@ -724,15 +733,15 @@ function WebhooksCard({ teamId }: { teamId: string }) {
                 aria-label={webhook.active ? "Pausar" : "Reanudar"}
                 onClick={() => update.mutate({ id: webhook.id, active: !webhook.active })}
               >
-                <RefreshCw className="size-4" />
+                <RefreshCwIcon className="size-4" />
               </Button>
               <Button variant="ghost" size="icon" aria-label="Eliminar" onClick={() => remove.mutate(webhook.id)}>
-                <Trash2 className="size-4" />
+                <Trash2Icon className="size-4" />
               </Button>
             </div>
-            <p className="text-muted-foreground text-xs">{webhook.events.join(", ")}</p>
+            <p className="text-muted-foreground text-sm">{webhook.events.join(", ")}</p>
             {webhook.consecutive_failures > 0 && (
-              <p className="text-destructive text-xs">{webhook.consecutive_failures} fallos seguidos</p>
+              <p className="text-destructive text-sm">{webhook.consecutive_failures} fallos seguidos</p>
             )}
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => test.mutate(webhook.id)} disabled={test.isPending}>
@@ -748,14 +757,14 @@ function WebhooksCard({ teamId }: { teamId: string }) {
             {openDeliveries === webhook.id && <WebhookDeliveries teamId={teamId} webhookId={webhook.id} />}
           </div>
         ))}
-        {webhooks?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay webhooks.</p>}
+        {webhooks?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay webhooks.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2">
           <Input placeholder="https://…" value={url} onChange={(e) => setUrl(e.target.value)} />
           <div className="flex flex-wrap gap-2">
             {WEBHOOK_EVENTS.map((event) => (
-              <label key={event} className="flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs has-[:checked]:border-primary">
-                <input type="checkbox" checked={events.includes(event)} onChange={() => toggleEvent(event)} />
+              <label key={event} className="flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm has-data-[checked]:border-primary">
+                <Checkbox checked={events.includes(event)} onCheckedChange={() => toggleEvent(event)} />
                 {event}
               </label>
             ))}
@@ -764,7 +773,7 @@ function WebhooksCard({ teamId }: { teamId: string }) {
             Crear webhook
           </Button>
         </form>
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && <p className="text-destructive text-base">{error}</p>}
       </CardContent>
     </Card>
   );
@@ -777,8 +786,8 @@ function WebhookDeliveries({ teamId, webhookId }: { teamId: string; webhookId: s
   return (
     <div className="flex flex-col gap-1 rounded-md bg-muted/50 p-2">
       {deliveries?.map((delivery) => (
-        <div key={delivery.id} className="flex items-center gap-2 text-xs">
-          <Badge variant={delivery.status === "succeeded" ? "default" : "outline"}>{delivery.status}</Badge>
+        <div key={delivery.id} className="flex items-center gap-2 text-sm">
+          <Badge variant={delivery.status === "succeeded" ? "positive" : "destructive"}>{delivery.status}</Badge>
           <span className="flex-1">{delivery.event}</span>
           <span className="text-muted-foreground">{delivery.response_status ?? "—"}</span>
           <Button variant="ghost" size="sm" onClick={() => redeliver.mutate({ webhookId, deliveryId: delivery.id })}>
@@ -786,7 +795,7 @@ function WebhookDeliveries({ teamId, webhookId }: { teamId: string; webhookId: s
           </Button>
         </div>
       ))}
-      {deliveries?.length === 0 && <p className="text-muted-foreground text-xs">Todavía no hay entregas.</p>}
+      {deliveries?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay entregas.</p>}
     </div>
   );
 }
@@ -803,25 +812,25 @@ function ConnectedAppsCard() {
   return (
     <Card id="apps-conectadas">
       <CardHeader>
-        <CardTitle className="text-sm">Apps conectadas</CardTitle>
+        <CardTitle className="text-base">Apps conectadas</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {connections?.map((connection) => (
-          <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-sm">
+          <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-base">
             <div className="flex items-center gap-3">
               <span className="flex-1">
                 {connection.client.name ?? "App desconocida"}
                 {!connection.client.first_party && (
-                  <Badge variant="outline" className="ml-2 text-xs">
-                    no verificada
+                  <Badge variant="warning" className="ml-2">
+                    No verificada
                   </Badge>
                 )}
               </span>
               <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(connection.id)}>
-                <Trash2 className="size-4" />
+                <Trash2Icon className="size-4" />
               </Button>
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               {connection.scopes.join(", ")} · autorizada el {new Date(connection.created_at).toLocaleDateString()} · último
               uso: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString() : "todavía ninguno"}
             </p>
@@ -844,26 +853,26 @@ function TeamConnectedAppsCard({ teamId }: { teamId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Apps conectadas (equipo)</CardTitle>
+        <CardTitle className="text-base">Apps conectadas (equipo)</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {connections?.map((connection) => (
-          <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-sm">
+          <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-base">
             <div className="flex items-center gap-3">
               <span className="flex-1">
                 {connection.client.name ?? "App desconocida"}
                 {!connection.client.first_party && (
-                  <Badge variant="outline" className="ml-2 text-xs">
-                    no verificada
+                  <Badge variant="warning" className="ml-2">
+                    No verificada
                   </Badge>
                 )}
               </span>
-              <span className="text-muted-foreground text-xs">{connection.user.display_name ?? "—"}</span>
+              <span className="text-muted-foreground text-sm">{connection.user.display_name ?? "—"}</span>
               <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(connection.id)}>
-                <Trash2 className="size-4" />
+                <Trash2Icon className="size-4" />
               </Button>
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               {connection.scopes.join(", ")} · autorizada el {new Date(connection.created_at).toLocaleDateString()} · último
               uso: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString() : "todavía ninguno"}
             </p>
