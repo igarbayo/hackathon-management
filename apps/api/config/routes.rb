@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       patch "cli/me", to: "cli/me#update"
       delete "cli/me", to: "cli/me#destroy"
       post "ingest/claude_code", to: "ingest/claude_code#create"
+      post "mcp", to: "mcp#create"
 
       resources :teams, only: %i[create show update destroy] do
         post "code/rotate", to: "teams#rotate_code"

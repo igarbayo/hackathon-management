@@ -173,32 +173,15 @@ module TeamScoping
 
   # RF-API-006: si una escritura hecha con un token no genera ya su propio
   # evento (feature_status_changed, feature_assigned…), se deja constancia
-  # con system/api_change y la lista de campos, no sus valores. Las
-  # escrituras hechas desde la web no llevan via, así que no crean nada aquí.
+  # con system/api_change. Las escrituras hechas desde la web no llevan
+  # via, así que no crean nada aquí. Compartido con el servidor MCP en
+  # Tracking::RecordApiChange, porque un token también escribe desde ahí.
   def record_api_change!(entity:, key:, fields:)
-    return if current_via.blank? || fields.blank?
+    return unless @resolved_token
 
-    ActivityEvent.create!(
-      team_id: current_team.id,
-      source: "system",
-      kind: "api_change",
-      dedupe_key: "api:#{SecureRandom.uuid}",
-      occurred_at: Time.current,
-      actor: current_actor_for_via,
-      title: "#{entity} #{key} editado por API/MCP",
-      payload: { "entity" => entity, "key" => key.to_s, "fields" => fields },
-      via: current_via
+    Tracking::RecordApiChange.call(
+      team: current_team, membership: current_membership, resolved_token: @resolved_token,
+      entity: entity, key: key, fields: fields, channel: "api"
     )
-  end
-
-  # Con un token de integración el actor es la propia integración, no una
-  # persona (12-acceso-programatico.md#tokens-de-integración-de-equipo).
-  def current_actor_for_via
-    if current_membership
-      { "user_id" => current_membership.user_id.to_s, "membership_id" => current_membership.id.to_s, "display" => current_membership.display_name }
-    else
-      token = @resolved_token.token_record
-      { "user_id" => nil, "membership_id" => nil, "integration_id" => token.id.to_s, "display" => "#{token.name} (integración)" }
-    end
   end
 end

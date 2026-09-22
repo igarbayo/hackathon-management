@@ -3,9 +3,12 @@
 # sea cual sea su prefijo (12-acceso-programatico.md#tipos-de-token).
 # hb_oat_ (OAuth) y hb_it_ (integración) se añaden cuando existan esos flujos.
 module Tokens
-  Resolved = Struct.new(:kind, :team, :membership, :scopes, :token_record, :token_prefix, keyword_init: true) do
+  Resolved = Struct.new(:kind, :team, :membership, :scopes, :token_record, :token_prefix, :client_name, keyword_init: true) do
+    # client_name lo rellena Mcp::Dispatch a partir del initialize de esa
+    # sesión (12-acceso-programatico.md#servidor-mcp); dato informativo, no
+    # se usa nunca para autorizar.
     def via(channel:, client: nil)
-      { "channel" => channel, "token_kind" => kind, "token_id" => token_record&.id&.to_s, "token_prefix" => token_prefix, "client" => client }
+      { "channel" => channel, "token_kind" => kind, "token_id" => token_record&.id&.to_s, "token_prefix" => token_prefix, "client" => client || client_name }
     end
   end
 
