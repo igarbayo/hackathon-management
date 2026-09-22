@@ -31,16 +31,16 @@ RSpec.describe "Herramientas MCP de lectura" do
 
   describe Mcp::Tools::ListFeatures do
     it "filtra por mine" do
-      mine = create(:feature, team: team, assignee_ids: [membership.id])
+      mine = create(:feature, team: team, assignee_ids: [ membership.id ])
       create(:feature, team: team)
 
       result = call(described_class, { "mine" => true })
 
-      expect(result[:features].map { |f| f[:key] }).to eq([mine.key])
+      expect(result[:features].map { |f| f[:key] }).to eq([ mine.key ])
     end
 
     it "mine da error para un token de integración" do
-      integration_token = Integration::Create.call(team: team, created_by: membership.user, name: "Bot", scopes: ["read"])
+      integration_token = Integration::Create.call(team: team, created_by: membership.user, name: "Bot", scopes: [ "read" ])
       resolved = Tokens::Resolve.call(integration_token.raw_token)
 
       expect { described_class.call(team: team, membership: nil, resolved_token: resolved, args: { "mine" => true }) }
@@ -49,12 +49,12 @@ RSpec.describe "Herramientas MCP de lectura" do
 
     it "filtra por objective_key" do
       objective = create(:objective, team: team)
-      feature = create(:feature, team: team, objective_ids: [objective.id])
+      feature = create(:feature, team: team, objective_ids: [ objective.id ])
       create(:feature, team: team)
 
       result = call(described_class, { "objective_key" => objective.key })
 
-      expect(result[:features].map { |f| f[:key] }).to eq([feature.key])
+      expect(result[:features].map { |f| f[:key] }).to eq([ feature.key ])
     end
   end
 
@@ -76,7 +76,7 @@ RSpec.describe "Herramientas MCP de lectura" do
   describe Mcp::Tools::ListObjectives do
     it "incluye la cobertura del último análisis si existe" do
       objective = create(:objective, team: team)
-      create(:ai_analysis, team: team, status: "succeeded", result: { "coverage" => [{ "objective_key" => objective.key, "status" => "covered" }] })
+      create(:ai_analysis, team: team, status: "succeeded", result: { "coverage" => [ { "objective_key" => objective.key, "status" => "covered" } ] })
 
       result = call(described_class)
 

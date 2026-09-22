@@ -11,7 +11,7 @@ RSpec.describe Analysis::DeterministicAlerts do
       objective = create(:objective, team: team, priority: "must")
 
       codes = described_class.call(team)
-      expect(codes).to include(a_hash_including("code" => "objective_without_features", "severity" => "high", "related_keys" => [objective.key]))
+      expect(codes).to include(a_hash_including("code" => "objective_without_features", "severity" => "high", "related_keys" => [ objective.key ]))
     end
 
     it "severity medium si el objetivo es should" do
@@ -25,7 +25,7 @@ RSpec.describe Analysis::DeterministicAlerts do
     it "no alerta si tiene una feature activa vinculada" do
       team = create(:team)
       objective = create(:objective, team: team, priority: "must")
-      create(:feature, team: team, objective_ids: [objective.id], status: "idea")
+      create(:feature, team: team, objective_ids: [ objective.id ], status: "idea")
 
       expect(described_class.call(team)).to be_empty
     end
@@ -34,7 +34,7 @@ RSpec.describe Analysis::DeterministicAlerts do
       team = team_with_hackathon(ends_at: 2.hours.from_now)
       objective = create(:objective, team: team, priority: "should")
 
-      alert = described_class.call(team).find { |a| a["related_keys"] == [objective.key] }
+      alert = described_class.call(team).find { |a| a["related_keys"] == [ objective.key ] }
       expect(alert["code"]).to eq("objective_without_features_near_end")
       expect(alert["severity"]).to eq("high")
     end
@@ -45,7 +45,7 @@ RSpec.describe Analysis::DeterministicAlerts do
       team = create(:team)
       feature = create(:feature, team: team, status: "in_progress", deadline: 1.hour.ago)
 
-      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_overdue", "related_keys" => [feature.key]))
+      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_overdue", "related_keys" => [ feature.key ]))
     end
 
     it "no alerta si ya está done" do
@@ -61,7 +61,7 @@ RSpec.describe Analysis::DeterministicAlerts do
       team = create(:team)
       feature = create(:feature, team: team, status: "in_progress", assignee_ids: [])
 
-      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_unassigned_in_progress", "severity" => "medium", "related_keys" => [feature.key]))
+      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_unassigned_in_progress", "severity" => "medium", "related_keys" => [ feature.key ]))
     end
   end
 
@@ -70,7 +70,7 @@ RSpec.describe Analysis::DeterministicAlerts do
       team = team_with_hackathon
       feature = create(:feature, team: team, status: "in_progress")
 
-      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_stale", "related_keys" => [feature.key]))
+      expect(described_class.call(team)).to include(a_hash_including("code" => "feature_stale", "related_keys" => [ feature.key ]))
     end
 
     it "no alerta fuera de la ventana del hackathon" do
@@ -85,7 +85,7 @@ RSpec.describe Analysis::DeterministicAlerts do
     it "alerta high con un milestone a menos de 1h y features must sin terminar" do
       team = create(:team)
       objective = create(:objective, team: team, priority: "must")
-      feature = create(:feature, team: team, status: "in_progress", objective_ids: [objective.id])
+      feature = create(:feature, team: team, status: "in_progress", objective_ids: [ objective.id ])
       create(:milestone, team: team, due_at: 30.minutes.from_now)
 
       alert = described_class.call(team).find { |a| a["code"] == "milestone_soon" }

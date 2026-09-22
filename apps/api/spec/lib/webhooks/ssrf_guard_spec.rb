@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Webhooks::SsrfGuard do
   def stub_dns(host, ip)
-    allow(Resolv).to receive(:getaddresses).with(host).and_return([ip])
+    allow(Resolv).to receive(:getaddresses).with(host).and_return([ ip ])
   end
 
   it "rechaza IPs privadas (RFC1918)" do

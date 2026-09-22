@@ -28,7 +28,7 @@ RSpec.describe Attribution::ConventionJob do
   end
 
   it "capa 2: si no hay convención, prueba la rama conocida" do
-    feature = create(:feature, team: team, branch_names: ["mi-rama"])
+    feature = create(:feature, team: team, branch_names: [ "mi-rama" ])
     event = create(:activity_event, :github_commit, team: team, title: "sin clave", branch: "mi-rama")
 
     described_class.drain
@@ -65,6 +65,6 @@ RSpec.describe Attribution::ConventionJob do
     described_class.drain
 
     event = ActivityEvent.where(team_id: team.id).first
-    expect(event.mentioned_feature_keys).to eq(["F-777"])
+    expect(event.mentioned_feature_keys).to eq([ "F-777" ])
   end
 end

@@ -55,7 +55,7 @@ RSpec.describe "Herramientas MCP de escritura" do
     it "assign_to_me asigna al miembro que llama" do
       result = call(described_class, { "title" => "Nueva", "assign_to_me" => true })
 
-      expect(Feature.where(id: result[:id]).first.assignee_ids.map(&:to_s)).to eq([membership.id.to_s])
+      expect(Feature.where(id: result[:id]).first.assignee_ids.map(&:to_s)).to eq([ membership.id.to_s ])
     end
 
     it "idempotency_key: la segunda llamada devuelve el mismo resultado sin crear otra feature" do
@@ -66,7 +66,7 @@ RSpec.describe "Herramientas MCP de escritura" do
     end
 
     it "objective_keys inválido da un ToolError accionable" do
-      expect { call(described_class, { "title" => "x", "objective_keys" => ["O-999"] }) }.to raise_error(Mcp::ToolError, /O-999/)
+      expect { call(described_class, { "title" => "x", "objective_keys" => [ "O-999" ] }) }.to raise_error(Mcp::ToolError, /O-999/)
     end
   end
 
@@ -110,15 +110,15 @@ RSpec.describe "Herramientas MCP de escritura" do
     it "resuelve \"me\" y añade el assignee" do
       feature = create(:feature, team: team)
 
-      call(described_class, { "key" => feature.key, "add" => ["me"] })
+      call(described_class, { "key" => feature.key, "add" => [ "me" ] })
 
-      expect(feature.reload.assignee_ids.map(&:to_s)).to eq([membership.id.to_s])
+      expect(feature.reload.assignee_ids.map(&:to_s)).to eq([ membership.id.to_s ])
     end
 
     it "quita con remove" do
-      feature = create(:feature, team: team, assignee_ids: [membership.id])
+      feature = create(:feature, team: team, assignee_ids: [ membership.id ])
 
-      call(described_class, { "key" => feature.key, "remove" => ["me"] })
+      call(described_class, { "key" => feature.key, "remove" => [ "me" ] })
 
       expect(feature.reload.assignee_ids).to be_empty
     end

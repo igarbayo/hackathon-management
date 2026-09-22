@@ -34,7 +34,7 @@ module Github
       end
 
       def commits
-        raw = payload["forced"] ? [payload["head_commit"]].compact : Array(payload["commits"])
+        raw = payload["forced"] ? [ payload["head_commit"] ].compact : Array(payload["commits"])
         raw = fetch_full_commit_list if raw.size == MAX_COMMITS_IN_PAYLOAD && !payload["forced"]
 
         raw.reject { |c| merge_commit_on_default_branch?(c) }

@@ -21,7 +21,7 @@ module Attribution
     end
 
     def call
-      searched_texts = [event.title, event.summary, event.branch].compact
+      searched_texts = [ event.title, event.summary, event.branch ].compact
       numbers = searched_texts.flat_map { |text| text.scan(KEY_PATTERN).flatten }.map(&:to_i).uniq
       mentioned_keys = numbers.map { |n| "F-#{n}" }
 

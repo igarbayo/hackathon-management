@@ -13,8 +13,8 @@ RSpec.describe Feature, type: :model do
 
   it "calcula el score como pros menos contras" do
     feature = create(:feature)
-    feature.arguments.create!(kind: "pro", text: "Más rápido", voter_ids: [BSON::ObjectId.new, BSON::ObjectId.new])
-    feature.arguments.create!(kind: "con", text: "Más caro", voter_ids: [BSON::ObjectId.new])
+    feature.arguments.create!(kind: "pro", text: "Más rápido", voter_ids: [ BSON::ObjectId.new, BSON::ObjectId.new ])
+    feature.arguments.create!(kind: "con", text: "Más caro", voter_ids: [ BSON::ObjectId.new ])
 
     expect(feature.score).to eq(1)
   end
@@ -22,7 +22,7 @@ RSpec.describe Feature, type: :model do
   it "un voto por usuario (invariante de negocio expresada en voter_ids)" do
     feature = create(:feature)
     user_id = BSON::ObjectId.new
-    argument = feature.arguments.create!(kind: "pro", text: "Bien", voter_ids: [user_id])
+    argument = feature.arguments.create!(kind: "pro", text: "Bien", voter_ids: [ user_id ])
 
     argument.add_to_set(voter_ids: user_id)
     argument.reload

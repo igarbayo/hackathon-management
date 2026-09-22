@@ -24,7 +24,7 @@ module Features
         dedupe_key: "system:feature_status_changed:#{feature.id}:#{feature.updated_at.to_f}",
         occurred_at: Time.current,
         title: "#{feature.key} pasó de #{previous_status} a #{feature.status}",
-        payload: { entity: "feature", key: feature.key, action: "status_changed", fields: ["status"] },
+        payload: { entity: "feature", key: feature.key, action: "status_changed", fields: [ "status" ] },
         via: via
       )
       ::Webhooks::Enqueue.call(team: feature.team, event: "feature.status_changed", data: FeatureSerializer.new(feature, detail: true).as_json)
@@ -39,7 +39,7 @@ module Features
         dedupe_key: "system:feature_assigned:#{feature.id}:#{feature.updated_at.to_f}",
         occurred_at: Time.current,
         title: "#{feature.key}: asignación actualizada",
-        payload: { entity: "feature", key: feature.key, action: "assigned", fields: ["assignee_ids"] },
+        payload: { entity: "feature", key: feature.key, action: "assigned", fields: [ "assignee_ids" ] },
         via: via
       )
       ::Webhooks::Enqueue.call(team: feature.team, event: "feature.assigned", data: FeatureSerializer.new(feature, detail: true).as_json)

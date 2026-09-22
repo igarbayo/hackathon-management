@@ -12,7 +12,7 @@ module Api
         scope = ActivityEvent.where(team_id: current_team.id)
         scope = apply_filters(scope)
 
-        limit = [[params[:limit].to_i, 1].max, MAX_LIMIT].min
+        limit = [ [ params[:limit].to_i, 1 ].max, MAX_LIMIT ].min
         limit = DEFAULT_LIMIT if params[:limit].blank?
 
         records, next_cursor = CursorPage.apply(scope, cursor: params[:cursor], limit: limit)

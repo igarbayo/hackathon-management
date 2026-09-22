@@ -75,7 +75,7 @@ module Auth
       _, header = JWT.decode(id_token, nil, false)
       key = jwk_for(header["kid"])
 
-      payload, = JWT.decode(id_token, key.public_key, true, algorithms: ["RS256"])
+      payload, = JWT.decode(id_token, key.public_key, true, algorithms: [ "RS256" ])
 
       unless ISSUERS.include?(payload["iss"])
         raise AuthorizationFailed, "iss inválido"

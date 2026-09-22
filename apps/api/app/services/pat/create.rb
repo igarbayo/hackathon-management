@@ -9,7 +9,7 @@ module Pat
 
   class Create
     def self.call(membership:, name:, preset: nil, scopes: nil, expires_at: nil)
-      resolved_scopes = (scopes.presence || PRESETS.fetch(preset.presence || "observar")) | ["read"]
+      resolved_scopes = (scopes.presence || PRESETS.fetch(preset.presence || "observar")) | [ "read" ]
       raw_token = "hb_pat_#{SecureRandom.hex(24)}"
 
       token = AccessToken.create!(
@@ -30,8 +30,8 @@ module Pat
 
     def self.default_expiry(team)
       ends_at = team.hackathon&.ends_at
-      base = ends_at ? [ends_at + 7.days, Time.current].max : 30.days.from_now
-      [base, AccessToken::MAX_LIFETIME.from_now].min
+      base = ends_at ? [ ends_at + 7.days, Time.current ].max : 30.days.from_now
+      [ base, AccessToken::MAX_LIFETIME.from_now ].min
     end
   end
 end

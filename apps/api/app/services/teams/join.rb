@@ -9,7 +9,7 @@ module Teams
       membership = Membership.where(team_id: team.id, user_id: user.id).first
       membership ||= Membership.create!(team: team, user: user, role: "member")
 
-      [team, membership]
+      [ team, membership ]
     end
   end
 end

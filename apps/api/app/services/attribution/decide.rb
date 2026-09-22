@@ -51,7 +51,7 @@ module Attribution
       rejected_id = current.feature_id
       current.status = "rejected"
       current.feature_id = nil
-      current.rejected_feature_ids = (current.rejected_feature_ids + [rejected_id]).uniq
+      current.rejected_feature_ids = (current.rejected_feature_ids + [ rejected_id ]).uniq
       current.decided_by_id = decided_by.id
       current.decided_at = Time.current
     end
@@ -82,7 +82,7 @@ module Attribution
       previous_id = current.feature_id
       current.status = "rejected"
       current.feature_id = nil
-      current.rejected_feature_ids = previous_id ? (current.rejected_feature_ids + [previous_id]).uniq : current.rejected_feature_ids
+      current.rejected_feature_ids = previous_id ? (current.rejected_feature_ids + [ previous_id ]).uniq : current.rejected_feature_ids
       current.decided_by_id = decided_by.id
       current.decided_at = Time.current
     end

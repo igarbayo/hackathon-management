@@ -6,7 +6,7 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
 
   before do
     membership.update!(claude_code_attributes: { token_digest: Digest::SHA256.hexdigest(raw_token), token_prefix: raw_token[0, 12], privacy_level: "metadata" })
-    create(:repository, team: membership.team, remote_urls: ["github.com/hackboard/repo"])
+    create(:repository, team: membership.team, remote_urls: [ "github.com/hackboard/repo" ])
   end
 
   it "401 sin Authorization" do
@@ -35,7 +35,7 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
   it "actor siempre es el dueño del token, sin excepciones" do
     body = {
       cli_version: "0.3.1",
-      events: [{ client_event_id: "e2", kind: "system_test", occurred_at: Time.current.iso8601, session_ref: "s1", repo: { remote: "github.com/hackboard/repo" }, data: {} }]
+      events: [ { client_event_id: "e2", kind: "system_test", occurred_at: Time.current.iso8601, session_ref: "s1", repo: { remote: "github.com/hackboard/repo" }, data: {} } ]
     }
 
     post "/api/v1/ingest/claude_code", params: body, headers: { "Authorization" => "Bearer #{raw_token}" }, as: :json

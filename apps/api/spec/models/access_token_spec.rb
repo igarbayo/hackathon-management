@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe AccessToken, type: :model do
   it "nunca acepta el scope ingest" do
-    token = build(:access_token, scopes: ["read", "ingest"])
+    token = build(:access_token, scopes: [ "read", "ingest" ])
 
     expect(token).not_to be_valid
     expect(token.errors[:scopes]).to be_present
@@ -48,14 +48,14 @@ RSpec.describe AccessToken, type: :model do
   end
 
   it "un token de integración nunca acepta progress:write (el progreso es de una persona)" do
-    token = build(:access_token, :integration, scopes: ["read", "progress:write"])
+    token = build(:access_token, :integration, scopes: [ "read", "progress:write" ])
 
     expect(token).not_to be_valid
     expect(token.errors[:scopes]).to be_present
   end
 
   it "un PAT sí puede llevar progress:write" do
-    token = build(:access_token, scopes: ["read", "progress:write"])
+    token = build(:access_token, scopes: [ "read", "progress:write" ])
 
     expect(token).to be_valid
   end

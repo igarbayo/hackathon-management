@@ -1,0 +1,107 @@
+# Lint, tests y análisis estático en cada push (10-roadmap.md#dod-común:
+# "hay tests" en cada fase). El escaneo de secretos va aparte, en security.yml.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: api · rubocop, brakeman, bundler-audit, rspec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # apps/api/.env está en .gitignore (secretos solo en variables de
+      # entorno, RNF-SEC-010). Los checks de este job no llaman a ningún
+      # servicio externo, así que basta con los valores de ejemplo para que
+      # docker compose tenga el fichero que espera.
+      - name: Preparar .env de ejemplo
+        run: cp apps/api/.env.example apps/api/.env
+
+      - name: Construir la imagen de api
+        run: docker compose build api
+
+      - name: Rubocop
+        run: docker compose run --rm api bundle exec rubocop
+
+      - name: Brakeman
+        run: docker compose run --rm api bundle exec brakeman -q
+
+      - name: bundler-audit
+        run: docker compose run --rm api bundle exec bundler-audit check --update
+
+      - name: Levantar mongo y redis
+        run: docker compose up -d mongo redis
+
+      - name: RSpec
+        run: >
+          docker compose run --rm
+          -e RAILS_ENV=test
+          -e MONGODB_URI=mongodb://mongo:27017/hackboard_test
+          -e REDIS_URL=redis://redis:6379/1
+          api bundle exec rspec
+
+      - name: Apagar servicios
+        if: always()
+        run: docker compose down -v
+
+  web:
+    name: web · eslint, tsc, vitest, next build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: ESLint
+        run: npm run lint --workspace apps/web
+
+      - name: TypeScript
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
+
+      - name: Vitest
+        run: npm run test --workspace apps/web
+
+      - name: Next build
+        run: npm run build --workspace apps/web
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+
+  packages:
+    name: packages · cli, shared-schemas, npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: shared-schemas · vitest
+        run: npm run test --workspace packages/shared-schemas
+
+      - name: shared-schemas · build
+        run: npm run build --workspace packages/shared-schemas
+
+      - name: cli · vitest
+        run: npm run test --workspace packages/cli
+
+      - name: cli · build
+        run: npm run build --workspace packages/cli
+
+      - name: npm audit (RNF-SEC-011)
+        run: npm audit --audit-level=high

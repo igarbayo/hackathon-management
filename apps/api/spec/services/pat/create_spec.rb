@@ -4,7 +4,7 @@ RSpec.describe Pat::Create do
   it "usa el preset observar por defecto (solo read)" do
     result = described_class.call(membership: create(:membership), name: "CLI portátil")
 
-    expect(result.record.scopes).to eq(["read"])
+    expect(result.record.scopes).to eq([ "read" ])
     expect(result.raw_token).to start_with("hb_pat_")
   end
 
@@ -15,13 +15,13 @@ RSpec.describe Pat::Create do
   end
 
   it "scopes explícitos siempre incluyen read aunque no se pida" do
-    result = described_class.call(membership: create(:membership), name: "Custom", scopes: ["milestones:write"])
+    result = described_class.call(membership: create(:membership), name: "Custom", scopes: [ "milestones:write" ])
 
     expect(result.record.scopes).to match_array(%w[read milestones:write])
   end
 
   it "nunca concede el scope ingest (validación del modelo)" do
-    expect { described_class.call(membership: create(:membership), name: "Malicioso", scopes: ["ingest"]) }
+    expect { described_class.call(membership: create(:membership), name: "Malicioso", scopes: [ "ingest" ]) }
       .to raise_error(Mongoid::Errors::Validations)
   end
 

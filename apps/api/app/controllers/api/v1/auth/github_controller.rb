@@ -2,7 +2,7 @@ module Api
   module V1
     module Auth
       class GithubController < Api::V1::BaseController
-        skip_before_action :verify_csrf!, only: [:new, :callback]
+        skip_before_action :verify_csrf!, only: [ :new, :callback ]
 
         def new
           state = OAuthLoginState.generate

@@ -22,7 +22,7 @@ RSpec.describe Github::MapAuthor do
   end
 
   it "mapea por git_identities si el email no coincide con el de la cuenta" do
-    membership = create(:membership, team: team, git_identities: ["ada@work.example.com"])
+    membership = create(:membership, team: team, git_identities: [ "ada@work.example.com" ])
 
     result = described_class.call(team: team, login: nil, email: "ada@work.example.com", display_name: nil)
 

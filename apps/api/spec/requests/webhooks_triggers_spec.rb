@@ -39,7 +39,7 @@ RSpec.describe "Disparo de eventos de webhooks", type: :request do
     feature = create(:feature, team: owner.team)
     sign_in_as(owner.user)
 
-    patch "/api/v1/teams/#{owner.team.id}/features/#{feature.key}", params: { assignee_ids: [owner.id.to_s] }, headers: csrf_headers, as: :json
+    patch "/api/v1/teams/#{owner.team.id}/features/#{feature.key}", params: { assignee_ids: [ owner.id.to_s ] }, headers: csrf_headers, as: :json
 
     expect(Webhooks::DeliverJob.jobs.size).to eq(1)
   end
@@ -59,7 +59,7 @@ RSpec.describe "Disparo de eventos de webhooks", type: :request do
     stub_request(:post, /generativelanguage\.googleapis\.com/).to_return(
       status: 200,
       body: {
-        candidates: [{ content: { parts: [{ text: { summary: "ok", coverage: [], orphan_features: [], gaps: [], risks: [] }.to_json }] } }],
+        candidates: [ { content: { parts: [ { text: { summary: "ok", coverage: [], orphan_features: [], gaps: [], risks: [] }.to_json } ] } } ],
         usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 5 }
       }.to_json,
       headers: { "Content-Type" => "application/json" }

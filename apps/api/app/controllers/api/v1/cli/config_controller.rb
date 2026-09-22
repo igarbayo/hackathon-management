@@ -6,7 +6,7 @@ module Api
         include TokenAuthentication
         before_action :authenticate_member_token!
 
-        DEFAULT_EXCLUDE_GLOBS = [".env*", "**/secrets/**", "**/*.pem", "**/*.key", "**/credentials*"].freeze
+        DEFAULT_EXCLUDE_GLOBS = [ ".env*", "**/secrets/**", "**/*.pem", "**/*.key", "**/credentials*" ].freeze
 
         def show
           repos = Repository.where(team_id: current_team.id, active: true).pluck(:remote_urls).flatten

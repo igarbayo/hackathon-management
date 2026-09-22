@@ -20,7 +20,7 @@ module WebhookSecretCipher
     ciphertext = cipher.update(plaintext) + cipher.final
     auth_tag = cipher.auth_tag
 
-    [iv, auth_tag, ciphertext].map { |part| Base64.strict_encode64(part) }.join("|")
+    [ iv, auth_tag, ciphertext ].map { |part| Base64.strict_encode64(part) }.join("|")
   end
 
   def decrypt(encoded)

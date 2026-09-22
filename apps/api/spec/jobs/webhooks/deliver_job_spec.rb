@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Webhooks::DeliverJob do
   before do
-    allow(Resolv).to receive(:getaddresses).and_return(["93.184.216.34"])
+    allow(Resolv).to receive(:getaddresses).and_return([ "93.184.216.34" ])
   end
 
   it "envía la firma correcta y marca la entrega como succeeded en un 2xx" do
@@ -80,7 +80,7 @@ RSpec.describe Webhooks::DeliverJob do
   end
 
   it "bloquea el envío por SSRF y no lo reintenta" do
-    allow(Resolv).to receive(:getaddresses).and_return(["10.0.0.5"])
+    allow(Resolv).to receive(:getaddresses).and_return([ "10.0.0.5" ])
     webhook = create(:outbound_webhook, url: "https://internal.example.com/hook")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
 

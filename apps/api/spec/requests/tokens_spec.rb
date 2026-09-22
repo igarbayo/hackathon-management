@@ -10,7 +10,7 @@ RSpec.describe "Tokens de acceso personal", type: :request do
 
       expect(response).to have_http_status(:created)
       expect(json_response["token"]).to start_with("hb_pat_")
-      expect(json_response["scopes"]).to eq(["read"])
+      expect(json_response["scopes"]).to eq([ "read" ])
     end
 
     it "exige sesión: un PAT no puede crear otro PAT" do
@@ -35,7 +35,7 @@ RSpec.describe "Tokens de acceso personal", type: :request do
 
       get "/api/v1/teams/#{membership.team.id}/tokens"
 
-      expect(json_response["data"].map { |t| t["name"] }).to eq(["Mío"])
+      expect(json_response["data"].map { |t| t["name"] }).to eq([ "Mío" ])
     end
 
     it "un owner ve los de todos, pero nunca el valor" do

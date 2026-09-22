@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Webhooks::MilestoneDueSoonJob do
   it "avisa de un milestone que vence dentro de la próxima hora" do
     team = create(:team)
-    create(:outbound_webhook, team: team, events: ["milestone.due_soon"])
+    create(:outbound_webhook, team: team, events: [ "milestone.due_soon" ])
     milestone = create(:milestone, team: team, due_at: 30.minutes.from_now)
 
     described_class.new.perform
@@ -14,7 +14,7 @@ RSpec.describe Webhooks::MilestoneDueSoonJob do
 
   it "no avisa dos veces del mismo milestone" do
     team = create(:team)
-    create(:outbound_webhook, team: team, events: ["milestone.due_soon"])
+    create(:outbound_webhook, team: team, events: [ "milestone.due_soon" ])
     milestone = create(:milestone, team: team, due_at: 30.minutes.from_now, due_soon_notified_at: 5.minutes.ago)
 
     described_class.new.perform
@@ -25,7 +25,7 @@ RSpec.describe Webhooks::MilestoneDueSoonJob do
 
   it "no avisa de milestones que vencen fuera de la ventana de 1h" do
     team = create(:team)
-    create(:outbound_webhook, team: team, events: ["milestone.due_soon"])
+    create(:outbound_webhook, team: team, events: [ "milestone.due_soon" ])
     create(:milestone, team: team, due_at: 3.hours.from_now)
 
     described_class.new.perform

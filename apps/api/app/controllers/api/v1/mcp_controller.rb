@@ -1,7 +1,7 @@
 # POST /api/v1/mcp (RF-MCP-001). Streamable HTTP: una respuesta JSON por
-# petición JSON-RPC. Bearer hb_mt_/hb_pat_/hb_it_ (hb_oat_ se añade con
-# OAuth 2.1). No hereda de Api::V1::BaseController: no exige CSRF, igual
-# que el resto de endpoints solo-Bearer (RNF-SEC-003).
+# petición JSON-RPC. Bearer hb_mt_/hb_pat_/hb_it_/hb_oat_. No hereda de
+# Api::V1::BaseController: no exige CSRF, igual que el resto de endpoints
+# solo-Bearer (RNF-SEC-003).
 module Api
   module V1
     class McpController < ApplicationController
@@ -38,7 +38,7 @@ module Api
           return unauthenticated!("falta el token")
         end
 
-        @resolved_token = Tokens::Resolve.call(token)
+        @resolved_token = Tokens::Resolve.call(token, expected_resource: "#{ENV.fetch('API_URL', '')}/api/v1/mcp")
         return unauthenticated!("token inválido o revocado") unless @resolved_token
 
         @team = @resolved_token.team

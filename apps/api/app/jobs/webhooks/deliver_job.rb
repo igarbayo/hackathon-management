@@ -85,7 +85,7 @@ module Webhooks
       elapsed = Time.current - delivery.created_at
       return if elapsed >= MAX_RETRY_WINDOW
 
-      delay = [INITIAL_DELAY * (2**(attempt - 1)), 1.hour].min
+      delay = [ INITIAL_DELAY * (2**(attempt - 1)), 1.hour ].min
       delivery.update!(next_attempt_at: Time.current + delay, status: "pending")
       self.class.perform_in(delay, delivery.id.to_s, attempt + 1)
     end

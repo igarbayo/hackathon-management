@@ -9,7 +9,7 @@ module Mcp
       def self.input_schema
         {
           "type" => "object",
-          "required" => ["title"],
+          "required" => [ "title" ],
           "properties" => {
             "title" => { "type" => "string" },
             "description" => { "type" => "string" },
@@ -36,7 +36,7 @@ module Mcp
         if args["assign_to_me"]
           raise Mcp::ToolError, "assign_to_me no está disponible para un token de integración." unless membership
 
-          attrs["assignee_ids"] = [membership.id.to_s]
+          attrs["assignee_ids"] = [ membership.id.to_s ]
         end
 
         feature = ::Features::Create.call(team: team, created_by: membership&.user, attrs: attrs)

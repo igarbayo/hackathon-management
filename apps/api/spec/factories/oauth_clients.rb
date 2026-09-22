@@ -3,6 +3,6 @@ FactoryBot.define do
     sequence(:client_id) { |n| "client-#{n}" }
     registration { "dynamic" }
     name { "claude.ai" }
-    redirect_uris { ["https://claude.ai/oauth/callback"] }
+    redirect_uris { [ "https://claude.ai/oauth/callback" ] }
   end
 end

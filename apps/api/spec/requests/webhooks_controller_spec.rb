@@ -6,19 +6,19 @@ RSpec.describe "Webhooks salientes", type: :request do
       owner = create(:membership, :owner)
       sign_in_as(owner.user)
 
-      post "/api/v1/teams/#{owner.team.id}/webhooks", params: { url: "https://example.com/hook", events: ["feature.created"] },
+      post "/api/v1/teams/#{owner.team.id}/webhooks", params: { url: "https://example.com/hook", events: [ "feature.created" ] },
                                                         headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:created)
       expect(json_response["secret"]).to be_present
-      expect(json_response["events"]).to eq(["feature.created"])
+      expect(json_response["events"]).to eq([ "feature.created" ])
     end
 
     it "un miembro normal no puede crear webhooks" do
       member = create(:membership)
       sign_in_as(member.user)
 
-      post "/api/v1/teams/#{member.team.id}/webhooks", params: { url: "https://example.com/hook", events: ["ping"] }, headers: csrf_headers, as: :json
+      post "/api/v1/teams/#{member.team.id}/webhooks", params: { url: "https://example.com/hook", events: [ "ping" ] }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -37,7 +37,7 @@ RSpec.describe "Webhooks salientes", type: :request do
       owner = create(:membership, :owner)
       sign_in_as(owner.user)
 
-      post "/api/v1/teams/#{owner.team.id}/webhooks", params: { url: "http://example.com/hook", events: ["ping"] }, headers: csrf_headers, as: :json
+      post "/api/v1/teams/#{owner.team.id}/webhooks", params: { url: "http://example.com/hook", events: [ "ping" ] }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:unprocessable_content)
     end
@@ -60,7 +60,7 @@ RSpec.describe "Webhooks salientes", type: :request do
   describe "POST /api/v1/teams/:team_id/webhooks/:id/test" do
     it "encola un ping" do
       owner = create(:membership, :owner)
-      webhook = create(:outbound_webhook, team: owner.team, events: ["ping"])
+      webhook = create(:outbound_webhook, team: owner.team, events: [ "ping" ])
       sign_in_as(owner.user)
 
       post "/api/v1/teams/#{owner.team.id}/webhooks/#{webhook.id}/test", headers: csrf_headers
@@ -78,7 +78,7 @@ RSpec.describe "Webhooks salientes", type: :request do
       sign_in_as(owner.user)
 
       get "/api/v1/teams/#{owner.team.id}/webhooks/#{webhook.id}/deliveries"
-      expect(json_response["data"].map { |d| d["id"] }).to eq([delivery.id.to_s])
+      expect(json_response["data"].map { |d| d["id"] }).to eq([ delivery.id.to_s ])
 
       post "/api/v1/teams/#{owner.team.id}/webhooks/#{webhook.id}/deliveries/#{delivery.id}/redeliver", headers: csrf_headers
       expect(response).to have_http_status(:accepted)
@@ -89,7 +89,7 @@ RSpec.describe "Webhooks salientes", type: :request do
   describe "creación con un objetivo real dispara el webhook (integración end-to-end sin red)" do
     it "objective.created llega a Webhooks::Enqueue" do
       owner = create(:membership, :owner)
-      create(:outbound_webhook, team: owner.team, events: ["objective.created"])
+      create(:outbound_webhook, team: owner.team, events: [ "objective.created" ])
       sign_in_as(owner.user)
 
       post "/api/v1/teams/#{owner.team.id}/objectives", params: { title: "Nuevo", priority: "must" }, headers: csrf_headers, as: :json

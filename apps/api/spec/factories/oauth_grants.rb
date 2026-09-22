@@ -7,7 +7,7 @@ FactoryBot.define do
     sequence(:code_digest) { |n| "code-digest-#{n}" }
     redirect_uri { "https://claude.ai/oauth/callback" }
     code_challenge { "challenge" }
-    scopes { ["read"] }
+    scopes { [ "read" ] }
     expires_at { 60.seconds.from_now }
   end
 end

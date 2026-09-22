@@ -13,7 +13,7 @@ RSpec.describe Github::AppJwt do
 
   it "genera un JWT RS256 con iss, iat y exp <= 10 minutos" do
     token = described_class.generate
-    payload, header = JWT.decode(token, described_class.private_key.public_key, true, algorithms: ["RS256"])
+    payload, header = JWT.decode(token, described_class.private_key.public_key, true, algorithms: [ "RS256" ])
 
     expect(header["alg"]).to eq("RS256")
     expect(payload["iss"]).to eq("12345")

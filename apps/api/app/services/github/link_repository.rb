@@ -37,7 +37,7 @@ module Github
       ::Repository.create!(
         team: team, github_repo_id: match["id"], full_name: match["full_name"],
         default_branch: match["default_branch"], installation_id: match["installation_id"],
-        remote_urls: ["github.com/#{match['full_name']}"]
+        remote_urls: [ "github.com/#{match['full_name']}" ]
       )
     end
   end

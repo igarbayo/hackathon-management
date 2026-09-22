@@ -30,8 +30,8 @@ module Ai
       generation_config[:maxOutputTokens] = max_output_tokens if max_output_tokens
 
       {
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [ { text: system } ] },
+        contents: [ { role: "user", parts: [ { text: prompt } ] } ],
         generationConfig: generation_config
       }
     end

@@ -6,7 +6,7 @@ RSpec.describe Analysis::PostValidate do
     o1 = create(:objective, team: team)
     o2 = create(:objective, team: team)
 
-    result = described_class.call(data: { "coverage" => [{ "objective_key" => o1.key, "status" => "covered", "feature_keys" => [], "rationale" => "ok" }] }, team: team)
+    result = described_class.call(data: { "coverage" => [ { "objective_key" => o1.key, "status" => "covered", "feature_keys" => [], "rationale" => "ok" } ] }, team: team)
 
     keys = result["coverage"].map { |c| c["objective_key"] }
     expect(keys).to contain_exactly(o1.key, o2.key)
@@ -37,11 +37,11 @@ RSpec.describe Analysis::PostValidate do
     feature = create(:feature, team: team)
 
     result = described_class.call(
-      data: { "coverage" => [{ "objective_key" => objective.key, "status" => "covered", "feature_keys" => [feature.key, "F-999"], "rationale" => "x" }] },
+      data: { "coverage" => [ { "objective_key" => objective.key, "status" => "covered", "feature_keys" => [ feature.key, "F-999" ], "rationale" => "x" } ] },
       team: team
     )
 
-    expect(result["coverage"].first["feature_keys"]).to eq([feature.key])
+    expect(result["coverage"].first["feature_keys"]).to eq([ feature.key ])
   end
 
   it "orphan_features solo incluye features no descartadas" do
@@ -57,7 +57,7 @@ RSpec.describe Analysis::PostValidate do
       team: team
     )
 
-    expect(result["orphan_features"].map { |o| o["feature_key"] }).to eq([active.key])
+    expect(result["orphan_features"].map { |o| o["feature_key"] }).to eq([ active.key ])
   end
 
   it "descarta un status o severity inválidos con un valor por defecto seguro" do
@@ -66,8 +66,8 @@ RSpec.describe Analysis::PostValidate do
 
     result = described_class.call(
       data: {
-        "coverage" => [{ "objective_key" => objective.key, "status" => "hackeado", "feature_keys" => [], "rationale" => "x" }],
-        "risks" => [{ "severity" => "catastrofico", "kind" => "raro", "description" => "x", "related_keys" => [] }]
+        "coverage" => [ { "objective_key" => objective.key, "status" => "hackeado", "feature_keys" => [], "rationale" => "x" } ],
+        "risks" => [ { "severity" => "catastrofico", "kind" => "raro", "description" => "x", "related_keys" => [] } ]
       },
       team: team
     )

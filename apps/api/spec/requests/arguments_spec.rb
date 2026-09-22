@@ -72,7 +72,7 @@ RSpec.describe "Arguments (pros y contras)", type: :request do
     it "quita el voto" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
-      argument = feature.arguments.create!(kind: "pro", text: "Bien", author_id: membership.user_id, voter_ids: [membership.user_id])
+      argument = feature.arguments.create!(kind: "pro", text: "Bien", author_id: membership.user_id, voter_ids: [ membership.user_id ])
       sign_in_as(membership.user)
 
       delete "/api/v1/teams/#{membership.team.id}/features/#{feature.key}/arguments/#{argument.id}/vote", headers: csrf_headers

@@ -15,7 +15,7 @@ RSpec.describe Analysis::RunJob do
     stub_request(:post, /generativelanguage\.googleapis\.com/).to_return(
       status: 200,
       body: {
-        candidates: [{ content: { parts: [{ text: data.to_json }] } }],
+        candidates: [ { content: { parts: [ { text: data.to_json } ] } } ],
         usageMetadata: { promptTokenCount: 500, candidatesTokenCount: 120 }
       }.to_json,
       headers: { "Content-Type" => "application/json" }

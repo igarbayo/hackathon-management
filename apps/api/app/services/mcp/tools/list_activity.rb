@@ -37,7 +37,7 @@ module Mcp
           scope = scope.where("actor.user_id" => member.user_id.to_s)
         end
 
-        limit = [args["limit"].to_i, 1].max
+        limit = [ args["limit"].to_i, 1 ].max
         limit = MAX_LIMIT if args["limit"].blank? || limit > MAX_LIMIT
 
         events = scope.order(occurred_at: :desc).limit(limit)

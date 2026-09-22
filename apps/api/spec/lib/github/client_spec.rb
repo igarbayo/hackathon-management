@@ -32,7 +32,7 @@ RSpec.describe Github::Client do
       .to_return(status: 200, body: { repositories: Array.new(100) { |i| { id: i } } }.to_json, headers: { "Content-Type" => "application/json" })
     stub_request(:get, "https://api.github.com/installation/repositories")
       .with(query: hash_including({ "page" => "2" }))
-      .to_return(status: 200, body: { repositories: [{ id: 100 }] }.to_json, headers: { "Content-Type" => "application/json" })
+      .to_return(status: 200, body: { repositories: [ { id: 100 } ] }.to_json, headers: { "Content-Type" => "application/json" })
 
     expect(client.repositories.size).to eq(101)
   end

@@ -52,7 +52,7 @@ RSpec.describe "Trazabilidad via (RF-API-006)", type: :request do
 
     expect(ActivityEvent.where(team_id: membership.team.id, kind: "feature_status_changed").count).to eq(1)
     api_change = ActivityEvent.where(team_id: membership.team.id, kind: "api_change").first
-    expect(api_change.payload["fields"]).to eq(["title"])
+    expect(api_change.payload["fields"]).to eq([ "title" ])
   end
 
   it "votar un argumento con un token deja constancia" do

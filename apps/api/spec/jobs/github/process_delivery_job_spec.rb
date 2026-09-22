@@ -18,7 +18,7 @@ RSpec.describe Github::ProcessDeliveryJob do
       "repository" => { "id" => 555 },
       "ref" => "refs/heads/f-1-x",
       "before" => "a", "after" => "b", "forced" => false,
-      "commits" => [{ "id" => "sha1", "message" => "algo", "timestamp" => Time.current.iso8601, "author" => {} }],
+      "commits" => [ { "id" => "sha1", "message" => "algo", "timestamp" => Time.current.iso8601, "author" => {} } ],
       "sender" => { "login" => "octocat" }
     }.to_json
 

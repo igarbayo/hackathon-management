@@ -12,7 +12,7 @@ RSpec.describe Attribution::AiSuggestJob do
 
     described_class.new.perform
 
-    expect(described_class.jobs.map { |j| j["args"] }).to contain_exactly([team_with_pending.id.to_s])
+    expect(described_class.jobs.map { |j| j["args"] }).to contain_exactly([ team_with_pending.id.to_s ])
   end
 
   it "con team_id, delega en Attribution::SuggestForTeam" do

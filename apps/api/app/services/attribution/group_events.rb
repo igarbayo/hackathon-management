@@ -13,7 +13,7 @@ module Attribution
     end
 
     def self.call(events)
-      events.group_by { |e| [e.actor["user_id"], e.branch, e.session_ref] }
+      events.group_by { |e| [ e.actor["user_id"], e.branch, e.session_ref ] }
             .map { |key, group_events| Group.new(id: Digest::SHA256.hexdigest(key.join("|"))[0, 12], events: group_events) }
     end
   end

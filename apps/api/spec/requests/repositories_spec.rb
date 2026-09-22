@@ -20,7 +20,7 @@ RSpec.describe "Repositories", type: :request do
 
       get "/api/v1/teams/#{membership.team.id}/repositories"
 
-      expect(json_response["data"].map { |r| r["id"] }).to eq([active.id.to_s])
+      expect(json_response["data"].map { |r| r["id"] }).to eq([ active.id.to_s ])
     end
   end
 
@@ -39,11 +39,11 @@ RSpec.describe "Repositories", type: :request do
     it "vincula el repo si alguna instalación del equipo tiene acceso" do
       membership = create(:membership)
       team = membership.team
-      team.update!(github_installation_ids: [42])
+      team.update!(github_installation_ids: [ 42 ])
       stub_request(:post, "https://api.github.com/app/installations/42/access_tokens")
         .to_return(status: 201, body: { token: "ghs_x" }.to_json, headers: { "Content-Type" => "application/json" })
       stub_request(:get, "https://api.github.com/installation/repositories").with(query: hash_including("per_page" => "100"))
-        .to_return(status: 200, body: { repositories: [{ id: 1, full_name: "org/repo", default_branch: "main" }] }.to_json, headers: { "Content-Type" => "application/json" })
+        .to_return(status: 200, body: { repositories: [ { id: 1, full_name: "org/repo", default_branch: "main" } ] }.to_json, headers: { "Content-Type" => "application/json" })
       sign_in_as(membership.user)
 
       post "/api/v1/teams/#{team.id}/repositories", params: { full_name: "org/repo" }, headers: csrf_headers, as: :json

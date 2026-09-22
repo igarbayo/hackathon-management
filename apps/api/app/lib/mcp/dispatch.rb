@@ -80,9 +80,9 @@ module Mcp
 
       begin
         data = tool.call(team: team, membership: membership, resolved_token: resolved_token, args: args)
-        { "content" => [{ "type" => "text", "text" => data.to_json }] }
+        { "content" => [ { "type" => "text", "text" => data.to_json } ] }
       rescue Mcp::ToolError => e
-        { "content" => [{ "type" => "text", "text" => e.message }], "isError" => true }
+        { "content" => [ { "type" => "text", "text" => e.message } ], "isError" => true }
       end
     end
 

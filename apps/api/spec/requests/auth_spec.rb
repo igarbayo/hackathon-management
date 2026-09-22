@@ -194,7 +194,7 @@ RSpec.describe "Auth", type: :request do
       jwk = JWT::JWK.new(rsa_key, { kid: "test-kid" })
 
       stub_request(:get, "https://www.googleapis.com/oauth2/v3/certs")
-        .to_return(status: 200, body: { keys: [jwk.export] }.to_json, headers: { "Content-Type" => "application/json" })
+        .to_return(status: 200, body: { keys: [ jwk.export ] }.to_json, headers: { "Content-Type" => "application/json" })
 
       get "/api/v1/auth/google"
       state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]

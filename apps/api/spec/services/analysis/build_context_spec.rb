@@ -4,7 +4,7 @@ RSpec.describe Analysis::BuildContext do
   it "incluye hackathon, milestones, objetivos, features y alertas deterministas" do
     team = create(:team)
     objective = create(:objective, team: team)
-    feature = create(:feature, team: team, objective_ids: [objective.id])
+    feature = create(:feature, team: team, objective_ids: [ objective.id ])
     create(:milestone, team: team)
 
     context = described_class.call(team)
@@ -12,7 +12,7 @@ RSpec.describe Analysis::BuildContext do
     expect(context["hackathon"]["name"]).to eq(team.hackathon.name)
     expect(context["objectives"].first["key"]).to eq(objective.key)
     expect(context["features"].first["key"]).to eq(feature.key)
-    expect(context["features"].first["objective_keys"]).to eq([objective.key])
+    expect(context["features"].first["objective_keys"]).to eq([ objective.key ])
     expect(context["milestones"]).not_to be_empty
     expect(context["deterministic_alerts"]).to be_an(Array)
   end

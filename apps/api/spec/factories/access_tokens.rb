@@ -6,7 +6,7 @@ FactoryBot.define do
     sequence(:name) { |n| "Token #{n}" }
     sequence(:token_digest) { |n| "digest-#{n}" }
     token_prefix { "hb_pat_abcd" }
-    scopes { ["read"] }
+    scopes { [ "read" ] }
     expires_at { 30.days.from_now }
 
     trait :integration do

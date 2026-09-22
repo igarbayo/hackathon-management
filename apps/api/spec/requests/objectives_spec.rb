@@ -19,8 +19,8 @@ RSpec.describe "Objectives", type: :request do
     it "incluye feature_count por estado" do
       membership = create(:membership)
       objective = create(:objective, team: membership.team)
-      create(:feature, team: membership.team, status: "idea", objective_ids: [objective.id])
-      create(:feature, team: membership.team, status: "done", objective_ids: [objective.id])
+      create(:feature, team: membership.team, status: "idea", objective_ids: [ objective.id ])
+      create(:feature, team: membership.team, status: "done", objective_ids: [ objective.id ])
       sign_in_as(membership.user)
 
       get "/api/v1/teams/#{membership.team.id}/objectives"
@@ -49,7 +49,7 @@ RSpec.describe "Objectives", type: :request do
     it "borra el objetivo y lo quita de feature.objective_ids" do
       membership = create(:membership)
       objective = create(:objective, team: membership.team)
-      feature = create(:feature, team: membership.team, objective_ids: [objective.id])
+      feature = create(:feature, team: membership.team, objective_ids: [ objective.id ])
       sign_in_as(membership.user)
 
       delete "/api/v1/teams/#{membership.team.id}/objectives/#{objective.id}", headers: csrf_headers

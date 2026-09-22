@@ -33,7 +33,7 @@ module TeamScoping
     # (12-acceso-programatico.md#scopes--rf-api-002-f2-aceptado). La sesión
     # web nunca necesita scope: tiene todo lo que permite el rol.
     def requires_scope(scope, only:)
-      self.scope_requirements = scope_requirements + [{ scope: scope, actions: Array(only).map(&:to_sym) }]
+      self.scope_requirements = scope_requirements + [ { scope: scope, actions: Array(only).map(&:to_sym) } ]
     end
   end
 
@@ -54,7 +54,7 @@ module TeamScoping
     token = bearer_token
     return authenticate_user! if token.blank?
 
-    @resolved_token = ::Tokens::Resolve.call(token)
+    @resolved_token = ::Tokens::Resolve.call(token, expected_resource: "#{ENV.fetch('API_URL', '')}/api/v1")
     raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless @resolved_token
 
     enforce_token_rate_limit!

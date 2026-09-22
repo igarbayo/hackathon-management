@@ -36,22 +36,22 @@ module Analysis
         next if Feature.where(team_id: team.id, objective_ids: objective.id).where(:status.ne => "discarded").exists?
 
         if near_end
-          alert("objective_without_features_near_end", "high", [objective.key])
+          alert("objective_without_features_near_end", "high", [ objective.key ])
         else
-          alert("objective_without_features", objective.priority == "must" ? "high" : "medium", [objective.key])
+          alert("objective_without_features", objective.priority == "must" ? "high" : "medium", [ objective.key ])
         end
       end
     end
 
     def feature_overdue_alerts
       Feature.where(team_id: team.id, :deadline.lt => now).where(:status.nin => %w[done discarded]).map do |feature|
-        alert("feature_overdue", "high", [feature.key])
+        alert("feature_overdue", "high", [ feature.key ])
       end
     end
 
     def feature_unassigned_in_progress_alerts
       Feature.where(team_id: team.id, status: "in_progress", assignee_ids: []).map do |feature|
-        alert("feature_unassigned_in_progress", "medium", [feature.key])
+        alert("feature_unassigned_in_progress", "medium", [ feature.key ])
       end
     end
 
@@ -61,7 +61,7 @@ module Analysis
       Feature.where(team_id: team.id, status: "in_progress").filter_map do |feature|
         last_event = ActivityEvent.where(team_id: team.id, "attribution.feature_id" => feature.id).order(occurred_at: :desc).first
         stale = last_event.nil? || last_event.occurred_at < now - 3.hours
-        alert("feature_stale", "medium", [feature.key]) if stale
+        alert("feature_stale", "medium", [ feature.key ]) if stale
       end
     end
 

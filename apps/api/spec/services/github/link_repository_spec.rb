@@ -22,10 +22,10 @@ RSpec.describe Github::LinkRepository do
   it "vincula al instante si alguna instalación del equipo ya tiene acceso" do
     membership = create(:membership)
     team = membership.team
-    team.update!(github_installation_ids: [42])
+    team.update!(github_installation_ids: [ 42 ])
 
     stub_request(:get, "https://api.github.com/installation/repositories").with(query: hash_including("per_page" => "100"))
-      .to_return(status: 200, body: { repositories: [{ id: 1, full_name: "org/repo", default_branch: "main" }] }.to_json, headers: { "Content-Type" => "application/json" })
+      .to_return(status: 200, body: { repositories: [ { id: 1, full_name: "org/repo", default_branch: "main" } ] }.to_json, headers: { "Content-Type" => "application/json" })
 
     result = described_class.call(team: team, user: membership.user, full_name: "org/repo")
 
@@ -36,7 +36,7 @@ RSpec.describe Github::LinkRepository do
   it "devuelve needs_install si ninguna instalación tiene acceso" do
     membership = create(:membership)
     team = membership.team
-    team.update!(github_installation_ids: [42])
+    team.update!(github_installation_ids: [ 42 ])
 
     stub_request(:get, "https://api.github.com/installation/repositories").with(query: hash_including("per_page" => "100"))
       .to_return(status: 200, body: { repositories: [] }.to_json, headers: { "Content-Type" => "application/json" })

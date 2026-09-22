@@ -11,7 +11,7 @@ module Github
         return if github_repo_id.blank? || full_name.blank?
 
         ::Repository.where(github_repo_id: github_repo_id).each do |repository|
-          repository.update!(full_name: full_name, remote_urls: [normalized_url(full_name)])
+          repository.update!(full_name: full_name, remote_urls: [ normalized_url(full_name) ])
         end
       end
 

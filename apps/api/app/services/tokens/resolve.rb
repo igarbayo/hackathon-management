@@ -1,7 +1,6 @@
 # Resuelve cualquier Bearer de la API de dominio (no la ingesta de Claude
 # Code, que tiene su propio TokenAuthentication) a un miembro/equipo/scopes,
 # sea cual sea su prefijo (12-acceso-programatico.md#tipos-de-token).
-# hb_oat_ (OAuth) y hb_it_ (integración) se añaden cuando existan esos flujos.
 module Tokens
   Resolved = Struct.new(:kind, :team, :membership, :scopes, :token_record, :token_prefix, :client_name, keyword_init: true) do
     # client_name lo rellena Mcp::Dispatch a partir del initialize de esa
@@ -16,12 +15,16 @@ module Tokens
     MEMBER_PREFIX = "hb_mt_"
     PAT_PREFIX = "hb_pat_"
     INTEGRATION_PREFIX = "hb_it_"
+    OAUTH_PREFIX = "hb_oat_"
 
     # Scopes fijos del token de miembro (12-acceso-programatico.md#tipos-de-token):
     # CLI de hooks y MCP básico.
     MEMBER_SCOPES = %w[ingest read progress:write].freeze
 
-    def self.call(raw_token)
+    # expected_resource (RFC 8707, RNF-SEC-015): solo lo comprueban los
+    # tokens OAuth, que están ligados a un recurso concreto. Los demás
+    # prefijos ya sirven solo a su propio uso (CLI, PAT del equipo…).
+    def self.call(raw_token, expected_resource: nil)
       return nil if raw_token.blank?
 
       if raw_token.start_with?(MEMBER_PREFIX)
@@ -30,6 +33,8 @@ module Tokens
         resolve_pat(raw_token)
       elsif raw_token.start_with?(INTEGRATION_PREFIX)
         resolve_integration(raw_token)
+      elsif raw_token.start_with?(OAUTH_PREFIX)
+        resolve_oauth(raw_token, expected_resource)
       end
     end
 
@@ -58,6 +63,16 @@ module Tokens
       Resolved.new(kind: "integration", team: token.team, membership: nil, scopes: token.scopes, token_record: token, token_prefix: token.token_prefix)
     end
     private_class_method :resolve_integration
+
+    def self.resolve_oauth(raw_token, expected_resource)
+      token = AccessToken.active.where(kind: "oauth", token_digest: Digest::SHA256.hexdigest(raw_token)).first
+      return nil unless token
+      return nil if expected_resource && token.resource != expected_resource
+
+      touch_last_used(token)
+      Resolved.new(kind: "oauth", team: token.team, membership: token.membership, scopes: token.scopes, token_record: token, token_prefix: token.token_prefix)
+    end
+    private_class_method :resolve_oauth
 
     # Resolución de 1 min (RF-API-003): no escribe en cada petición.
     def self.touch_last_used(token)

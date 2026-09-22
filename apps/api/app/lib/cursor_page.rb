@@ -12,7 +12,7 @@ module CursorPage
 
     decoded = Base64.urlsafe_decode64(cursor)
     occurred_at, id = decoded.split("|", 2)
-    [Time.iso8601(occurred_at), id]
+    [ Time.iso8601(occurred_at), id ]
   rescue ArgumentError
     nil
   end
@@ -31,6 +31,6 @@ module CursorPage
     records = records.first(limit)
     next_cursor = has_more && records.last ? encode(records.last.occurred_at, records.last.id) : nil
 
-    [records, next_cursor]
+    [ records, next_cursor ]
   end
 end

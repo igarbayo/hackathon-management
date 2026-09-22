@@ -3,8 +3,8 @@ require "rails_helper"
 RSpec.describe Webhooks::Enqueue do
   it "crea una entrega y encola DeliverJob por cada webhook activo suscrito al evento" do
     team = create(:team)
-    webhook = create(:outbound_webhook, team: team, events: ["feature.created"])
-    create(:outbound_webhook, team: team, events: ["objective.created"])
+    webhook = create(:outbound_webhook, team: team, events: [ "feature.created" ])
+    create(:outbound_webhook, team: team, events: [ "objective.created" ])
 
     described_class.call(team: team, event: "feature.created", data: { key: "F-1" })
 
@@ -14,7 +14,7 @@ RSpec.describe Webhooks::Enqueue do
 
   it "no encola nada si el webhook está pausado" do
     team = create(:team)
-    create(:outbound_webhook, team: team, events: ["feature.created"], active: false)
+    create(:outbound_webhook, team: team, events: [ "feature.created" ], active: false)
 
     described_class.call(team: team, event: "feature.created", data: {})
 
@@ -23,7 +23,7 @@ RSpec.describe Webhooks::Enqueue do
 
   it "guarda el payload exacto que se enviará" do
     team = create(:team)
-    create(:outbound_webhook, team: team, events: ["ping"])
+    create(:outbound_webhook, team: team, events: [ "ping" ])
 
     described_class.call(team: team, event: "ping", data: { message: "hola" })
 

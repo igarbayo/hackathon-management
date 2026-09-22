@@ -37,7 +37,7 @@ RSpec.describe Attribution::ApplyConvention do
     result = described_class.call(event_with(title: "Relacionado con F-999"))
 
     expect(result.feature).to be_nil
-    expect(result.mentioned_keys).to eq(["F-999"])
+    expect(result.mentioned_keys).to eq([ "F-999" ])
   end
 
   it "no atribuye a una feature discarded" do

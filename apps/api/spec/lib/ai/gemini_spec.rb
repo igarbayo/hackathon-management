@@ -23,7 +23,7 @@ RSpec.describe Ai::Gemini do
     end.to_return(
       status: 200,
       body: {
-        candidates: [{ content: { parts: [{ text: '{"ok":true}' }] } }],
+        candidates: [ { content: { parts: [ { text: '{"ok":true}' } ] } } ],
         usageMetadata: { promptTokenCount: 120, candidatesTokenCount: 8 }
       }.to_json,
       headers: { "Content-Type" => "application/json" }
@@ -40,7 +40,7 @@ RSpec.describe Ai::Gemini do
   it "lanza InvalidOutputError si el texto no es JSON válido" do
     stub_request(:post, /generativelanguage\.googleapis\.com/).to_return(
       status: 200,
-      body: { candidates: [{ content: { parts: [{ text: "no es json" }] } }] }.to_json,
+      body: { candidates: [ { content: { parts: [ { text: "no es json" } ] } } ] }.to_json,
       headers: { "Content-Type" => "application/json" }
     )
 

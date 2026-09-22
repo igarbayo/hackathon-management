@@ -9,7 +9,7 @@ module Mcp
       def self.input_schema
         {
           "type" => "object",
-          "required" => ["key"],
+          "required" => [ "key" ],
           "properties" => {
             "key" => { "type" => "string" },
             "add" => { "type" => "array", "items" => { "type" => "string" } },

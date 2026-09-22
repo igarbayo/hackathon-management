@@ -7,7 +7,7 @@ module Mcp
       def self.read_only? = true
 
       def self.input_schema
-        { "type" => "object", "required" => ["key"], "properties" => { "key" => { "type" => "string" } }, "additionalProperties" => false }
+        { "type" => "object", "required" => [ "key" ], "properties" => { "key" => { "type" => "string" } }, "additionalProperties" => false }
       end
 
       def self.call(team:, membership:, resolved_token:, args:)
