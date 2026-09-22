@@ -55,6 +55,9 @@ class ActivityEvent
   validate :files_within_limit
 
   after_create :enqueue_attribution, if: -> { ATTRIBUTABLE_KINDS.include?(kind) && attribution.blank? }
+  # activity.created (12-acceso-programatico.md#webhooks-salientes): nunca
+  # para claude_code/mcp, que son opt-in por persona (09-privacidad-seguridad.md#principios).
+  after_create :enqueue_activity_webhook, if: -> { %w[github system].include?(source) }
 
   index({ team_id: 1, dedupe_key: 1 }, { unique: true })
   index({ team_id: 1, occurred_at: -1 })
@@ -81,5 +84,12 @@ class ActivityEvent
 
   def enqueue_attribution
     Attribution::ConventionJob.perform_async(id.to_s)
+  end
+
+  def enqueue_activity_webhook
+    team = Team.where(id: team_id).first
+    return unless team
+
+    Webhooks::Enqueue.call(team: team, event: "activity.created", data: ActivityEventSerializer.new(self).as_json)
   end
 end

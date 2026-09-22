@@ -9,7 +9,7 @@ module Api
 
       def index
         milestones = Milestone.where(team_id: current_team.id).order(due_at: :asc)
-        render json: { data: milestones.map { |m| milestone_json(m) } }
+        render json: { data: milestones.map { |m| MilestoneSerializer.new(m).as_json } }
       end
 
       def create
@@ -17,16 +17,18 @@ module Api
         milestone.team = current_team
         milestone.save!
         record_api_change!(entity: "milestone", key: milestone.id.to_s, fields: milestone_params.keys)
+        ::Webhooks::Enqueue.call(team: current_team, event: "milestone.created", data: MilestoneSerializer.new(milestone).as_json)
 
-        render json: milestone_json(milestone), status: :created
+        render json: MilestoneSerializer.new(milestone).as_json, status: :created
       end
 
       def update
         milestone = find_milestone
         milestone.update!(milestone_params)
         record_api_change!(entity: "milestone", key: milestone.id.to_s, fields: milestone_params.keys)
+        ::Webhooks::Enqueue.call(team: current_team, event: "milestone.updated", data: MilestoneSerializer.new(milestone).as_json)
 
-        render json: milestone_json(milestone)
+        render json: MilestoneSerializer.new(milestone).as_json
       end
 
       def destroy
@@ -44,16 +46,6 @@ module Api
 
       def milestone_params
         params.permit(:title, :kind, :due_at, :description)
-      end
-
-      def milestone_json(milestone)
-        {
-          id: milestone.id.to_s,
-          title: milestone.title,
-          kind: milestone.kind,
-          due_at: milestone.due_at&.iso8601,
-          description: milestone.description
-        }
       end
     end
   end

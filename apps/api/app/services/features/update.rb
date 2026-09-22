@@ -11,6 +11,7 @@ module Features
 
       emit_status_event(feature, previous_status, via) if status_changing
       emit_assignee_event(feature, via) if assignees_changing
+      ::Webhooks::Enqueue.call(team: feature.team, event: "feature.updated", data: FeatureSerializer.new(feature, detail: true).as_json)
 
       feature
     end
@@ -26,6 +27,7 @@ module Features
         payload: { entity: "feature", key: feature.key, action: "status_changed", fields: ["status"] },
         via: via
       )
+      ::Webhooks::Enqueue.call(team: feature.team, event: "feature.status_changed", data: FeatureSerializer.new(feature, detail: true).as_json)
     end
     private_class_method :emit_status_event
 
@@ -40,6 +42,7 @@ module Features
         payload: { entity: "feature", key: feature.key, action: "assigned", fields: ["assignee_ids"] },
         via: via
       )
+      ::Webhooks::Enqueue.call(team: feature.team, event: "feature.assigned", data: FeatureSerializer.new(feature, detail: true).as_json)
     end
     private_class_method :emit_assignee_event
   end

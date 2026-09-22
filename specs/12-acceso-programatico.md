@@ -1,6 +1,6 @@
 # 12 · Acceso programático: API, MCP, OAuth y webhooks
 
-> **Estado de implementación:** En proceso (PATs, tokens de integración, introspección, Bearer genérico en la API REST de dominio, `via`/trazabilidad en las escrituras e Idempotency-Key ya están; faltan OpenAPI, webhooks salientes, servidor MCP y OAuth 2.1) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** En proceso (PATs, tokens de integración, introspección, Bearer genérico en la API REST de dominio, `via`/trazabilidad, Idempotency-Key y webhooks salientes ya están; faltan OpenAPI, servidor MCP y OAuth 2.1) · **Última actualización:** 2026-09-22
 
 Hackboard se puede usar sin la web. Hay varias puertas de entrada, todas autorizadas:
 

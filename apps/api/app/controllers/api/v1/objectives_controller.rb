@@ -18,6 +18,7 @@ module Api
         objective.created_by_id = current_user&.id
         objective.save!
         record_api_change!(entity: "objective", key: objective.key, fields: objective_params.keys)
+        ::Webhooks::Enqueue.call(team: current_team, event: "objective.created", data: ObjectiveSerializer.new(objective).as_json)
 
         render json: ObjectiveSerializer.new(objective).as_json, status: :created
       end
@@ -29,6 +30,7 @@ module Api
 
         objective.update!(attrs)
         record_api_change!(entity: "objective", key: objective.key, fields: attrs.keys)
+        ::Webhooks::Enqueue.call(team: current_team, event: "objective.updated", data: ObjectiveSerializer.new(objective).as_json)
 
         render json: ObjectiveSerializer.new(objective).as_json
       end

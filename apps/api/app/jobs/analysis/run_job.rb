@@ -67,6 +67,7 @@ module Analysis
         deterministic_alerts: context["deterministic_alerts"], usage: result.usage.stringify_keys,
         finished_at: Time.current
       )
+      ::Webhooks::Enqueue.call(team: team, event: "analysis.succeeded", data: AiAnalysisSerializer.new(analysis).as_json)
     rescue Ai::Provider::GenerationError, Ai::Provider::InvalidOutputError => e
       analysis.update!(status: "failed", error: e.message.to_s.first(500), finished_at: Time.current)
     end

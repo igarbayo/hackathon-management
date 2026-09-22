@@ -24,6 +24,7 @@ module Features
           payload: { entity: "feature", key: feature.key, action: "status_changed", fields: ["status"] },
           via: via
         )
+        ::Webhooks::Enqueue.call(team: feature.team, event: "feature.status_changed", data: FeatureSerializer.new(feature, detail: true).as_json)
       end
 
       feature

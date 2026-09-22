@@ -14,6 +14,7 @@ class OutboundDelivery
   field :response_status, type: Integer
   field :duration_ms, type: Integer
   field :next_attempt_at, type: Time
+  field :payload, type: Hash
 
   belongs_to :outbound_webhook
 

@@ -20,6 +20,10 @@ Sidekiq.configure_server do |config|
       class: "Maintenance::RetentionJob"
     )
 
-    # Webhooks::MilestoneDueSoonJob (spec 12) se registra aquí cuando exista.
+    Sidekiq::Cron::Job.create(
+      name: "webhooks-milestone-due-soon",
+      cron: "0 * * * *",
+      class: "Webhooks::MilestoneDueSoonJob"
+    )
   end
 end

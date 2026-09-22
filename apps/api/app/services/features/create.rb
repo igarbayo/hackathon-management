@@ -5,6 +5,7 @@ module Features
       feature.team = team
       feature.created_by_id = created_by&.id
       feature.save!
+      ::Webhooks::Enqueue.call(team: team, event: "feature.created", data: FeatureSerializer.new(feature, detail: true).as_json)
       feature
     end
   end

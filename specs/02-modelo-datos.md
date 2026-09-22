@@ -200,8 +200,9 @@ Máximo 5 por equipo.
 | `event`, `delivery_id` | String | |
 | `status` | String | `pending` \| `succeeded` \| `failed` |
 | `attempts` | Integer | |
-| `response_status`, `duration_ms` | Integer | No se guarda el cuerpo de la respuesta |
+| `response_status`, `duration_ms` | Integer | No se guarda el cuerpo de la **respuesta** |
 | `next_attempt_at` | Time | |
+| `payload` | Hash | El cuerpo que se **envió** (sin firmar), para poder reenviarlo con "Reenviar" ([12](12-acceso-programatico.md#webhooks-salientes)). No estaba en la spec original, que solo excluía guardar la respuesta |
 
 Índices: `{team_id: 1, outbound_webhook_id: 1, created_at: -1}`, `{created_at: 1}` TTL de 14 días.
 
@@ -268,6 +269,7 @@ Campo calculado (no se guarda): `score = Σ votos(pro) − Σ votos(con)`.
 | `kind` | String | `checkpoint` \| `demo` \| `submission` \| `custom` |
 | `due_at` | Time | Obligatorio |
 | `description` | String | Opcional |
+| `due_soon_notified_at` | Time | Evita repetir el webhook `milestone.due_soon` ([12](12-acceso-programatico.md#webhooks-salientes)) en cada pasada del cron. Se limpia si `due_at` cambia |
 
 Índice: `{team_id: 1, due_at: 1}`.
 

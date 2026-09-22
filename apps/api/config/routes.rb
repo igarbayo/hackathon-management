@@ -50,6 +50,13 @@ Rails.application.routes.draw do
         resources :milestones, only: %i[index create update destroy]
         resources :tokens, only: %i[index create destroy]
         resources :integrations, only: %i[index create destroy]
+
+        resources :webhooks, only: %i[index create update destroy] do
+          post :test, on: :member
+          post :rotate_secret, on: :member
+          get :deliveries, on: :member
+          post "deliveries/:delivery_id/redeliver", on: :member, action: :redeliver
+        end
         get "timeline", to: "timeline#show"
 
         resources :analyses, only: %i[index show create] do
