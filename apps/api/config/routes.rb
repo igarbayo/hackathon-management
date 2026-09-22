@@ -38,6 +38,11 @@ Rails.application.routes.draw do
         resources :milestones, only: %i[index create update destroy]
         get "timeline", to: "timeline#show"
 
+        get "activity", to: "activity#index"
+        get "activity/summary", to: "activity#summary"
+        post "activity/attribution/bulk", to: "activity_attributions#bulk"
+        post "activity/:event_id/attribution", to: "activity_attributions#create"
+
         collection do
           post :join
         end

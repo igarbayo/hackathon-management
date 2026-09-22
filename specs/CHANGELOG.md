@@ -2,6 +2,7 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-22 · 05 · Corrige la regex de la capa 1 de atribución: la que daba la spec (`(?![0-9])` al final) sí matchea `F-123a` (extrae 123), contradiciendo el propio texto ("No acepta... F-123a"). Se cambia el lookahead final a `(?![0-9A-Za-z])`.
 - 2026-09-22 · 02 · Corrige una contradicción: la sección de `OAuthClient` decía que `OAuthGrant` no lleva `team_id`, pero su propia tabla de campos sí lo incluye (y `AccessToken.kind: oauth` lo necesita). Se aclara que solo `User`, `Session` y `OAuthClient` son la excepción a la regla multi-tenant.
 
 - 2026-09-22 · 12, 00, 01, 02, 03, 04, 08, 09, 10, 11, decisiones, README · Login con Google (RF-AUTH-008…010). Servidor de autorización OAuth 2.1 propio, con identidad vía Google, GitHub o contraseña (ADR-0011, se resuelve el [ABIERTO] de RF-API-010). claude.ai como connector (RF-MCP-020, 011). Tokens de integración de equipo (RF-API-011) y webhooks salientes (RF-API-009) pasan a Aceptado. Nueva Fase 6 · Integraciones. `hackboard init` registra el MCP (RF-CC-026, Aceptado).

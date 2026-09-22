@@ -1,4 +1,9 @@
-class Attribution
+# Se llama EventAttribution (no Attribution) porque el namespace Attribution
+# lo usan los jobs y servicios de atribución (Attribution::ConventionJob…,
+# 01-arquitectura.md), y una class y un module no pueden compartir nombre.
+# Sigue siendo el campo `attribution` de ActivityEvent en el modelo de datos
+# y en el JSON de la API (02-modelo-datos.md#activityevent).
+class EventAttribution
   include Mongoid::Document
 
   METHODS = %w[convention branch ai manual].freeze

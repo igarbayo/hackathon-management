@@ -14,6 +14,9 @@ class ActivityEvent
 
   MAX_FILES = 50
 
+  # RF-ATR-001…003: kinds sobre los que corre la atribución automática.
+  ATTRIBUTABLE_KINDS = %w[commit pr_opened pr_merged pr_closed pr_reopened cc_turn progress_report].freeze
+
   field :source, type: String
   field :kind, type: String
   field :dedupe_key, type: String
@@ -34,7 +37,7 @@ class ActivityEvent
   field :session_ref, type: String
   field :via, type: Hash
 
-  embeds_one :attribution
+  embeds_one :attribution, class_name: "EventAttribution"
 
   belongs_to :repository, optional: true
 
@@ -45,6 +48,8 @@ class ActivityEvent
   validates :summary, length: { maximum: 500 }
   validate :kind_matches_source
   validate :files_within_limit
+
+  after_create :enqueue_attribution, if: -> { ATTRIBUTABLE_KINDS.include?(kind) && attribution.blank? }
 
   index({ team_id: 1, dedupe_key: 1 }, { unique: true })
   index({ team_id: 1, occurred_at: -1 })
@@ -67,5 +72,9 @@ class ActivityEvent
 
   def files_within_limit
     errors.add(:files, "no puede tener más de #{MAX_FILES} elementos") if files.size > MAX_FILES
+  end
+
+  def enqueue_attribution
+    Attribution::ConventionJob.perform_async(id.to_s)
   end
 end

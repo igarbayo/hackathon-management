@@ -17,7 +17,7 @@ Evento nuevo
 
 ## Capa 1 · Convención explícita — `RF-ATR-001` [F3] Aceptado
 
-- Expresión regular: `(?<![A-Za-z0-9])[Ff]-(\d{1,5})(?![0-9])`. Acepta `F-12`, `f-12`, `feat/f-12-login` y `[F-12]`. No acepta `ref-12` ni `F-123a`.
+- Expresión regular: `(?<![A-Za-z0-9])[Ff]-(\d{1,5})(?![0-9A-Za-z])`. Acepta `F-12`, `f-12`, `feat/f-12-login` y `[F-12]`. No acepta `ref-12` ni `F-123a`.
 - Dónde se busca, por orden de prioridad:
   1. **Mensaje del commit** (subject + body) o título del PR y nombre de su rama *head*.
   2. **Nombre de la rama** del evento.
