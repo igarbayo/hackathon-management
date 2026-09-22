@@ -3,6 +3,7 @@ import { apiClient } from "@/lib/api-client";
 
 export interface ConsentInfo {
   client: { name: string; client_uri: string | null; logo_uri: string | null; first_party: boolean };
+  redirect_uri: string;
   scopes: string[];
 }
 

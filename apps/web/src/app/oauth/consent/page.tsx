@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -72,8 +73,14 @@ function ConsentContent() {
     <div className="flex min-h-[60vh] items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{consent.client.name} quiere acceder a Hackboard</CardTitle>
-          <CardDescription>Elige el equipo y revisa los permisos antes de aprobar.</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            {consent.client.name} quiere acceder a Hackboard
+            {!consent.client.first_party && <Badge variant="outline">no verificada</Badge>}
+          </CardTitle>
+          <CardDescription>
+            Elige el equipo y revisa los permisos antes de aprobar. Volverás a{" "}
+            <span className="font-mono">{new URL(consent.redirect_uri).host}</span>.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {me.memberships.length > 1 && (
@@ -106,6 +113,11 @@ function ConsentContent() {
           </div>
 
           {error && <p className="text-destructive text-sm">{error}</p>}
+
+          <p className="text-muted-foreground text-xs">
+            {consent.client.name} podrá actuar en tu nombre en el equipo elegido, con los permisos marcados arriba, hasta que
+            revoques el acceso desde Apps conectadas.
+          </p>
 
           <div className="flex gap-2">
             <Button type="button" variant="outline" className="flex-1" onClick={() => handleDecision(false)} disabled={decide.isPending}>

@@ -71,6 +71,7 @@ module OAuth
 
       render json: {
         client: { name: client.name, client_uri: client.client_uri, logo_uri: client.logo_uri, first_party: client.first_party? },
+        redirect_uri: recovered["redirect_uri"],
         scopes: recovered["scope"].to_s.split
       }
     end

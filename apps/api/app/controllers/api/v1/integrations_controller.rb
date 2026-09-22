@@ -5,7 +5,7 @@ module Api
     class IntegrationsController < Api::V1::BaseController
       include TeamScoping
 
-      session_only :index, :create, :destroy
+      session_only :index, :create, :destroy, :rotate
 
       def index
         require_owner!
@@ -22,11 +22,24 @@ module Api
 
       def destroy
         require_owner!
+        token = find_integration
+        token.update!(revoked_at: Time.current, revoked_by_id: current_user.id, revoke_reason: "manual")
+        head :no_content
+      end
+
+      def rotate
+        require_owner!
+        result = ::Integration::Rotate.call(token: find_integration)
+        render json: AccessTokenSerializer.new(result.record).as_json.merge(token: result.raw_token)
+      end
+
+      private
+
+      def find_integration
         token = AccessToken.where(team_id: current_team.id, kind: "integration", id: params[:id], revoked_at: nil).first
         raise ApiError::NotFound.new(message: "integración no encontrada") unless token
 
-        token.update!(revoked_at: Time.current, revoked_by_id: current_user.id, revoke_reason: "manual")
-        head :no_content
+        token
       end
     end
   end

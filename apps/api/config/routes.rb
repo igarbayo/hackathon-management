@@ -69,7 +69,9 @@ Rails.application.routes.draw do
 
         resources :milestones, only: %i[index create update destroy]
         resources :tokens, only: %i[index create destroy]
-        resources :integrations, only: %i[index create destroy]
+        resources :integrations, only: %i[index create destroy] do
+          post :rotate, on: :member
+        end
 
         resources :webhooks, only: %i[index create update destroy] do
           post :test, on: :member
@@ -77,6 +79,7 @@ Rails.application.routes.draw do
           get :deliveries, on: :member
           post "deliveries/:delivery_id/redeliver", on: :member, action: :redeliver
         end
+        resources :oauth_connections, only: %i[index destroy], controller: "teams/oauth_connections"
         get "timeline", to: "timeline#show"
 
         resources :analyses, only: %i[index show create] do

@@ -45,6 +45,34 @@ RSpec.describe "Tokens de integración", type: :request do
     end
   end
 
+  describe "POST /api/v1/teams/:team_id/integrations/:id/rotate" do
+    it "un owner rota el token sin cambiar nombre ni scopes (RF-API-023)" do
+      owner = create(:membership, :owner)
+      integration = create(:access_token, :integration, team: owner.team, created_by_id: owner.user_id, scopes: [ "read", "features:write" ])
+      old_digest = integration.token_digest
+      sign_in_as(owner.user)
+
+      post "/api/v1/teams/#{owner.team.id}/integrations/#{integration.id}/rotate", headers: csrf_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response["token"]).to start_with("hb_it_")
+      integration.reload
+      expect(integration.token_digest).not_to eq(old_digest)
+      expect(integration.scopes).to contain_exactly("read", "features:write")
+    end
+
+    it "un miembro normal no puede rotarlo" do
+      owner = create(:membership, :owner)
+      integration = create(:access_token, :integration, team: owner.team, created_by_id: owner.user_id)
+      member = create(:membership, team: owner.team)
+      sign_in_as(member.user)
+
+      post "/api/v1/teams/#{owner.team.id}/integrations/#{integration.id}/rotate", headers: csrf_headers
+
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
   describe "usar un token de integración en la API de dominio" do
     it "crea una feature con la integración como actor, sin persona" do
       owner = create(:membership, :owner)

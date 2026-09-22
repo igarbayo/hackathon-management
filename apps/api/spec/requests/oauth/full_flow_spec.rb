@@ -91,6 +91,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
 
     expect(json_response["client"]["name"]).to eq(client.name)
     expect(json_response["scopes"]).to eq(%w[read features:write])
+    expect(json_response["redirect_uri"]).to eq(client.redirect_uris.first)
   end
 
   describe "de principio a fin" do

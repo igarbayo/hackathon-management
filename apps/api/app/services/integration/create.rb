@@ -25,4 +25,15 @@ module Integration
       [ base, AccessToken::MAX_LIFETIME.from_now ].min
     end
   end
+
+  # RF-API-023: "rotar" un token de integración cambia el secreto sin tocar
+  # nombre/scopes/histórico de uso, para automatizaciones que no quieren
+  # reconfigurar todo tras una fuga de credenciales.
+  class Rotate
+    def self.call(token:)
+      raw_token = "hb_it_#{SecureRandom.hex(24)}"
+      token.update!(token_digest: Digest::SHA256.hexdigest(raw_token), token_prefix: raw_token[0, 12])
+      Tokens::MintResult.new(raw_token: raw_token, record: token)
+    end
+  end
 end

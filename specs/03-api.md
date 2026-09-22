@@ -1,6 +1,6 @@
 # 03 · API
 
-> **Estado de implementación:** En proceso (auth, equipos, objetivos, features, pros y contras, milestones, actividad, análisis IA y GitHub implementados; faltan los endpoints de Claude Code y acceso programático) · **Última actualización:** 2026-09-22
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-23
 
 ## Convenciones generales
 
@@ -159,13 +159,14 @@ Detalle en [12 · Acceso programático](12-acceso-programatico.md).
 
 | Método | Ruta | Auth | Descripción | Req |
 |--------|------|------|-------------|-----|
-| GET | `/teams/:id/tokens` | sesión web | Mis PATs (prefijo, nombre, scopes, caducidad, `last_used_at`). Un owner puede pedir `?all=true` para ver los de todo el equipo | RF-API-001 [F2] |
+| GET | `/teams/:id/tokens` | sesión web | Mis PATs (prefijo, nombre, scopes, caducidad, `last_used_at`). Un owner ve además los de todo el equipo, sin parámetro extra | RF-API-001 [F2] |
 | POST | `/teams/:id/tokens` | sesión web | `{name, preset? \| scopes?, expires_at?}` → el token en claro, **una sola vez** | RF-API-001 [F2] |
 | DELETE | `/teams/:id/tokens/:tid` | sesión web | Revoca. El dueño o un owner | RF-API-003 [F2] |
 | GET | `/token` | PAT o token de miembro | Introspección: equipo, miembro, rol, scopes y caducidad | RF-API-004 [F2] |
 | GET | `/openapi.json` | ninguna | Especificación OpenAPI 3.1 con el scope de cada endpoint | RF-API-007 [F2] |
 
-| GET / DELETE | `/me/oauth_connections[/:cid]` | sesión web | Apps conectadas por OAuth (cliente, equipo, scopes, último uso) y revocación | RF-API-021 [F6] |
+| GET / DELETE | `/me/oauth_connections[/:cid]` | sesión web | Mis apps conectadas por OAuth (cliente, equipo, scopes, último uso) y revocación | RF-API-021 [F6] |
+| GET / DELETE | `/teams/:id/oauth_connections[/:cid]` | sesión web, owner | Apps conectadas por OAuth de cualquier miembro del equipo, y revocación | RF-API-021 [F6] |
 | GET / POST / DELETE | `/teams/:id/integrations[/:iid]` | sesión web, owner | Tokens de integración. `POST .../:iid/rotate` rota el token | RF-API-011 [F6] |
 | GET / POST / PATCH / DELETE | `/teams/:id/webhooks[/:wid]` | sesión web, owner | Webhooks salientes. `POST .../:wid/test` envía un `ping`, `POST .../:wid/rotate_secret` rota el secreto | RF-API-009 [F6] |
 | GET | `/teams/:id/webhooks/:wid/deliveries` | sesión web, owner | Últimas entregas. `POST .../deliveries/:did/redeliver` reenvía | RF-API-009 |
