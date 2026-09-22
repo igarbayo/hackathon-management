@@ -1,10 +1,12 @@
 "use client";
 
-import { AlertTriangle, type LucideIcon } from "lucide-react";
+import { AlertTriangleIcon, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // RF-UX-005: toda pantalla tiene estado de carga, vacío y error.
+// Estilo F0 (OneEmptyState): icono en círculo, título, descripción y CTA,
+// sin borde discontinuo — specs/13-sistema-diseno.md.
 
 export function LoadingState({ rows = 3 }: { rows?: number }) {
   return (
@@ -16,8 +18,42 @@ export function LoadingState({ rows = 3 }: { rows?: number }) {
   );
 }
 
-export function EmptyState({
+function StateShell({
   icon: Icon,
+  iconClassName,
+  title,
+  description,
+  children,
+}: {
+  icon: LucideIcon;
+  iconClassName?: string;
+  title: string;
+  description?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-f1-background-tertiary p-10 text-center">
+      <div
+        className={
+          "flex size-10 items-center justify-center rounded-full bg-f1-background-secondary " +
+          (iconClassName ?? "text-f1-icon")
+        }
+      >
+        <Icon className="size-5" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-base font-medium text-f1-foreground">{title}</p>
+        {description && (
+          <p className="text-sm text-f1-foreground-secondary">{description}</p>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+export function EmptyState({
+  icon,
   title,
   description,
   actionLabel,
@@ -30,28 +66,27 @@ export function EmptyState({
   onAction?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-10 text-center">
-      <Icon className="text-muted-foreground size-8" />
-      <p className="font-medium">{title}</p>
-      {description && <p className="text-muted-foreground text-sm">{description}</p>}
+    <StateShell icon={icon} title={title} description={description}>
       {actionLabel && onAction && (
         <Button onClick={onAction} size="sm">
           {actionLabel}
         </Button>
       )}
-    </div>
+    </StateShell>
   );
 }
 
 export function ErrorState({ message, onRetry }: { message?: string; onRetry: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-10 text-center">
-      <AlertTriangle className="text-destructive size-8" />
-      <p className="font-medium">Algo falló al cargar esto</p>
-      {message && <p className="text-muted-foreground text-sm">{message}</p>}
+    <StateShell
+      icon={AlertTriangleIcon}
+      iconClassName="text-f1-icon-critical bg-f1-background-critical"
+      title="Algo falló al cargar esto"
+      description={message}
+    >
       <Button onClick={onRetry} variant="outline" size="sm">
         Reintentar
       </Button>
-    </div>
+    </StateShell>
   );
 }
