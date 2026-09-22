@@ -21,6 +21,7 @@ Hackboard es una herramienta de gestión para equipos de hackathon. Sirve para d
 | 10 | [Roadmap](10-roadmap.md) | Fases (F1–F6), entregables y Definition of Done | Aceptado |
 | 11 | [Riesgos](11-riesgos.md) | Riesgos vivos y mitigaciones | Aceptado |
 | 12 | [Acceso programático](12-acceso-programatico.md) | API con tokens de acceso personales, scopes, servidor MCP de lectura y escritura, OAuth 2.1 (claude.ai como connector), tokens de integración, webhooks salientes y trazabilidad | Aceptado |
+| 13 | [Sistema de diseño](13-sistema-diseno.md) | Tokens F0 de Factorial, escritura, patrones CRUD y accesibilidad de `apps/web` | Aceptado |
 | — | [Decisiones (ADR)](decisiones.md) | Registro de decisiones de arquitectura | Vivo |
 | — | [CHANGELOG](CHANGELOG.md) | Historial de cambios de estas specs | Vivo |
 
@@ -59,4 +60,5 @@ Hackboard es una herramienta de gestión para equipos de hackathon. Sirve para d
 | MCP | Servidor MCP |
 | SEC | Seguridad y privacidad |
 | UX | Transversal de interfaz |
+| UI | Sistema de diseño (tokens, escritura, patrones) |
 | OPS | Operación, rendimiento y observabilidad |

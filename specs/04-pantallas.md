@@ -6,7 +6,7 @@
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-UX-001 | Menú lateral fijo tipo Factorial con iconos de Lucide y texto. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px. | Aceptado [F1] |
+| RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px. | Aceptado [F1] |
 | RF-UX-002 | Arriba del menú: selector de equipo (si el usuario tiene más de uno) y nombre del hackathon. | Aceptado [F1] |
 | RF-UX-003 | Barra superior con una **cuenta atrás persistente** al siguiente milestone. Cambia a ámbar a menos de 3 h y a rojo a menos de 1 h. | Aceptado [F2] |
 | RF-UX-004 | Todas las fechas se muestran en la zona horaria del hackathon e indican la zona. | Aceptado [F1] |

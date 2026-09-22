@@ -45,7 +45,7 @@
 
 | Componente | Tecnología | Responsabilidad |
 |------------|------------|-----------------|
-| `web` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Lucide, TanStack Query, dnd-kit | La interfaz. Se renderiza en el cliente con datos de la API. No contiene lógica de negocio. |
+| `web` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Lucide, TanStack Query, dnd-kit, estilo F0 de Factorial (tokens de `f0-core`, ver [13](13-sistema-diseno.md)) | La interfaz. Se renderiza en el cliente con datos de la API. No contiene lógica de negocio. |
 | `api` | Rails 8 en modo `--api`, Mongoid, Ruby 3.3+ | Dominio, autenticación, API REST, webhooks, ingesta y MCP |
 | `workers` | Sidekiq y sidekiq-cron sobre Redis | Procesar webhooks, llamadas a la API de GitHub, atribución y análisis con IA |
 | `cli` | Node.js ≥ 20, TypeScript, paquete npm `hackboard` | Instalar hooks en Claude Code, encolar eventos en local y enviarlos |
