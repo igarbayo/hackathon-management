@@ -2,7 +2,9 @@
 
 import { use } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { KanbanSquareIcon } from "lucide-react";
 import { ErrorState, LoadingState } from "@/components/states";
+import { PageHeader } from "@/components/f0/page-header";
 import { useCreateFeature, useFeatures, useMoveFeature } from "@/hooks/use-features";
 import type { FeatureStatus } from "@/types/api";
 import { KanbanColumn } from "./kanban-column";
@@ -62,7 +64,7 @@ export default function FeaturesPage({ params }: { params: Promise<{ teamId: str
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Features</h1>
+      <PageHeader icon={KanbanSquareIcon} title="Features" className="pb-0" />
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex flex-1 gap-4 overflow-x-auto">

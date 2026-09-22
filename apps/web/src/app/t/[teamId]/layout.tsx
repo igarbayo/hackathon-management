@@ -33,7 +33,7 @@ export default function TeamLayout({
   if (!isMember) {
     return (
       <div className="p-6">
-        <p>No eres miembro de este equipo.</p>
+        <p className="text-base text-f1-foreground">No eres miembro de este equipo.</p>
       </div>
     );
   }

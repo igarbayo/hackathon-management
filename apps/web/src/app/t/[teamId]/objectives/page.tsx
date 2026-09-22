@@ -4,12 +4,31 @@ import { use, useState } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Target, Trash2 } from "lucide-react";
+import { EllipsisVerticalIcon, GripVerticalIcon, TargetIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
+import { PageHeader } from "@/components/f0/page-header";
 import { useCreateObjective, useDeleteObjective, useObjectives, useUpdateObjective } from "@/hooks/use-objectives";
 import type { Objective } from "@/types/api";
 
@@ -62,20 +81,23 @@ export default function ObjectivesPage({ params }: { params: Promise<{ teamId: s
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Objetivos</h1>
-        <label className="text-muted-foreground flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-          Mostrar archivados
-        </label>
-      </div>
+      <PageHeader
+        icon={TargetIcon}
+        title="Objetivos"
+        actions={
+          <label className="flex items-center gap-2 text-sm text-f1-foreground-secondary">
+            <Switch size="sm" checked={showArchived} onCheckedChange={setShowArchived} />
+            Mostrar archivados
+          </label>
+        }
+      />
 
       {visible.length === 0 ? (
-        <EmptyState icon={Target} title="Todavía no hay objetivos" description="Añade el primero abajo." />
+        <EmptyState icon={TargetIcon} title="Todavía no hay objetivos" description="Añade el primero abajo." />
       ) : (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={visible.map((o) => o.id)} strategy={verticalListSortingStrategy}>
-            <ul className="flex flex-col gap-2">
+            <Card className="divide-y divide-f1-border-secondary py-0">
               {visible.map((objective) => (
                 <ObjectiveRow
                   key={objective.id}
@@ -84,7 +106,7 @@ export default function ObjectivesPage({ params }: { params: Promise<{ teamId: s
                   onDelete={() => deleteObjective.mutate(objective.id)}
                 />
               ))}
-            </ul>
+            </Card>
           </SortableContext>
         </DndContext>
       )}
@@ -96,7 +118,7 @@ export default function ObjectivesPage({ params }: { params: Promise<{ teamId: s
           onChange={(e) => setNewTitle(e.target.value)}
           aria-label="Título del nuevo objetivo"
         />
-        <Button type="submit" disabled={createObjective.isPending}>
+        <Button type="submit" loading={createObjective.isPending}>
           Añadir
         </Button>
       </form>
@@ -115,13 +137,19 @@ function ObjectiveRow({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: objective.id });
   const [title, setTitle] = useState(objective.title);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   return (
-    <li ref={setNodeRef} style={style} className="bg-card flex items-center gap-2 rounded-md border p-2">
-      <button {...attributes} {...listeners} aria-label="Arrastrar para reordenar" className="text-muted-foreground cursor-grab">
-        <GripVertical className="size-4" />
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 px-3 py-2">
+      <button
+        {...attributes}
+        {...listeners}
+        aria-label="Arrastrar para reordenar"
+        className="focus-ring cursor-grab text-f1-foreground-secondary"
+      >
+        <GripVerticalIcon className="size-4" />
       </button>
 
       <Badge variant="outline">{objective.key}</Badge>
@@ -154,12 +182,37 @@ function ObjectiveRow({
         ))}
       </div>
 
-      <Button variant="ghost" size="sm" onClick={() => onUpdate({ archived: !objective.archived })}>
-        {objective.archived ? "Desarchivar" : "Archivar"}
-      </Button>
-      <Button variant="ghost" size="icon" aria-label="Borrar objetivo" onClick={onDelete}>
-        <Trash2 className="size-4" />
-      </Button>
-    </li>
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={<Button variant="ghost" size="icon-sm" aria-label={`Más acciones para ${objective.title}`} />}
+          >
+            <EllipsisVerticalIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onUpdate({ archived: !objective.archived })}>
+              {objective.archived ? "Desarchivar objetivo" : "Archivar objetivo"}
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+              <Trash2Icon className="size-4" /> Eliminar objetivo
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar «{objective.title}»</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El objetivo se quita de todas las features vinculadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={onDelete}>
+              Eliminar objetivo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

@@ -45,8 +45,10 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
   await expect(page.getByText("F-2")).toBeVisible();
 
   // RF-FEAT-011: arrastrar F-1 de "Idea" a "Hecha"
-  const card = page.locator("text=F-1").locator("xpath=ancestor::div[contains(@class,'cursor-grab')]");
-  const hechaColumn = page.locator("div.flex.min-w-64", { hasText: "Hecha" }).locator("div.flex.min-h-16");
+  // Selectores por data-testid, no por clase de Tailwind (RNF-UI-020): el
+  // kanban se puede restilar sin romper este test.
+  const card = page.getByTestId("feature-card").filter({ hasText: "F-1" });
+  const hechaColumn = page.getByTestId("kanban-column-drop-done");
 
   const cardBox = await card.boundingBox();
   const targetBox = await hechaColumn.boundingBox();
@@ -62,12 +64,12 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
   }
   await page.mouse.up();
 
-  await expect(page.locator("div.flex.min-w-64", { hasText: "Hecha" }).getByText("F-1")).toBeVisible();
+  await expect(page.getByTestId("kanban-column-done").getByText("F-1")).toBeVisible();
 
   // La posición persiste tras recargar: no es solo el estado optimista.
   await page.reload();
-  await expect(page.locator("div.flex.min-w-64", { hasText: "Hecha" }).getByText("F-1")).toBeVisible();
-  await expect(page.locator("div.flex.min-w-64", { hasText: "Idea" }).getByText("F-1")).not.toBeVisible();
+  await expect(page.getByTestId("kanban-column-done").getByText("F-1")).toBeVisible();
+  await expect(page.getByTestId("kanban-column-idea").getByText("F-1")).not.toBeVisible();
 
   // Ajustes: el código del equipo se ve y el usuario es owner
   await page.getByRole("link", { name: "Equipo y ajustes" }).click();
