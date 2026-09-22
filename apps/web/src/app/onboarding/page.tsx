@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LoadingState } from "@/components/states";
 import { useMe } from "@/hooks/use-me";
@@ -72,18 +73,19 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
   const createTeam = useCreateTeam();
   const [name, setName] = useState("");
   const [hackathonName, setHackathonName] = useState("");
-  const [endsAt, setEndsAt] = useState("");
+  const [endsAt, setEndsAt] = useState<Date>();
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<{ id: string; code: string; formatted_code: string } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!endsAt) return;
     setError(null);
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const team = await createTeam.mutateAsync({
         name,
-        hackathon: { name: hackathonName, ends_at: new Date(endsAt).toISOString(), timezone },
+        hackathon: { name: hackathonName, ends_at: endsAt.toISOString(), timezone },
       });
       setCreated(team);
     } catch (err) {
@@ -146,7 +148,7 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="ends-at">Fecha de fin</Label>
-              <Input id="ends-at" type="datetime-local" required value={endsAt} onChange={(e) => setEndsAt(e.target.value)} />
+              <DatePicker id="ends-at" value={endsAt} onChange={setEndsAt} disabled={{ before: new Date() }} />
             </div>
             {error && <p className="text-destructive text-base">{error}</p>}
             <div className="flex gap-2">

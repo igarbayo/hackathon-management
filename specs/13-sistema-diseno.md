@@ -27,6 +27,34 @@
 |----|-----------|--------|
 | RNF-UI-020 | Los tests e2e (Playwright) no seleccionan elementos por nombre de clase de Tailwind; usan `data-testid`, roles o texto accesible, para que el markup se pueda restilar sin romper los tests. | Aceptado [F1] |
 
+## Selector de fecha — `RNF-UI-030`
+
+| ID | Requisito | Estado |
+|----|-----------|--------|
+| RNF-UI-030 | Todo campo de fecha u hora de la app usa `DatePicker` (`apps/web/src/components/ui/date-picker.tsx`). Prohibido un `<input type="date">`/`type="datetime-local"` nativo suelto para captura de fecha en una pantalla de producto. | Aceptado [F1] |
+
+`DatePicker` está adaptado de [a-good-date-picker](https://github.com/gulipad/a-good-date-picker) (Guli Moreno, MIT License). Ese repo **no es un paquete npm**: es un componente de un solo fichero pensado para copiarse a mano (estilo shadcn/ui), sin props (estado interno fijo) y sin español en la rama `main` — el propio README documenta props (`value`/`onChange`/`locale`) que no existen en el código. Se han portado a mano los cambios de la [PR #2 del repo](https://github.com/gulipad/a-good-date-picker/pull/2) (props controladas + locale `es`/`en`), sustituyendo sus primitivos (Radix, `react-day-picker@8`) por los de este repo (Base UI, `react-day-picker@10`, ya restilados a F0), y se añaden dos cosas que el original no tenía:
+
+- **se conserva la hora** al elegir solo el día en el calendario (o se pone 23:59 si no había ninguna) — clicar un día no debe borrar una hora ya escrita;
+- **`disabled`** (día mínimo/máximo o una función), pasado directamente a `react-day-picker`.
+
+**Uso:**
+
+```tsx
+import { DatePicker } from "@/components/ui/date-picker";
+
+const [endsAt, setEndsAt] = useState<Date>();
+
+<Label htmlFor="ends-at">Fecha de fin</Label>
+<DatePicker id="ends-at" value={endsAt} onChange={setEndsAt} disabled={{ before: new Date() }} />
+```
+
+- `id` asocia el `<Label htmlFor>` con el botón disparador (un botón es un elemento etiquetable en HTML) y, por eso, ese es también el **nombre accesible** que hay que usar en los tests (`getByLabel("Fecha de fin")`), no el texto del botón ("Elige una fecha"). El campo de texto en lenguaje natural, que solo existe en el DOM con el popover abierto, se localiza con `#{id}-search`.
+- Escribir una fecha ISO (`2026-12-31T23:59`) en ese campo y pulsar Enter también funciona — `chrono-node` la entiende igual que "mañana a las 9" — así que los e2e existentes solo tuvieron que añadir el click que abre el popover y el `press("Enter")` que antes no hacía falta con el `<input>` nativo.
+- Sin `value`/`onChange`, el componente funciona en modo no controlado (estado interno), como el original.
+
+**Fuera de alcance:** rango de fechas (el `Calendar` subyacente lo admite en `mode="range"`, pero `DatePicker` solo expone `mode="single"`) y el prop `locale="en"` no se usa en ningún sitio de la app hoy (queda listo por si hiciera falta, ver PR#2 del repo original).
+
 ## Mapeo de tokens shadcn → F0
 
 Los primitivos de `components/ui` siguen usando los nombres de variable de shadcn (`background`, `foreground`, `border`…) para no tener que tocar cada componente; esos nombres se redefinen en `@theme inline` para apuntar a los tokens F0 en vez de al gris por defecto:

@@ -18,7 +18,9 @@ test("device flow: aprobar desde la web deja el token listo para el CLI", async 
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo Device Flow");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC Device Flow");
-  await page.locator("#ends-at").fill("2026-12-31T23:59");
+  await page.getByLabel("Fecha de fin").click();
+  await page.locator("#ends-at-search").fill("2026-12-31T23:59");
+  await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);

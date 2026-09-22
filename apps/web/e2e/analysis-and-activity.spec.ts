@@ -16,7 +16,9 @@ test("las pantallas de Actividad y Análisis IA cargan sin errores para un equip
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo Análisis");
   await page.getByLabel("Nombre del hackathon").fill("Hack Análisis");
-  await page.locator("#ends-at").fill("2026-12-31T23:59");
+  await page.getByLabel("Fecha de fin").click();
+  await page.locator("#ends-at-search").fill("2026-12-31T23:59");
+  await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);

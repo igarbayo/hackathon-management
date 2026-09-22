@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import {
@@ -42,7 +43,7 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState("checkpoint");
-  const [dueAt, setDueAt] = useState("");
+  const [dueAt, setDueAt] = useState<Date>();
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState onRetry={() => refetch()} />;
@@ -52,9 +53,9 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !dueAt) return;
-    await createMilestone.mutateAsync({ title, kind, due_at: new Date(dueAt).toISOString() });
+    await createMilestone.mutateAsync({ title, kind, due_at: dueAt.toISOString() });
     setTitle("");
-    setDueAt("");
+    setDueAt(undefined);
     setOpen(false);
   }
 
@@ -93,7 +94,7 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="m-due">Fecha</Label>
-                  <Input id="m-due" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
+                  <DatePicker id="m-due" value={dueAt} onChange={setDueAt} />
                 </div>
                 <DialogFooter>
                   <DialogClose render={<Button type="button" variant="ghost" />}>Cancelar</DialogClose>

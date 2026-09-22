@@ -17,7 +17,9 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
 
   await page.getByLabel("Nombre del equipo").fill("Los Bytes E2E");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC E2E");
-  await page.locator("#ends-at").fill("2026-12-31T23:59");
+  await page.getByLabel("Fecha de fin").click();
+  await page.locator("#ends-at-search").fill("2026-12-31T23:59");
+  await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
 
   await expect(page.getByText(/^[23456789ABCDEFGHJKMNPQRSTVWXYZ]{4}-/)).toBeVisible();

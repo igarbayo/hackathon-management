@@ -350,3 +350,22 @@
 @utility focus-ring {
   @apply outline-none focus-visible:ring-1 focus-visible:ring-f1-special-ring focus-visible:ring-offset-1;
 }
+
+/* Aviso de "no se ha entendido la fecha" del DatePicker (components/ui/date-picker.tsx,
+   ver specs/13-sistema-diseno.md#selector-de-fecha) — del `<style>` en línea
+   del componente original, pasado a una utilidad de Tailwind. */
+@keyframes date-picker-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+@theme inline {
+  --animate-date-picker-shake: date-picker-shake 0.15s ease-in-out 2;
+}
