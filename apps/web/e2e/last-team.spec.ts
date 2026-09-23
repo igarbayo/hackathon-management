@@ -9,7 +9,7 @@ test("tras cerrar sesión y volver a entrar, aterriza en su equipo sin pasar por
   await page.goto("/signup");
   await page.getByLabel("Nombre").fill("Katherine Johnson");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
@@ -29,7 +29,7 @@ test("tras cerrar sesión y volver a entrar, aterriza en su equipo sin pasar por
   await expect(page).toHaveURL(/\/login/);
 
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Entrar" }).click();
 
   await expect(page).toHaveURL(teamUrl);
@@ -43,7 +43,7 @@ test("con varios equipos y sin last_team_id, onboarding deja elegir a cuál entr
   await page.goto("/signup");
   await page.getByLabel("Nombre").fill("Margaret Hamilton");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);

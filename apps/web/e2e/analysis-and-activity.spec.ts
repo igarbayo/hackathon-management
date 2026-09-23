@@ -9,7 +9,7 @@ test("las pantallas de Actividad y Análisis IA cargan sin errores para un equip
   await page.goto("/signup");
   await page.getByLabel("Nombre").fill("Grace Hopper");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);

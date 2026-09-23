@@ -9,7 +9,7 @@ test("Ajustes: crear un PAT muestra el token y el comando de claude mcp add una 
   await page.goto("/signup");
   await page.getByLabel("Nombre").fill("Ada Lovelace");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);

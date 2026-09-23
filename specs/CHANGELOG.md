@@ -2,6 +2,7 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-23 · 04 · RF-AUTH-012 (nuevo): botón de ojo para mostrar u ocultar la contraseña en login y registro (`components/auth/password-input.tsx`). Los e2e pasan a buscar el campo con `getByLabel("Contraseña", { exact: true })`, porque la etiqueta del botón ("Mostrar contraseña") también casaba por subcadena.
 - 2026-09-23 · 04 · RF-AUTH-010: los botones "Continuar con Google" y "Continuar con GitHub" de login y registro llevan el logo del proveedor (la "G" oficial de Google y el GitHub mark de Octicons, en `components/auth/provider-logos.tsx`). Al ser marcas de terceros, el fichero va con cabecera SPDX `LicenseRef-ThirdPartyLogos` (texto en `LICENSES/`) y una fila en `docs/COMPONENTS_LICENSE.md` (ADR-0016).
 - 2026-09-23 · 13, decisiones · RNF-UI-006 (nuevo, ADR-0017): el modo oscuro deja el azul marino de F0 y pasa a grises tipo Discord: paneles `#313338`, fondo de página `#1e1f22`, `--neutral-2/3` blancos translúcidos y sombras negras. El modo claro no cambia.
 - 2026-09-23 · 04 · RF-UX-001, RF-UX-002 (bugs): con más de un equipo, el selector del sidebar mostraba el id del equipo en vez de su nombre, porque el `Select` de Base UI pinta el `value` tal cual si `Root` no recibe `items`; ahora se le pasan (`team_id` → `team_name`). Y en móvil el drawer del menú no se cerraba al elegir una opción: los enlaces de navegación, el logo y el cambio de equipo lo cierran ahora.
