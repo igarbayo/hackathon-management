@@ -35,6 +35,12 @@ Se recomienda instalarlo en global porque cada hook ejecuta el binario, y `npx` 
 - Para sacar una versión: subir `version` en `packages/cli/package.json`, mergear en `main` y empujar el tag `cli-v<versión>` sobre ese commit.
 - Al terminar `init`, el enlace a la actividad se construye con el origen de `verification_url` (que la api genera con su `APP_URL`) y el id del equipo, así el CLI no necesita conocer la URL de la web.
 
+**Pendiente para la primera publicación (`0.1.0`):**
+
+1. Confirmar la URL de la API por defecto (`https://api-hackboard.ignaciogarbayo.com`) y ponerla en `packages/cli/src/api-client.ts` y `packages/cli/.env.example`, que todavía apuntan a `https://api.hackboard.app`. Sin ella, quien lo instale tendrá que configurar `HACKBOARD_API_URL` a mano.
+2. Crear el secreto `NPM_TOKEN` en GitHub.
+3. Empujar el tag `cli-v0.1.0` para lanzar la publicación.
+
 ### Comandos — `RF-CC-020` [F5] Aceptado
 
 | Comando | Descripción |
