@@ -1,0 +1,19 @@
+Third-party logos, used under their owners' brand guidelines.
+
+These files contain logos that are trademarks of their owners. They are NOT covered by
+the GNU Affero General Public License that applies to the rest of this repository, and no
+license to them is granted here.
+
+- The Google "G" logo is a trademark of Google LLC. It is used unmodified, in its official
+  colours, only on the "Continue with Google" sign-in button, as allowed by the Sign in
+  with Google Branding Guidelines:
+  https://developers.google.com/identity/branding-guidelines
+
+- The GitHub mark is a trademark of GitHub, Inc. The artwork comes from Octicons
+  (https://github.com/primer/octicons, `mark-github`); Octicons' MIT license does not
+  cover GitHub's logos. It is used unmodified, only on the "Continue with GitHub" sign-in
+  button, as allowed by the GitHub Logos and Usage guidelines:
+  https://github.com/logos
+
+Using these logos does not imply endorsement by Google or GitHub. If you reuse this code,
+check that your use still complies with the current guidelines of each owner.
