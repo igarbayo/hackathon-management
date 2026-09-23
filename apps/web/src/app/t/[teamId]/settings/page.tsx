@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { toast } from "sonner";
-import { BotIcon, CopyIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, Trash2Icon, WebhookIcon } from "lucide-react";
+import { BotIcon, CopyIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, SparklesIcon, Trash2Icon, WebhookIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorState, LoadingState } from "@/components/states";
 import { PageHeader } from "@/components/f0/page-header";
-import { useMe } from "@/hooks/use-me";
+import { useMe, useUpdateMe } from "@/hooks/use-me";
 import {
   useMembers,
   useRemoveMember,
@@ -47,7 +47,7 @@ import {
   useWebhooks,
 } from "@/hooks/use-api-access";
 import { ApiError } from "@/lib/api-client";
-import type { ClaudeCodeStatus, Member } from "@/types/api";
+import type { ClaudeCodeStatus, Me, Member } from "@/types/api";
 
 function copyToClipboard(text: string, message = "Copiado") {
   navigator.clipboard.writeText(text);
@@ -106,6 +106,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
       <MembersCard teamId={teamId} members={members ?? []} myUserId={me?.id} isOwner={isOwner} />
       <GitHubCard teamId={teamId} />
       {myMember && <ClaudeCodeCard teamId={teamId} formattedCode={team.formatted_code} member={myMember} />}
+      {me && <GeminiApiKeyCard me={me} isOwner={isOwner} />}
       <ApiTokensCard teamId={teamId} members={members ?? []} isOwner={isOwner} />
       {isOwner && <IntegrationsCard teamId={teamId} />}
       {isOwner && <WebhooksCard teamId={teamId} />}
@@ -446,6 +447,72 @@ function ClaudeCodeCard({
             </div>
           </>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// RF-AI-021: clave personal de Gemini, de la cuenta (no del equipo). Se usa
+// en los análisis y sugerencias de atribución que esa persona dispara, y —
+// si es owner — también en lo automático del equipo (06-analisis-ia.md#proveedor).
+function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
+  const update = useUpdateMe();
+  const [value, setValue] = useState("");
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!value.trim()) return;
+    try {
+      await update.mutateAsync({ gemini_api_key: value.trim() });
+      setValue("");
+      toast.success("Clave de Gemini guardada");
+    } catch {
+      toast.error("No se ha podido guardar la clave");
+    }
+  }
+
+  async function handleRemove() {
+    try {
+      await update.mutateAsync({ gemini_api_key: "" });
+      toast.success("Clave de Gemini eliminada");
+    } catch {
+      toast.error("No se ha podido eliminar la clave");
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <SparklesIcon className="size-4" /> IA (Gemini) — clave personal
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-base">
+          <Badge variant={me.gemini_api_key_configured ? "positive" : "outline"}>
+            {me.gemini_api_key_configured ? "Configurada" : "No configurada"}
+          </Badge>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          Se usa para tus análisis bajo demanda (“Analizar ahora”, MCP o API){isOwner ? " y, como eres owner, también para el análisis programado y la atribución sugerida de este equipo" : ""}.
+          Nunca se vuelve a mostrar en claro tras guardarla.
+        </p>
+        <form onSubmit={handleSave} className="flex gap-2">
+          <Input
+            type="password"
+            placeholder={me.gemini_api_key_configured ? "Sustituir por una clave nueva" : "Pega tu clave de Gemini (AIza…)"}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <Button type="submit" disabled={update.isPending || !value.trim()}>
+            Guardar
+          </Button>
+          {me.gemini_api_key_configured && (
+            <Button type="button" variant="outline" onClick={handleRemove} disabled={update.isPending}>
+              Quitar
+            </Button>
+          )}
+        </form>
       </CardContent>
     </Card>
   );

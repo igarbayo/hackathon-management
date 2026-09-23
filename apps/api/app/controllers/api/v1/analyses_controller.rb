@@ -29,6 +29,16 @@ module Api
       def create
         Analysis::Quota.check_manual!(current_team)
 
+        # current_user es nil con un token de integración (actúa como la
+        # integración, no como una persona): RunJob cae entonces a la clave
+        # del owner del equipo, igual que un análisis programado.
+        if current_user && current_user.gemini_api_key.blank?
+          raise ApiError.new(
+            status: :unprocessable_entity, code: "missing_gemini_api_key",
+            message: "Configura tu clave de Gemini en tu perfil (Ajustes) para poder analizar."
+          )
+        end
+
         analysis = Analysis::Enqueue.call(team: current_team, trigger: "manual", requested_by: current_user)
 
         render json: AiAnalysisSerializer.new(analysis, include_result: false).as_json, status: :accepted

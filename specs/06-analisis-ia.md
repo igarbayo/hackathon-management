@@ -11,7 +11,17 @@
   ```
 - Implementación por defecto: `Ai::Gemini`. Usa la API de Gemini con salida estructurada (`responseMimeType: "application/json"` + `responseSchema`). El modelo se configura con `GEMINI_MODEL`. [ABIERTO] Qué modelo concreto usar por defecto (familia Flash por coste o Pro por calidad). Hay que decidirlo con una evaluación en F4.
 - La respuesta **siempre** se valida en el servidor contra el JSON Schema de `packages/shared-schemas`, aunque el proveedor garantice el formato. Si no valida, se reintenta 1 vez y después se marca `failed`.
-- Ver [ADR-0003](decisiones.md#adr-0003).
+- Ver [ADR-0003](decisiones.md#adr-0003) y [ADR-0014](decisiones.md#adr-0014).
+
+### Clave de API — `RF-AI-021` [F4] Aceptado
+
+- **No hay una clave de Gemini compartida del servidor.** Cada persona pone la suya en su perfil (`Equipo y ajustes → IA (Gemini)`), cifrada en reposo (`GeminiApiKeyCipher`, AES-256-GCM con `GEMINI_API_KEY_ENCRYPTION_KEY`). Nunca se vuelve a mostrar en claro; la API solo informa de si está configurada (`gemini_api_key_configured`).
+- **Qué clave se usa en cada llamada** (`Ai::KeyOwner`):
+  - Acciones que dispara una persona (botón "Analizar ahora", la herramienta MCP `run_analysis`, la API): la clave de quien lo pide (`AiAnalysis.requested_by_id`). Si no la tiene puesta, la petición falla en el momento con `422 missing_gemini_api_key` (API) o un error de herramienta (MCP), sin llegar a encolarse.
+  - Lo automático, sin un actor que lo dispare (el cron de análisis programado y la sugerencia de atribución de la capa 3, [05](05-atribucion.md#capa-3)): la clave del **owner** del equipo.
+  - Si la clave que corresponde no está puesta, no se llama a la IA: el análisis programado se guarda como `AiAnalysis` con `status: skipped, skip_reason: no_api_key` (igual que `no_changes`) y la sugerencia de atribución simplemente no se intenta ese ciclo (se reintentará en el siguiente, como si la IA hubiera fallado).
+  - No hay fallback a ninguna clave compartida del servidor: si nadie la ha puesto, la IA de ese equipo no funciona hasta que alguien la configure.
+- `rake ai:eval` (RNF-AI-002) es la única excepción: sigue leyendo `GEMINI_API_KEY` del entorno de quien lo ejecuta, porque es una herramienta de desarrollador que corre en local, no una petición de la app en producción.
 
 ## Usos de la IA
 

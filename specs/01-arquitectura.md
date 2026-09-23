@@ -123,7 +123,9 @@ Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, outbound
 | `APP_URL`, `API_URL` | api, web | URLs públicas |
 | `SESSION_SECRET` | api | Firma de cookies |
 | `GITHUB_APP_ID`, `GITHUB_APP_SLUG`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | api | GitHub App (incluye el login OAuth de usuario) |
-| `GEMINI_API_KEY`, `GEMINI_MODEL` | api | Proveedor de IA |
+| `GEMINI_MODEL` | api | Modelo de Gemini. La clave de API ya no es una variable de entorno: cada persona pone la suya en su perfil ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) |
+| `GEMINI_API_KEY_ENCRYPTION_KEY` | api | Clave para cifrar en reposo la clave de Gemini de cada persona |
+| `GEMINI_API_KEY` | dev | Solo para `rake ai:eval` (RNF-AI-002), en el entorno de quien lo ejecuta. La app no la lee en runtime |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | api | Login con Google (OpenID Connect) |
 | `WEBHOOK_SECRETS_KEY` | api | Clave para cifrar los secretos de los webhooks salientes |
 | `AI_PROVIDER` | api | `gemini` (por defecto). Deja preparado el cambio de proveedor |

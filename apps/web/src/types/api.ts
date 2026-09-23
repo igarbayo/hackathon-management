@@ -13,6 +13,7 @@ export interface Me {
   avatar_url: string | null;
   github_login: string | null;
   has_password: boolean;
+  gemini_api_key_configured: boolean;
   last_team_id: string | null;
   memberships: Membership[];
 }
