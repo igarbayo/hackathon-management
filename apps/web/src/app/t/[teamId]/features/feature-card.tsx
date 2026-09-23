@@ -8,25 +8,44 @@ import { ScaleIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { relativeTime } from "@/lib/format-date";
+import { cn } from "@/lib/utils";
 import type { Feature } from "@/types/api";
+
+// Tarjeta del kanban dentro de su columna. Mientras se arrastra se queda como
+// hueco semitransparente en la posición donde caerá; lo que sigue al cursor es
+// la copia de `FeatureCardView` que pinta el `DragOverlay` de la página.
+export function FeatureCard({ feature }: { feature: Feature }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: feature.id });
+
+  return (
+    <FeatureCardView
+      ref={setNodeRef}
+      feature={feature}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
+      {...attributes}
+      {...listeners}
+    />
+  );
+}
 
 // RF-FEAT-012: clave, título, avatares, deadline, chips de objetivos, score y
 // tiempo desde la última actividad.
-export function FeatureCard({ feature }: { feature: Feature }) {
+export function FeatureCardView({
+  feature,
+  className,
+  ...props
+}: { feature: Feature } & React.ComponentProps<"div">) {
   const pathname = usePathname();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: feature.id });
-
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const overdue = feature.deadline && new Date(feature.deadline) < new Date() && !["done", "discarded"].includes(feature.status);
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
+      {...props}
       data-testid="feature-card"
-      className="flex cursor-grab flex-col gap-1.5 rounded-md border border-f1-border bg-f1-background p-2.5 text-base shadow-none transition-colors hover:border-f1-border-hover"
+      className={cn(
+        "flex cursor-grab flex-col gap-1.5 rounded-md border border-f1-border bg-f1-background p-2.5 text-base shadow-none transition-colors hover:border-f1-border-hover",
+        className,
+      )}
     >
       <div className="flex items-center justify-between">
         <Badge variant="outline">{feature.key}</Badge>

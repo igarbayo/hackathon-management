@@ -64,6 +64,12 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
     const y = cardBox.y + cardBox.height / 2 + ((targetBox.y + 20 - cardBox.y) * i) / steps;
     await page.mouse.move(x, y);
   }
+
+  // Antes de soltar, el hueco de la tarjeta ya está en "Hecha" y no en "Idea":
+  // si no, al soltar se veía volver a su columna y luego saltar al destino.
+  // (La copia que sigue al cursor, el DragOverlay, está fuera de las columnas.)
+  await expect(page.getByTestId("kanban-column-done").getByText("F-1")).toBeVisible();
+  await expect(page.getByTestId("kanban-column-idea").getByText("F-1")).not.toBeVisible();
   await page.mouse.up();
 
   await expect(page.getByTestId("kanban-column-done").getByText("F-1")).toBeVisible();

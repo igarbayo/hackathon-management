@@ -28,6 +28,19 @@ hackboard init --team K7Q2-M9XA
 
 Se recomienda instalarlo en global porque cada hook ejecuta el binario, y `npx` añade una latencia inaceptable en cada llamada (RNF-CC-001). `npx hackboard init` también funciona para el paso de `init`: detecta que falta la instalación global y la propone.
 
+### Publicación en npm — `RNF-SEC-012` [F5] Aceptado
+
+- El paquete publicado es `packages/cli` tal cual, sin dependencias de runtime: no importa `@hackboard/shared-schemas` (que es privado del monorepo), así que se instala sin nada más que Node ≥ 20. Solo incluye `dist/` y `README.md`.
+- Se publica **solo desde CI**, con el workflow `.github/workflows/release-cli.yml`, al empujar un tag `cli-vX.Y.Z`. El workflow falla si el tag no coincide con `version` de `packages/cli/package.json`, pasa `npm audit` (RNF-SEC-011) y publica con `npm publish --provenance --access public` usando el secreto `NPM_TOKEN` (cuenta con 2FA). `prepublishOnly` limpia `dist/`, compila y pasa los tests antes de subir nada.
+- Para sacar una versión: subir `version` en `packages/cli/package.json`, mergear en `main` y empujar el tag `cli-v<versión>` sobre ese commit.
+- Al terminar `init`, el enlace a la actividad se construye con el origen de `verification_url` (que la api genera con su `APP_URL`) y el id del equipo, así el CLI no necesita conocer la URL de la web.
+
+**Pendiente para la primera publicación (`0.1.0`):**
+
+1. Confirmar la URL de la API por defecto (`https://api-hackboard.ignaciogarbayo.com`) y ponerla en `packages/cli/src/api-client.ts` y `packages/cli/.env.example`, que todavía apuntan a `https://api.hackboard.app`. Sin ella, quien lo instale tendrá que configurar `HACKBOARD_API_URL` a mano.
+2. Crear el secreto `NPM_TOKEN` en GitHub.
+3. Empujar el tag `cli-v0.1.0` para lanzar la publicación.
+
 ### Comandos — `RF-CC-020` [F5] Aceptado
 
 | Comando | Descripción |

@@ -48,19 +48,33 @@ export function useDeleteFeature(teamId: string) {
   });
 }
 
+type MoveFeatureParams = {
+  key: string;
+  status: Feature["status"];
+  before_id?: string;
+  after_id?: string;
+  position?: number;
+};
+
 // RF-FEAT-011: la interfaz es optimista y revierte si la API responde con error.
+// `position` solo sirve para la actualización optimista (la calcula quien llama
+// con la misma regla que Features::Move); a la api no se envía.
 export function useMoveFeature(teamId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { key: string; status: string; before_id?: string; after_id?: string }) =>
-      apiClient.post<Feature>(`/api/v1/teams/${teamId}/features/${params.key}/move`, params),
+    mutationFn: ({ key: featureKey, status, before_id, after_id }: MoveFeatureParams) =>
+      apiClient.post<Feature>(`/api/v1/teams/${teamId}/features/${featureKey}/move`, { key: featureKey, status, before_id, after_id }),
     onMutate: async (params) => {
       await queryClient.cancelQueries({ queryKey: key(teamId) });
       const previous = queryClient.getQueryData<Feature[]>(key(teamId));
 
       queryClient.setQueryData<Feature[]>(key(teamId), (features) =>
-        features?.map((feature) => (feature.key === params.key ? { ...feature, status: params.status as Feature["status"] } : feature)),
+        features?.map((feature) =>
+          feature.key === params.key
+            ? { ...feature, status: params.status, position: params.position ?? feature.position }
+            : feature,
+        ),
       );
 
       return { previous };

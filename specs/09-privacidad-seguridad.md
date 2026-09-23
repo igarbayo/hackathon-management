@@ -65,7 +65,7 @@
 | RNF-SEC-014 | Los permisos efectivos de un token son `scopes ∩ permisos del rol`. Los endpoints `session_only` ([12](12-acceso-programatico.md#qué-no-se-puede-hacer-con-un-token)) nunca aceptan Bearer. | Aceptado [F2] |
 | RNF-SEC-015 | **OAuth 2.1:** PKCE `S256` obligatorio. Coincidencia exacta de `redirect_uri`. `state` obligatorio. Tokens ligados al `resource`. Códigos de un solo uso y 60 s. Refresh tokens rotados con detección de reutilización. Nunca se aceptan ni se reenvían tokens de Google o GitHub (sin *token passthrough*). El login con Google valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Una cuenta solo se vincula por email si el proveedor lo da como verificado. | Aceptado [F1/F6] |
 | RNF-SEC-016 | **Webhooks salientes:** firma HMAC-SHA256 con timestamp, secretos cifrados, solo HTTPS, sin seguir redirecciones, timeout de 5 s y protección SSRF (resolución de DNS en el envío y bloqueo de rangos privados, loopback, link-local y metadatos de nube). | Aceptado [F6] |
-| RNF-SEC-012 | El paquete npm `hackboard` se publica con provenance (`npm publish --provenance`) desde CI, y la cuenta de npm tiene 2FA. | Aceptado [F5] |
+| RNF-SEC-012 | El paquete npm `hackboard` se publica con provenance (`npm publish --provenance`) desde CI, y la cuenta de npm tiene 2FA. Workflow: `.github/workflows/release-cli.yml` (ver [08](08-integracion-claude-code.md#publicación-en-npm--rnf-sec-012-f5-aceptado)). Pasa a Implementado con la primera versión publicada. | Aceptado [F5] |
 
 ## Derechos del usuario
 
