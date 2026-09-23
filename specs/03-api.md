@@ -42,7 +42,7 @@
 | GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado) | RF-AUTH-004 [F1] |
 | GET | `/auth/github/callback` | Crea o vincula el usuario por `github_uid` y, si no, por email verificado. Abre sesión | RF-AUTH-004 |
 | GET | `/auth/google` | Redirige al login de Google (OpenID Connect, scopes `openid email profile`, `state` y `nonce` firmados, PKCE) | RF-AUTH-008 [F1] |
-| GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Abre sesión | RF-AUTH-008 |
+| GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Actualiza `avatar_url` con `picture` (RF-AUTH-011). Abre sesión | RF-AUTH-008 |
 | DELETE | `/me/identities/:provider` | Desvincula Google o GitHub. Falla si es la única forma de entrar (sin contraseña ni otro proveedor) | RF-AUTH-009 [F2] |
 | GET | `/me` | Usuario, membresías (equipo y rol) y `last_team_id` | RF-AUTH-005 [F1] |
 | PATCH | `/me` | `name`, `password`, `gemini_api_key` (RF-AI-021 [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado); vacío la quita, ausente no la toca) | RF-AUTH-006 [F1] |

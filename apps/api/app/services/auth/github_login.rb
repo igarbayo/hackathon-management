@@ -75,7 +75,8 @@ module Auth
       user ||= (email.present? ? User.where(email: email.downcase).first : nil)
 
       if user
-        user.update!(github_uid: github_uid, github_login: github_login, avatar_url: profile["avatar_url"])
+        # RF-AUTH-011: la foto es la del último proveedor con el que se entró.
+        user.update!(github_uid: github_uid, github_login: github_login, avatar_url: profile["avatar_url"].presence || user.avatar_url)
       else
         user = User.create!(
           email: email || "#{github_login}@users.noreply.github.com",
