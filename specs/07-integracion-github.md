@@ -60,14 +60,26 @@ Contenido que se guarda de cada commit: sha, primera línea del mensaje en `titl
 
 ## Mapeo de autores
 
-Para resolver `actor.user_id` en eventos de GitHub, se aplica esta cascada:
+`RF-GH-024` [F3] Implementado. Ver [ADR-0018](decisiones.md#adr-0018).
 
-1. `commit.author.username` / `sender.login` → `User.github_login` de un miembro del equipo.
-2. Email del autor del commit → `User.email` o `Membership.git_identities` de un miembro.
+**Cada evento de GitHub guarda siempre la identidad de su autor**, sea o no miembro del equipo: `actor.github_login`, `actor.email` (en minúsculas; solo commits, los PRs y ramas no la traen) y `actor.author_name` (nombre del autor en git, o el login si no lo hay). Así, un commit de alguien que todavía no está dado de alta se puede asignar a esa persona cuando entre.
+
+**Asignación al llegar el evento.** Para resolver `actor.user_id` se aplica esta cascada, siempre contra miembros del equipo:
+
+1. `commit.author.username` / `sender.login` → `User.github_login` de un miembro, o un login guardado en sus `Membership.git_identities`.
+2. Email del autor del commit → `User.email` o un email de `Membership.git_identities` de un miembro.
 3. Email *noreply* de GitHub (`12345+login@users.noreply.github.com`) → se extrae el login y se aplica el paso 1.
-4. Si no hay coincidencia: `actor.user_id = nil`, `actor.display = nombre del autor`, y en ajustes aparece la sugerencia "¿Este autor es un miembro?". Al vincularlo, se añade a `git_identities` y se re-mapean sus eventos.
+4. Si no hay coincidencia: `actor.user_id = nil` y `actor.display = actor.author_name`. El evento es de un **autor sin vincular**.
 
-`RF-GH-024` [F3] Aceptado.
+Los logins y los emails se comparan sin distinguir mayúsculas. Si el evento se asigna en este paso, `actor.mapped_by = "auto"`.
+
+**Asignación retroactiva** — `Activity::ClaimForMembership` (job `Activity::ClaimForMembershipJob`). Busca los eventos de GitHub del equipo **sin usuario** cuya identidad (`actor.github_login` o `actor.email`, incluido el login de un email *noreply*) coincide con la de un miembro y se los asigna (`mapped_by: "auto"`, `display` = nombre del miembro). Nunca toca un evento que ya tiene usuario ni uno que ese miembro haya marcado como "No son míos". Se lanza:
+
+- al crear la membresía (crear el equipo o unirse con el código);
+- cuando cambian `User.github_login` o `User.email` (entrar o vincular con GitHub o con Google), para todas las membresías de esa persona;
+- cuando se añaden identidades a `Membership.git_identities`.
+
+**Asignación manual** — ver RF-ACT-018 en [04](04-pantallas.md#actividad) y `POST /teams/:id/activity/claim` / `unclaim` en [03](03-api.md).
 
 ## Requisitos no funcionales
 

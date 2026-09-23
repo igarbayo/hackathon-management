@@ -26,6 +26,10 @@ class User
   validate :has_login_method
 
   has_many :memberships, dependent: :destroy
+
+  # ADR-0018: con un login de GitHub o un email nuevos, la persona puede
+  # reclamar eventos de GitHub sin usuario en todos sus equipos.
+  after_update :enqueue_claims, if: -> { (previous_changes.keys & %w[github_login email]).any? }
   has_many :sessions, dependent: :destroy
 
   index({ email: 1 }, { unique: true })
@@ -60,6 +64,10 @@ class User
   end
 
   private
+
+  def enqueue_claims
+    memberships.each { |membership| Activity::ClaimForMembershipJob.perform_async(membership.id.to_s) }
+  end
 
   def has_login_method
     return if password_digest.present? || github_uid.present? || google_sub.present?

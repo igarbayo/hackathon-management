@@ -100,6 +100,9 @@ Rails.application.routes.draw do
         get "activity", to: "activity#index"
         get "activity/summary", to: "activity#summary"
         post "activity/attribution/bulk", to: "activity_attributions#bulk"
+        get "activity/unlinked_authors", to: "activity_claims#unlinked_authors"
+        post "activity/claim", to: "activity_claims#claim"
+        post "activity/unclaim", to: "activity_claims#unclaim"
         post "activity/:event_id/attribution", to: "activity_attributions#create"
 
         collection do

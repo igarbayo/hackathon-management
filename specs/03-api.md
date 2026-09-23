@@ -111,10 +111,13 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 
 | Método | Ruta | Descripción | Req |
 |--------|------|-------------|-----|
-| GET | `/teams/:id/activity` | Filtros: `user_id`, `feature_id`, `source`, `kind`, `attribution_status` (`confirmed`\|`suggested`\|`none`), `via` (`web`\|`api`\|`mcp`), `token_id`, `since`, `until`. Paginado | RF-ACT-001 [F3] |
+| GET | `/teams/:id/activity` | Filtros: `user_id`, `feature_id`, `source`, `kind`, `attribution_status` (`confirmed`\|`suggested`\|`none`), `actor_status` (`unlinked`: de GitHub y sin usuario), `via` (`web`\|`api`\|`mcp`), `token_id`, `since`, `until`. Paginado | RF-ACT-001 [F3] |
 | GET | `/teams/:id/activity/summary` | Recuento por persona y por feature en una ventana (`?window=24h`) | RF-ACT-002 [F3] |
 | POST | `/teams/:id/activity/:eid/attribution` | `{action: "confirm" \| "reject" \| "set", feature_id?}` | RF-ATR-004 [F3] |
 | POST | `/teams/:id/activity/attribution/bulk` | `{event_ids[], action, feature_id?}` (máx. 100) | RF-ATR-005 [F4] |
+| GET | `/teams/:id/activity/unlinked_authors` | Autores de eventos de GitHub sin vincular: `{data: [{github_login, email, author_name, event_count, last_event_at}]}`, agrupados por login o, si no hay, por email. Solo sesión web (`403 session_required` con token), porque expone emails de autores | RF-ACT-018 |
+| POST | `/teams/:id/activity/claim` | `{event_ids[]? \| author: {github_login?, email?}, membership_id?, include_future: bool}` (máx. 100 eventos). Asigna eventos de GitHub a un miembro (`mapped_by: "manual"`). Sin `membership_id`, a uno mismo; con otro `membership_id`, solo un owner. Un miembro solo puede asignarse eventos **sin usuario**; un owner, cualquiera. `include_future` añade las identidades de esos eventos a `git_identities` del destinatario y asigna también el resto de eventos sin usuario de esas identidades. `409 identity_taken` si una identidad ya es de otro miembro. Devuelve `{data: [eventos], skipped: N}` | RF-ACT-018 |
+| POST | `/teams/:id/activity/unclaim` | `{event_ids[]}` (máx. 100). Deja los eventos sin usuario (`display` vuelve a `author_name`) y quita sus identidades de `git_identities` del miembro que los tenía; ese miembro queda en `unclaimed_by`. Un miembro solo sobre los suyos; un owner, sobre cualquiera | RF-ACT-018 |
 
 ## Análisis IA — `RF-AI`
 

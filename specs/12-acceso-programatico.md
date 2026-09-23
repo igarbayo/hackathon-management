@@ -46,7 +46,7 @@ Todos se envían como `Authorization: Bearer <token>` (salvo la sesión y el ref
 | `objectives:write` | Crear y editar objetivos (no borrarlos) |
 | `arguments:write` | Añadir pros y contras, editar los propios y votar |
 | `milestones:write` | Crear y editar milestones |
-| `attribution:write` | Confirmar, rechazar o fijar la atribución de eventos |
+| `attribution:write` | Confirmar, rechazar o fijar la atribución de eventos, y asignar o desasignar su autor (RF-ACT-018) |
 | `analyses:run` | Lanzar un análisis manual (respeta la cuota de [06](06-analisis-ia.md#cuotas)) |
 | `progress:write` | Informar del progreso (`report_progress`) |
 | `ingest` | Enviar eventos de Claude Code. **Exclusivo del token de miembro** |
