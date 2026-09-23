@@ -7,7 +7,16 @@ import { navItems } from "./nav-items";
 
 // Calcado del item de menú del Sidebar de F0 (Navigation/Sidebar/Menu):
 // rounded, 16px de icono, activo en bg-f1-background-secondary.
-export function SidebarNav({ teamId, iconOnly = false }: { teamId: string; iconOnly?: boolean }) {
+// `onNavigate` lo usa el drawer móvil para cerrarse al elegir una opción.
+export function SidebarNav({
+  teamId,
+  iconOnly = false,
+  onNavigate,
+}: {
+  teamId: string;
+  iconOnly?: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
@@ -18,6 +27,7 @@ export function SidebarNav({ teamId, iconOnly = false }: { teamId: string; iconO
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={cn(
               "focus-ring flex items-center gap-1.5 rounded py-1.5 pl-1.5 pr-2 text-base font-medium no-underline transition-colors",
               active
