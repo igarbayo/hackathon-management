@@ -12,7 +12,9 @@ module Github
     end
 
     def self.private_key
-      OpenSSL::PKey::RSA.new(ENV.fetch("GITHUB_APP_PRIVATE_KEY"))
+      # Docker Compose no soporta valores multilinea en env_file, asi que en
+      # produccion la clave viaja en una sola linea con \n literales.
+      OpenSSL::PKey::RSA.new(ENV.fetch("GITHUB_APP_PRIVATE_KEY").gsub('\n', "\n"))
     end
   end
 end
