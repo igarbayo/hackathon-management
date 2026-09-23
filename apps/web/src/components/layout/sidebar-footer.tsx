@@ -78,13 +78,13 @@ export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; ic
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="top" className="w-56">
           <DropdownMenuRadioGroup value={mounted ? theme : undefined} onValueChange={setTheme}>
-            <DropdownMenuRadioItem value="light">
+            <DropdownMenuRadioItem value="light" closeOnClick>
               <SunIcon className="size-4" /> Claro
             </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="dark">
+            <DropdownMenuRadioItem value="dark" closeOnClick>
               <MoonIcon className="size-4" /> Oscuro
             </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="system">
+            <DropdownMenuRadioItem value="system" closeOnClick>
               <MonitorIcon className="size-4" /> Sistema
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
