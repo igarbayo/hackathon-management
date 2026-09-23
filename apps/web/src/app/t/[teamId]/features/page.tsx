@@ -1,12 +1,25 @@
 "use client";
 
-import { use } from "react";
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { use, useState } from "react";
+import {
+  closestCorners,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragOverEvent,
+  type DragStartEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { KanbanSquareIcon } from "lucide-react";
 import { ErrorState, LoadingState } from "@/components/states";
 import { PageHeader } from "@/components/f0/page-header";
 import { useCreateFeature, useFeatures, useMoveFeature } from "@/hooks/use-features";
-import type { FeatureStatus } from "@/types/api";
+import type { Feature, FeatureStatus } from "@/types/api";
+import { FeatureCardView } from "./feature-card";
 import { KanbanColumn } from "./kanban-column";
 
 const COLUMNS: { status: FeatureStatus; title: string; collapsedByDefault?: boolean }[] = [
@@ -16,6 +29,30 @@ const COLUMNS: { status: FeatureStatus; title: string; collapsedByDefault?: bool
   { status: "discarded", title: "Descartada", collapsedByDefault: true },
 ];
 
+type Board = Record<FeatureStatus, Feature[]>;
+
+function buildBoard(features: Feature[]): Board {
+  const board = Object.fromEntries(COLUMNS.map((c) => [c.status, [] as Feature[]])) as Board;
+  for (const feature of features) board[feature.status]?.push(feature);
+  for (const column of Object.values(board)) column.sort((a, b) => a.position - b.position);
+  return board;
+}
+
+function findColumn(board: Board, id: UniqueIdentifier): FeatureStatus | undefined {
+  const value = String(id);
+  if (value.startsWith("column-")) return value.replace("column-", "") as FeatureStatus;
+  return COLUMNS.find((c) => board[c.status].some((f) => f.id === value))?.status;
+}
+
+// Misma regla que Features::Move en la api, para que la posición optimista
+// ordene la columna igual que lo hará la respuesta del servidor.
+function positionBetween(after: Feature | undefined, before: Feature | undefined): number {
+  if (after && before) return (after.position + before.position) / 2;
+  if (after) return after.position + 1;
+  if (before) return before.position - 1;
+  return 0;
+}
+
 export default function FeaturesPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
   const { data: features, isLoading, isError, refetch } = useFeatures(teamId);
@@ -24,63 +61,131 @@ export default function FeaturesPage({ params }: { params: Promise<{ teamId: str
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
+  // RF-FEAT-011: durante el arrastre el tablero se pinta desde `draft`, donde la
+  // tarjeta ya cambia de columna al pasar por encima, así que al soltar no hay
+  // nada que animar de vuelta. Tras soltar se sigue usando `draft` hasta que la
+  // caché cambie (actualización optimista del move), para no parpadear en medio.
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{ board: Board; source: Feature[] | undefined } | null>(null);
+
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
-  const byStatus = (status: FeatureStatus) =>
-    (features ?? []).filter((f) => f.status === status).sort((a, b) => a.position - b.position);
+  const board = draft && (activeId || draft.source === features) ? draft.board : buildBoard(features ?? []);
+  const activeFeature = activeId ? features?.find((f) => f.id === activeId) : undefined;
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+    setDraft({ board, source: features });
+  }
+
+  // Pasa la tarjeta a la otra columna en cuanto el cursor entra en ella; el
+  // reordenado dentro de una misma columna lo resuelve useSortable solo.
+  function handleDragOver({ active, over }: DragOverEvent) {
     if (!over) return;
 
-    const moved = features?.find((f) => f.id === active.id);
-    if (!moved) return;
+    setDraft((current) => {
+      if (!current) return current;
+      const from = findColumn(current.board, active.id);
+      const to = findColumn(current.board, over.id);
+      if (!from || !to || from === to) return current;
 
-    const overId = String(over.id);
-    let targetStatus: FeatureStatus;
-    let beforeId: string | undefined;
-    let afterId: string | undefined;
+      const moving = current.board[from].find((f) => f.id === active.id);
+      if (!moving) return current;
 
-    if (overId.startsWith("column-")) {
-      targetStatus = overId.replace("column-", "") as FeatureStatus;
-      const column = byStatus(targetStatus).filter((f) => f.id !== moved.id);
-      afterId = column.at(-1)?.id;
-    } else {
-      const overFeature = features?.find((f) => f.id === overId);
-      if (!overFeature) return;
+      const target = current.board[to];
+      let index = target.length;
+      const overIndex = target.findIndex((f) => f.id === over.id);
+      if (overIndex >= 0) {
+        const translated = active.rect.current.translated;
+        const below = translated && translated.top > over.rect.top + over.rect.height / 2;
+        index = overIndex + (below ? 1 : 0);
+      }
 
-      targetStatus = overFeature.status;
-      const column = byStatus(targetStatus).filter((f) => f.id !== moved.id);
-      const overIndex = column.findIndex((f) => f.id === overFeature.id);
-      beforeId = overFeature.id;
-      afterId = overIndex > 0 ? column[overIndex - 1].id : undefined;
+      return {
+        ...current,
+        board: {
+          ...current.board,
+          [from]: current.board[from].filter((f) => f.id !== active.id),
+          [to]: [...target.slice(0, index), { ...moving, status: to }, ...target.slice(index)],
+        },
+      };
+    });
+  }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    setActiveId(null);
+
+    const original = features?.find((f) => f.id === active.id);
+    const status = draft ? findColumn(draft.board, active.id) : undefined;
+    if (!draft || !original || !status) {
+      setDraft(null);
+      return;
     }
 
-    if (targetStatus === moved.status && beforeId === undefined && afterId === undefined) return;
+    let column = draft.board[status];
+    const oldIndex = column.findIndex((f) => f.id === active.id);
+    const overIndex = over ? column.findIndex((f) => f.id === over.id) : -1;
+    if (overIndex >= 0 && overIndex !== oldIndex) column = arrayMove(column, oldIndex, overIndex);
 
-    moveFeature.mutate({ key: moved.key, status: targetStatus, before_id: beforeId, after_id: afterId });
+    const index = column.findIndex((f) => f.id === active.id);
+    const after = column[index - 1];
+    const before = column[index + 1];
+
+    const originalColumn = buildBoard(features ?? [])[original.status];
+    const originalIndex = originalColumn.findIndex((f) => f.id === original.id);
+    const unchanged =
+      status === original.status &&
+      originalColumn[originalIndex - 1]?.id === after?.id &&
+      originalColumn[originalIndex + 1]?.id === before?.id;
+    if (unchanged) {
+      setDraft(null);
+      return;
+    }
+
+    const position = positionBetween(after, before);
+    column = column.map((f) => (f.id === original.id ? { ...f, status, position } : f));
+    setDraft({ ...draft, board: { ...draft.board, [status]: column } });
+
+    moveFeature.mutate({ key: original.key, status, before_id: before?.id, after_id: after?.id, position });
+  }
+
+  function handleDragCancel() {
+    setActiveId(null);
+    setDraft(null);
   }
 
   return (
     <div className="flex h-full flex-col gap-4">
       <PageHeader icon={KanbanSquareIcon} title="Features" className="pb-0" />
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
         <div className="flex flex-1 gap-4 overflow-x-auto">
           {COLUMNS.map((column) => (
             <KanbanColumn
               key={column.status}
               status={column.status}
               title={column.title}
-              features={byStatus(column.status)}
+              features={board[column.status]}
               collapsedByDefault={column.collapsedByDefault}
               onQuickCreate={(title) => createFeature.mutate({ title, status: column.status })}
             />
           ))}
         </div>
+
+        <DragOverlay>
+          {activeFeature && (
+            <FeatureCardView feature={activeFeature} className="cursor-grabbing border-f1-border-hover shadow-md" />
+          )}
+        </DragOverlay>
       </DndContext>
     </div>
   );
 }
-
