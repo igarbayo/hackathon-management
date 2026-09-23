@@ -2,7 +2,7 @@
   "name": "hackboard",
   "version": "0.1.0",
   "description": "CLI de Hackboard: instala hooks de Claude Code y envía eventos de actividad a la API.",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "bin": {
     "hackboard": "dist/bin/hackboard.js"

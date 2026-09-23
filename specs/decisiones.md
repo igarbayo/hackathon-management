@@ -141,3 +141,16 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **Mantener el radical de F0 y usar el morado solo en los logos:** fiel a F0, pero la marca y la interfaz tendrían dos colores protagonistas que compiten.
   - **Teñir de morado también `selected` y el anillo de foco:** más "de marca", pero confunde acento (acción principal) con selección, y el viridian es parte de cómo F0 distingue ambos estados.
 - **Consecuencias:** es la primera desviación deliberada de un valor de F0; cualquier nueva desviación debe quedar documentada igual en la spec 13. El morado oscuro con texto blanco cumple AA en ambos temas.
+
+## ADR-0016
+
+**Licencia AGPL-3.0-or-later** · Aceptado · 2026-09-23
+
+- **Contexto:** el repositorio no tenía licencia (el CLI se declaraba `UNLICENSED`) y se publica como "the open-source hackathon management platform". Se inventariaron todos los componentes (814 entradas de `package-lock.json`, 134 de `Gemfile.lock`, imágenes y servicios de `docker-compose*.yml`, fuentes, iconos, código copiado y APIs externas) para decidir con datos. Todo lo que forma parte de la aplicación es permisivo (MIT, ISC, BSD, Apache-2.0, BlueOak, Python-2.0, CC-BY-4.0 para datos) o copyleft débil compatible (Sidekiq LGPL-3.0, libvips LGPL-3.0 opcional, MPL-2.0 solo en desarrollo). Lo no OSI (MongoDB SSPL, Redis 7.4 RSAL/SSPL, Brakeman) son servicios o herramientas separadas, no enlazadas ni distribuidas.
+- **Decisión:** HackBoard se licencia bajo **AGPL-3.0-or-later**. Texto en `LICENSE` y `LICENSES/AGPL-3.0-or-later.txt`; justificación e inventario completo en `LICENSES/COMPONENTS_LICENSE.md`. Todos los `package.json` del monorepo declaran `"license": "AGPL-3.0-or-later"`.
+- **Alternativas:**
+  - **MIT / BSD-3-Clause:** máxima adopción, pero permiten que alguien aloje una versión modificada y cerrada como servicio, que es justo como se usa HackBoard.
+  - **Apache-2.0:** añade concesión de patentes, pero tiene el mismo hueco de SaaS. Sería la opción si la prioridad pasara a ser la adopción corporativa.
+  - **GPL-3.0:** solo obliga al distribuir copias; ejecutar la app en un servidor propio no es distribuir ("SaaS loophole").
+  - **AGPL-3.0-only:** descartada a favor de "or later" (recomendación de la FSF; compatibilidad con futuras versiones).
+- **Consecuencias:** quien despliegue una versión **modificada** como servicio debe ofrecer su código a sus usuarios (§13); el despliegue propio debería enlazar al repositorio desde la interfaz (pendiente: requiere un requisito de UI en [04](04-pantallas.md)). Hay que conservar los avisos MIT del código copiado (`date-picker.tsx`, primitivos de shadcn/ui, tokens de F0 en `globals.css`). Algunas organizaciones prohíben AGPL internamente; se asume porque el público son equipos y organizadores de hackathons. Mientras Ignacio Garbayo sea el único titular del copyright se puede relicenciar (p. ej. `packages/shared-schemas` a MIT); con contribuciones externas sin CLA ya no.
