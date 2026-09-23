@@ -4,6 +4,7 @@ RSpec.describe "Analyses", type: :request do
   describe "POST /api/v1/teams/:team_id/analyses" do
     it "encola un análisis manual y devuelve su id" do
       membership = create(:membership)
+      membership.user.update!(gemini_api_key: "test-key")
       sign_in_as(membership.user)
 
       post "/api/v1/teams/#{membership.team.id}/analyses", headers: csrf_headers
@@ -13,8 +14,19 @@ RSpec.describe "Analyses", type: :request do
       expect(AiAnalysis.where(id: json_response["id"]).first).to be_present
     end
 
+    it "responde 422 si no tengo una clave de Gemini configurada" do
+      membership = create(:membership)
+      sign_in_as(membership.user)
+
+      post "/api/v1/teams/#{membership.team.id}/analyses", headers: csrf_headers
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json_response["error"]["code"]).to eq("missing_gemini_api_key")
+    end
+
     it "responde 429 al superar la cuota manual diaria del plan" do
       membership = create(:membership)
+      membership.user.update!(gemini_api_key: "test-key")
       5.times { create(:ai_analysis, team: membership.team, trigger: "manual") }
       sign_in_as(membership.user)
 

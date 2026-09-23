@@ -56,6 +56,8 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
     } catch (err) {
       if (err instanceof ApiError && err.code === "rate_limited") {
         toast.warning("Se ha alcanzado la cuota de análisis manuales de hoy.");
+      } else if (err instanceof ApiError && err.code === "missing_gemini_api_key") {
+        toast.warning("Configura tu clave de Gemini en Equipo y ajustes para poder analizar.");
       }
     }
   }

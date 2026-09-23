@@ -41,18 +41,31 @@ module Analysis
         return
       end
 
+      api_key = resolve_api_key(analysis, team)
+      if api_key.blank?
+        analysis.update!(status: "skipped", skip_reason: "no_api_key", input_hash: input_hash, provider: provider_name, prompt_version: PROMPT_VERSION)
+        return
+      end
+
       analysis.update!(
         status: "running", provider: provider_name, prompt_version: PROMPT_VERSION,
         input_hash: input_hash, context_stats: context_stats(context), started_at: Time.current
       )
 
-      generate(analysis, team, context)
+      generate(analysis, team, context, api_key)
     end
 
-    def generate(analysis, team, context)
+    # RF-AI-021: lo manual usa la clave de quien lo pidió; lo programado
+    # (sin requested_by_id) usa la del owner del equipo.
+    def resolve_api_key(analysis, team)
+      user = analysis.requested_by_id ? User.where(id: analysis.requested_by_id).first : Ai::KeyOwner.for(team)
+      user&.gemini_api_key
+    end
+
+    def generate(analysis, team, context, api_key)
       system_prompt = File.read(Rails.root.join("app/lib/ai/prompts/#{PROMPT_VERSION}.md"))
       schema = Ai::Schemas.load("coverage-analysis")
-      provider = Ai::ProviderFactory.build
+      provider = Ai::ProviderFactory.build(api_key: api_key)
 
       result = with_one_retry do
         r = provider.generate_json(system: system_prompt, prompt: context.to_json, schema: schema)

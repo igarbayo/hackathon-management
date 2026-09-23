@@ -2,12 +2,9 @@ require "rails_helper"
 
 RSpec.describe Ai::Gemini do
   around do |example|
-    original_key = ENV["GEMINI_API_KEY"]
     original_model = ENV["GEMINI_MODEL"]
-    ENV["GEMINI_API_KEY"] = "test-key"
     ENV["GEMINI_MODEL"] = "gemini-test-model"
     example.run
-    ENV["GEMINI_API_KEY"] = original_key
     ENV["GEMINI_MODEL"] = original_model
   end
 
@@ -29,7 +26,7 @@ RSpec.describe Ai::Gemini do
       headers: { "Content-Type" => "application/json" }
     )
 
-    result = described_class.new.generate_json(system: "eres un analista", prompt: "hola", schema: schema)
+    result = described_class.new(api_key: "test-key").generate_json(system: "eres un analista", prompt: "hola", schema: schema)
 
     expect(stub).to have_been_requested
     expect(result.data).to eq({ "ok" => true })
@@ -44,14 +41,14 @@ RSpec.describe Ai::Gemini do
       headers: { "Content-Type" => "application/json" }
     )
 
-    expect { described_class.new.generate_json(system: "s", prompt: "p", schema: schema) }
+    expect { described_class.new(api_key: "test-key").generate_json(system: "s", prompt: "p", schema: schema) }
       .to raise_error(Ai::Provider::InvalidOutputError)
   end
 
   it "lanza GenerationError si Gemini responde con error" do
     stub_request(:post, /generativelanguage\.googleapis\.com/).to_return(status: 500, body: "boom")
 
-    expect { described_class.new.generate_json(system: "s", prompt: "p", schema: schema) }
+    expect { described_class.new(api_key: "test-key").generate_json(system: "s", prompt: "p", schema: schema) }
       .to raise_error(Ai::Provider::GenerationError)
   end
 end

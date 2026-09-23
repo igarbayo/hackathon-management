@@ -1,10 +1,16 @@
 # Implementación por defecto de Ai::Provider (ADR-0003). El modelo se
 # configura con GEMINI_MODEL: qué modelo concreto usar por defecto queda
-# [ABIERTO] en 06-analisis-ia.md, así que no se hardcodea ninguno aquí.
+# [ABIERTO] en 06-analisis-ia.md, así que no se hardcodea ninguno aquí. La
+# clave de API la resuelve quien construye el proveedor (Ai::KeyOwner): cada
+# persona usa la suya, nunca una compartida del servidor (RF-AI-021).
 module Ai
   class Gemini < Provider
     API_BASE = "https://generativelanguage.googleapis.com/v1beta/"
     TIMEOUT = 60
+
+    def initialize(api_key:)
+      @api_key = api_key
+    end
 
     def generate_json(system:, prompt:, schema:, temperature: 0.2, max_output_tokens: nil)
       body = request_body(system: system, prompt: prompt, schema: schema, temperature: temperature, max_output_tokens: max_output_tokens)
@@ -55,9 +61,7 @@ module Ai
       ENV.fetch("GEMINI_MODEL")
     end
 
-    def api_key
-      ENV.fetch("GEMINI_API_KEY")
-    end
+    attr_reader :api_key
 
     def connection
       Faraday.new(url: API_BASE) do |f|

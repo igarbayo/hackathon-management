@@ -120,6 +120,17 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **Híbrido, solo `@factorialco/f0-core` como dependencia npm:** casi el mismo resultado que la opción elegida, pero ata el build a la publicación de ese paquete en vez de a una copia literal de los tokens, sin ninguna ventaja real dado que los tokens son un puñado de constantes estables.
 - **Consecuencias:** cualquier deriva entre los tokens copiados y una futura versión de `f0-core` hay que detectarla a mano (no hay paquete que avise). Los componentes no son instancias reales de F0: replican su clase CSS pero no heredan su lógica (accesibilidad ARIA fina, animaciones con `motion`, i18n). RF-UX-001 pasa a referenciar F0 explícitamente en vez de una alusión genérica a "tipo Factorial".
 
+## ADR-0014
+
+**Clave de Gemini por persona en vez de una clave compartida del servidor** · Aceptado · 2026-09-23
+
+- **Contexto:** hasta ahora la app usaba una única `GEMINI_API_KEY` del servidor para todo el consumo de IA de todos los equipos (análisis programado, manual y atribución sugerida). Con varios equipos usando la herramienta a la vez, todo el gasto de tokens recaía sobre esa clave, puesta y pagada por una sola persona.
+- **Decisión:** cada persona pone su propia clave de Gemini en su perfil (RF-AI-021, [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)), cifrada en reposo. Las acciones que dispara alguien (manual, MCP) usan su clave; lo automático de un equipo (cron, atribución) usa la del owner del equipo. Sin clave puesta, esa llamada a la IA simplemente no se hace (se marca `skipped`/`no_api_key` o se reintenta en el siguiente ciclo) — no hay fallback a una clave compartida.
+- **Alternativas:**
+  - **Clave a nivel de equipo, puesta por el owner:** más simple (un solo campo en `Team.settings`), pero no resuelve el problema para equipos con un owner que no quiere o no puede poner su clave, y no permite que un miembro use la suya para sus propias acciones bajo demanda.
+  - **Mantener `GEMINI_API_KEY` del servidor como fallback:** menos disruptivo, pero no cumple el objetivo (si nadie configura la suya, se sigue gastando la clave compartida).
+- **Consecuencias:** `Ai::Gemini`/`Ai::ProviderFactory.build` pasan a exigir `api_key:` explícito, ya no leen `ENV["GEMINI_API_KEY"]`. `rake ai:eval` (herramienta de desarrollador, no runtime de la app) sigue leyendo esa variable del entorno de quien lo ejecuta. Un equipo sin ninguna clave puesta no tiene IA hasta que alguien la configure; la pantalla de análisis y el botón "Analizar ahora" lo indican.
+
 ## ADR-0015
 
 **Acento de marca morado en lugar del radical de F0** · Aceptado · 2026-09-23
@@ -130,3 +141,16 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **Mantener el radical de F0 y usar el morado solo en los logos:** fiel a F0, pero la marca y la interfaz tendrían dos colores protagonistas que compiten.
   - **Teñir de morado también `selected` y el anillo de foco:** más "de marca", pero confunde acento (acción principal) con selección, y el viridian es parte de cómo F0 distingue ambos estados.
 - **Consecuencias:** es la primera desviación deliberada de un valor de F0; cualquier nueva desviación debe quedar documentada igual en la spec 13. El morado oscuro con texto blanco cumple AA en ambos temas.
+
+## ADR-0016
+
+**Licencia AGPL-3.0-or-later** · Aceptado · 2026-09-23
+
+- **Contexto:** el repositorio no tenía licencia (el CLI se declaraba `UNLICENSED`) y se publica como "the open-source hackathon management platform". Se inventariaron todos los componentes (814 entradas de `package-lock.json`, 134 de `Gemfile.lock`, imágenes y servicios de `docker-compose*.yml`, fuentes, iconos, código copiado y APIs externas) para decidir con datos. Todo lo que forma parte de la aplicación es permisivo (MIT, ISC, BSD, Apache-2.0, BlueOak, Python-2.0, CC-BY-4.0 para datos) o copyleft débil compatible (Sidekiq LGPL-3.0, libvips LGPL-3.0 opcional, MPL-2.0 solo en desarrollo). Lo no OSI (MongoDB SSPL, Redis 7.4 RSAL/SSPL, Brakeman) son servicios o herramientas separadas, no enlazadas ni distribuidas.
+- **Decisión:** HackBoard se licencia bajo **AGPL-3.0-or-later**. Texto en `LICENSE` y `LICENSES/AGPL-3.0-or-later.txt`; justificación e inventario completo en `LICENSES/COMPONENTS_LICENSE.md`. Todos los `package.json` del monorepo declaran `"license": "AGPL-3.0-or-later"`.
+- **Alternativas:**
+  - **MIT / BSD-3-Clause:** máxima adopción, pero permiten que alguien aloje una versión modificada y cerrada como servicio, que es justo como se usa HackBoard.
+  - **Apache-2.0:** añade concesión de patentes, pero tiene el mismo hueco de SaaS. Sería la opción si la prioridad pasara a ser la adopción corporativa.
+  - **GPL-3.0:** solo obliga al distribuir copias; ejecutar la app en un servidor propio no es distribuir ("SaaS loophole").
+  - **AGPL-3.0-only:** descartada a favor de "or later" (recomendación de la FSF; compatibilidad con futuras versiones).
+- **Consecuencias:** quien despliegue una versión **modificada** como servicio debe ofrecer su código a sus usuarios (§13); el despliegue propio debería enlazar al repositorio desde la interfaz (pendiente: requiere un requisito de UI en [04](04-pantallas.md)). Hay que conservar los avisos MIT del código copiado (`date-picker.tsx`, primitivos de shadcn/ui, tokens de F0 en `globals.css`). Algunas organizaciones prohíben AGPL internamente; se asume porque el público son equipos y organizadores de hackathons. Mientras Ignacio Garbayo sea el único titular del copyright se puede relicenciar (p. ej. `packages/shared-schemas` a MIT); con contribuciones externas sin CLA ya no.

@@ -222,5 +222,35 @@ RSpec.describe "Auth", type: :request do
       expect(response).to have_http_status(:found)
       expect(User.where(google_sub: "google-sub-1").first).to be_present
     end
+
+    it "guarda la foto de Google y la actualiza en cada login (RF-AUTH-011)" do
+      rsa_key = OpenSSL::PKey::RSA.generate(2048)
+      jwk = JWT::JWK.new(rsa_key, { kid: "test-kid" })
+      stub_request(:get, "https://www.googleapis.com/oauth2/v3/certs")
+        .to_return(status: 200, body: { keys: [ jwk.export ] }.to_json, headers: { "Content-Type" => "application/json" })
+
+      login_with_picture = lambda do |picture|
+        get "/api/v1/auth/google"
+        query = Rack::Utils.parse_query(URI.parse(response.location).query)
+        id_token = JWT.encode(
+          {
+            iss: "https://accounts.google.com", aud: ENV.fetch("GOOGLE_CLIENT_ID", ""),
+            sub: "google-sub-2", email: "grace@gmail.example.com", email_verified: true,
+            nonce: query["nonce"], name: "Grace Hopper", picture: picture,
+            exp: 10.minutes.from_now.to_i
+          },
+          rsa_key, "RS256", { kid: "test-kid" }
+        )
+        stub_request(:post, "https://oauth2.googleapis.com/token")
+          .to_return(status: 200, body: { id_token: id_token }.to_json, headers: { "Content-Type" => "application/json" })
+        get "/api/v1/auth/google/callback", params: { code: "abc123", state: query["state"] }
+      end
+
+      login_with_picture.call("https://lh3.example/old.png")
+      expect(User.where(google_sub: "google-sub-2").first.avatar_url).to eq("https://lh3.example/old.png")
+
+      login_with_picture.call("https://lh3.example/new.png")
+      expect(User.where(google_sub: "google-sub-2").first.avatar_url).to eq("https://lh3.example/new.png")
+    end
   end
 end

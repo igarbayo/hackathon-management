@@ -209,14 +209,22 @@ RSpec.describe "Herramientas MCP de escritura" do
 
   describe Mcp::Tools::RunAnalysis do
     it "encola un análisis" do
+      membership.user.update!(gemini_api_key: "test-key")
+
       result = call(described_class)
+
       expect(AiAnalysis.where(id: result[:id]).first).to be_present
     end
 
     it "da un ToolError al superar la cuota manual" do
+      membership.user.update!(gemini_api_key: "test-key")
       allow(Analysis::Quota).to receive(:check_manual!).and_raise(Analysis::Quota::ExceededError.new(3600))
 
       expect { call(described_class) }.to raise_error(Mcp::ToolError, /cuota/)
+    end
+
+    it "da un ToolError si no tengo una clave de Gemini configurada" do
+      expect { call(described_class) }.to raise_error(Mcp::ToolError, /clave de Gemini/)
     end
   end
 end

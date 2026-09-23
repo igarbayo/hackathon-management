@@ -42,10 +42,10 @@
 | GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado) | RF-AUTH-004 [F1] |
 | GET | `/auth/github/callback` | Crea o vincula el usuario por `github_uid` y, si no, por email verificado. Abre sesión | RF-AUTH-004 |
 | GET | `/auth/google` | Redirige al login de Google (OpenID Connect, scopes `openid email profile`, `state` y `nonce` firmados, PKCE) | RF-AUTH-008 [F1] |
-| GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Abre sesión | RF-AUTH-008 |
+| GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Actualiza `avatar_url` con `picture` (RF-AUTH-011). Abre sesión | RF-AUTH-008 |
 | DELETE | `/me/identities/:provider` | Desvincula Google o GitHub. Falla si es la única forma de entrar (sin contraseña ni otro proveedor) | RF-AUTH-009 [F2] |
 | GET | `/me` | Usuario, membresías (equipo y rol) y `last_team_id` | RF-AUTH-005 [F1] |
-| PATCH | `/me` | `name`, `password` | RF-AUTH-006 [F1] |
+| PATCH | `/me` | `name`, `password`, `gemini_api_key` (RF-AI-021 [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado); vacío la quita, ausente no la toca) | RF-AUTH-006 [F1] |
 | DELETE | `/me` | Borra la cuenta. Falla si el usuario es el único owner de un equipo con más miembros | RF-AUTH-007 [F2] |
 
 Reglas:
@@ -123,7 +123,7 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 | GET | `/teams/:id/analyses` | Historial (sin `result` completo) | RF-AI-001 [F4] |
 | GET | `/teams/:id/analyses/latest` | El último `succeeded` + alertas deterministas calculadas ahora | RF-AI-002 [F4] |
 | GET | `/teams/:id/analyses/:aid` | Detalle | RF-AI-003 [F4] |
-| POST | `/teams/:id/analyses` | Lanza un análisis manual. `429` si se supera la cuota ([06](06-analisis-ia.md#cuotas)) | RF-AI-004 [F4] |
+| POST | `/teams/:id/analyses` | Lanza un análisis manual. `429` si se supera la cuota ([06](06-analisis-ia.md#cuotas)); `422 missing_gemini_api_key` si quien lo pide no tiene su clave de Gemini puesta ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) | RF-AI-004 [F4] |
 
 ## Integración GitHub — `RF-GH`
 
