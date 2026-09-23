@@ -1,3 +1,13 @@
+/*
+ * SPDX-FileCopyrightText: Factorial
+ * SPDX-FileCopyrightText: 2026 Ignacio Garbayo
+ * SPDX-License-Identifier: MIT AND AGPL-3.0-or-later
+ *
+ * Los tokens del bloque F0 vienen de @factorialco/f0-core@2.7.0 (Factorial, MIT
+ * License según su package.json): texto completo en LICENSES/MIT.txt. El resto
+ * del fichero es AGPL-3.0-or-later.
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";

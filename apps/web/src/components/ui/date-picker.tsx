@@ -1,3 +1,11 @@
+// SPDX-FileCopyrightText: 2025 Guli Moreno
+// SPDX-FileCopyrightText: 2026 Ignacio Garbayo
+// SPDX-License-Identifier: MIT AND AGPL-3.0-or-later
+//
+// Adaptado de a-good-date-picker (https://github.com/gulipad/a-good-date-picker),
+// MIT License: texto completo en LICENSES/MIT.txt. Los cambios propios son
+// AGPL-3.0-or-later.
+
 "use client"
 
 /**

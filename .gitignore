@@ -46,3 +46,7 @@ coverage/
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/.env.local
+
+# Claude Code: worktrees locales y skills de terceros que no se versionan
+.claude/worktrees/
+.claude/skills/a11y/

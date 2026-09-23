@@ -11,6 +11,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  reuse:
+    # Cada fichero declara copyright y licencia (ADR-0016, REUSE.toml).
+    name: reuse · licencias y copyright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: fsfe/reuse-action@v6
+
   api:
     name: api · rubocop, brakeman, bundler-audit, rspec
     runs-on: ubuntu-latest

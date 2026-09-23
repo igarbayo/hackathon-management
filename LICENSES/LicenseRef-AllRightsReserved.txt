@@ -1,0 +1,13 @@
+All rights reserved.
+
+The HackBoard name, logos and icons (the files listed under this license in REUSE.toml)
+are the property of Ignacio Garbayo. They are NOT covered by the GNU Affero General Public
+License that applies to the rest of this repository.
+
+You may use them unmodified only to refer to the official HackBoard project, for example
+to link to it or to write about it. Any other use, including using them in a fork, in a
+modified version of HackBoard or in another product, requires prior written permission
+from the copyright holder.
+
+If you distribute or host a modified version of HackBoard, replace these files with your
+own name and artwork so that your version is not mistaken for the official project.

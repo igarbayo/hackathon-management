@@ -1,0 +1,28 @@
+version = 1
+SPDX-PackageName = "HackBoard"
+SPDX-PackageSupplier = "Ignacio Garbayo (https://github.com/igarbayo)"
+SPDX-PackageDownloadLocation = "https://github.com/igarbayo/hackathon-management"
+
+# Everything in the repository is HackBoard's own work under AGPL-3.0-or-later,
+# unless a file says otherwise in its own SPDX header. Files copied or adapted
+# from other projects (for example apps/web/src/components/ui/*.tsx) carry that
+# header, so the upstream notice travels with the file.
+[[annotations]]
+path = "**"
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Ignacio Garbayo"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# The logos and icons are not free: all rights reserved. A fork must replace
+# them with its own artwork (see LICENSES/LicenseRef-AllRightsReserved.txt).
+[[annotations]]
+path = [
+  "apps/web/public/*.svg",
+  "apps/web/public/icons/**",
+  "apps/web/src/app/apple-icon.png",
+  "apps/web/src/app/favicon.ico",
+  "apps/web/src/app/icon.svg",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Ignacio Garbayo"
+SPDX-License-Identifier = "LicenseRef-AllRightsReserved"

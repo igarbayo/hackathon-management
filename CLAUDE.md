@@ -30,3 +30,4 @@ Herramienta de gestión para equipos de hackathon: objetivos, features en kanban
 - Toda consulta de dominio se acota por `current_team` (RNF-SEC-001).
 - Nunca se persisten diffs, contenido de ficheros ni texto de prompts (09-privacidad-seguridad).
 - Los hooks del CLI nunca bloquean ni fallan: salen siempre con 0 y sin stdout (RNF-CC-001).
+- Licencias (ADR-0016): el proyecto es AGPL-3.0-or-later y cumple REUSE. Código copiado o adaptado de terceros lleva cabecera SPDX con su autor y licencia, el texto de esa licencia en `LICENSES/` y una fila en `docs/COMPONENTS_LICENSE.md`. Los logos e iconos son de todos los derechos reservados. `reuse lint` debe pasar.

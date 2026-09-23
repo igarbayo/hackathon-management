@@ -6,7 +6,8 @@
   Badges: each one requires registering the project first. Uncomment a badge only once
   the project exists on that platform, so the README never shows a broken badge.
 
-  REUSE: register at https://api.reuse.software/register (the repository must pass `reuse lint`).
+  REUSE: the repository already passes `reuse lint` (checked in CI); register it at
+  https://api.reuse.software/register to enable the badge.
   [![REUSE status](https://api.reuse.software/badge/github.com/igarbayo/hackathon-management)](https://api.reuse.software/info/github.com/igarbayo/hackathon-management)
 
   OpenSSF Best Practices: sign in at https://www.bestpractices.dev/ with GitHub, add the
@@ -266,6 +267,14 @@ either version 3 of the License, or (at your option) any later version. It is di
 **without any warranty**. See [`LICENSE`](LICENSE) for the full text.
 
 If you run a modified version of HackBoard as a network service, the AGPL requires you to
-offer its source code to your users. For the reasons behind this license and the licenses
+offer its source code to your users.
+
+The HackBoard **logos and icons** are an exception: they are all rights reserved and not
+covered by the AGPL (see [`LICENSES/LicenseRef-AllRightsReserved.txt`](LICENSES/LicenseRef-AllRightsReserved.txt)).
+A fork must replace them with its own artwork. Code adapted from other projects keeps its
+original MIT notice in an SPDX header. Every file's copyright and license are declared
+following [REUSE](https://reuse.software/) (see [`REUSE.toml`](REUSE.toml)).
+
+For the reasons behind this license and the licenses
 of every dependency, see
-[`LICENSES/COMPONENTS_LICENSE.md`](LICENSES/COMPONENTS_LICENSE.md).
+[`docs/COMPONENTS_LICENSE.md`](docs/COMPONENTS_LICENSE.md).
