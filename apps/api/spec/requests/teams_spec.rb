@@ -16,6 +16,7 @@ RSpec.describe "Teams", type: :request do
 
       membership = Membership.where(team_id: json_response["id"], user_id: user.id).first
       expect(membership.role).to eq("owner")
+      expect(user.reload.last_team_id.to_s).to eq(json_response["id"])
     end
   end
 
@@ -29,6 +30,7 @@ RSpec.describe "Teams", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(Membership.where(team_id: team.id, user_id: user.id).first.role).to eq("member")
+      expect(user.reload.last_team_id).to eq(team.id)
     end
 
     it "acepta el código formateado con guion" do
@@ -82,6 +84,25 @@ RSpec.describe "Teams", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(json_response["id"]).to eq(membership.team.id.to_s)
+    end
+
+    it "recuerda el equipo como el último abierto (RF-TEAM-013)" do
+      membership = create(:membership)
+      sign_in_as(membership.user)
+
+      get "/api/v1/teams/#{membership.team.id}"
+
+      expect(membership.user.reload.last_team_id).to eq(membership.team.id)
+    end
+
+    it "no lo recuerda si la petición viene con un token, no con sesión" do
+      membership = create(:membership)
+      result = Pat::Create.call(membership: membership, name: "CLI", preset: "observar")
+
+      get "/api/v1/teams/#{membership.team.id}", headers: { "Authorization" => "Bearer #{result.raw_token}" }
+
+      expect(response).to have_http_status(:ok)
+      expect(membership.user.reload.last_team_id).to be_nil
     end
   end
 

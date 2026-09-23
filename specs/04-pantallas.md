@@ -35,7 +35,7 @@ Rutas: `/login`, `/signup`, `/onboarding`, `/oauth/consent`, `/t/[teamId]/{home,
 Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 
 1. **Registro o login** (email + contraseña, "Continuar con Google" o "Continuar con GitHub").
-2. **Elegir:** "Crear equipo" o "Unirme con código".
+2. **Elegir:** si ya pertenece a algún equipo, primero puede elegir entrar directamente en uno de ellos; si no, o si quiere otro, "Crear equipo" o "Unirme con código".
 3. **Crear:** nombre del equipo, nombre del hackathon y fecha de fin (el inicio es "ahora" por defecto y la zona horaria se detecta en el navegador). Un solo formulario.
 4. **Pegar repo:** un campo "URL del repositorio" con un botón que instala la GitHub App. Se puede saltar.
 5. **Invitar:** muestra el código `XXXX-XXXX` y un enlace `…/join?code=…` para copiar.
@@ -47,6 +47,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-TEAM-011 | El enlace `…/join?code=` hace login o registro y la unión en un solo paso. | Aceptado [F1] |
 | RF-AUTH-010 | Login y registro muestran "Continuar con Google" y "Continuar con GitHub" encima del formulario de email. En el perfil se ven los proveedores vinculados y se pueden desvincular (RF-AUTH-009). | Aceptado [F1] |
 | RF-TEAM-012 | Checklist de puesta en marcha en Inicio. Se oculta cuando está completo o si se descarta. | Aceptado [F2] |
+| RF-TEAM-013 | Al volver a entrar, aterriza directamente en `last_team_id` (RF-AUTH-005), que se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo. Si no hay uno guardado (p. ej. la cuenta nunca abrió ningún equipo tras esta funcionalidad) pero ya es miembro de alguno, onboarding le deja elegir a cuál entrar en vez de forzarle a crear uno nuevo o unirse con código. | Aceptado [F1] |
 
 **Criterio de aceptación:** un usuario nuevo con cuenta de GitHub crea el equipo, vincula un repo e invita al equipo en menos de 2 minutos, medido en un test de usabilidad con 3 personas.
 
@@ -162,3 +163,4 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-API-023 | **Integraciones (owner):** tokens de integración (crear, rotar, revocar, último uso) y webhooks salientes (URL, eventos, estado, secreto mostrado una vez, botón Probar, últimas entregas con reenvío). | Aceptado [F6] |
 | RF-MCP-011 | **claude.ai (dentro de API y MCP):** la URL del MCP lista para copiar y los pasos para añadirla como *custom connector* en claude.ai, con enlace a Apps conectadas. | Aceptado [F6] |
 | RF-AI-020 | **IA (owner):** activar o desactivar el análisis y la atribución por IA, y fijar la frecuencia (dentro de lo que permite el plan). | Aceptado [F4] |
+| RF-AI-021 | **IA (Gemini) — clave personal (sección personal, cualquier miembro):** estado (configurada o no), campo para pegar o sustituir la clave y botón para quitarla. Nunca se vuelve a mostrar en claro. Explica para qué se usa (las acciones propias, y además lo automático del equipo si eres owner). | Aceptado [F4] |

@@ -8,6 +8,7 @@ module Teams
 
       membership = Membership.where(team_id: team.id, user_id: user.id).first
       membership ||= Membership.create!(team: team, user: user, role: "member")
+      user.remember_last_team!(team.id)
 
       [ team, membership ]
     end

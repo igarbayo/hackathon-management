@@ -15,7 +15,8 @@ export default function RootPage() {
       return;
     }
     if (me) {
-      router.replace(me.last_team_id ? `/t/${me.last_team_id}/home` : "/onboarding");
+      const lastTeamIsValid = me.last_team_id && me.memberships.some((m) => m.team_id === me.last_team_id);
+      router.replace(lastTeamIsValid ? `/t/${me.last_team_id}/home` : "/onboarding");
     }
   }, [me, isError, router]);
 

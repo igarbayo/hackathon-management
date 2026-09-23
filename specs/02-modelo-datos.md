@@ -41,7 +41,8 @@ User 1──* Membership *──1 Team 1──* Repository
 | `github_login` | String | Se actualiza en cada login con GitHub |
 | `google_sub` | String | Único y disperso. `sub` del ID token de Google |
 | `avatar_url` | String | |
-| `last_team_id` | ObjectId | Último equipo abierto, para redirigir tras el login |
+| `last_team_id` | ObjectId | Último equipo abierto, para redirigir tras el login. Se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo (RF-TEAM-013 [04](04-pantallas.md#onboarding--rf-team)) |
+| `gemini_api_key_encrypted` | String | Clave personal de Gemini, cifrada (`GeminiApiKeyCipher`). Nunca se expone en claro; la API solo informa de si está configurada ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) |
 
 Índices: `{email: 1}` único, `{github_uid: 1}` único y disperso.
 
@@ -339,7 +340,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `trigger` | String | `scheduled` \| `manual` |
 | `requested_by_id` | ObjectId | Si es manual |
 | `status` | String | `queued` \| `running` \| `succeeded` \| `failed` \| `skipped` |
-| `skip_reason` | String | P. ej. `no_changes` si `input_hash` coincide con el último análisis |
+| `skip_reason` | String | `no_changes` si `input_hash` coincide con el último análisis, `no_api_key` si a quien le correspondía la clave no la tiene configurada ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) |
 | `provider`, `model` | String | `gemini`, `gemini-…` |
 | `prompt_version` | String | Versión de la plantilla de prompt ([06](06-analisis-ia.md)) |
 | `input_hash` | String | SHA-256 del contexto, para no repetir análisis idénticos |

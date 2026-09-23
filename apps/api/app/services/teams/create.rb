@@ -6,6 +6,7 @@ module Teams
       team.save!
 
       Membership.create!(team: team, user: owner, role: "owner")
+      owner.remember_last_team!(team.id)
 
       team
     end

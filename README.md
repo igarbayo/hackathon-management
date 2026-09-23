@@ -15,6 +15,16 @@ docker compose up
 - `web`: http://localhost:3000
 - `api`: http://localhost:3001
 
+## Producción
+
+Para recrear el servidor de producción con los últimos cambios:
+
+```sh
+git pull
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d --force-recreate
+```
+
 ## Tests
 
 ```sh

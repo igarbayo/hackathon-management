@@ -41,28 +41,52 @@ function OnboardingContent() {
     return <JoinTeamForm onBack={() => setMode("choose")} initialCode={searchParams.get("code") ?? ""} />;
   }
 
+  const hasTeams = me.memberships.length > 0;
+
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-xl font-semibold text-f1-foreground">¿Cómo empezamos?</h1>
-      <div className="flex gap-4">
-        <Card
-          className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
-          onClick={() => setMode("create")}
-        >
-          <CardHeader>
-            <CardTitle>Crear equipo</CardTitle>
-            <CardDescription>Empieza un hackathon nuevo</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card
-          className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
-          onClick={() => setMode("join")}
-        >
-          <CardHeader>
-            <CardTitle>Unirme con código</CardTitle>
-            <CardDescription>Ya tengo el código de mi equipo</CardDescription>
-          </CardHeader>
-        </Card>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 p-4">
+      {hasTeams && (
+        <div className="flex w-full max-w-md flex-col gap-2">
+          <h1 className="text-xl font-semibold text-f1-foreground">Elige un equipo</h1>
+          {me.memberships.map((membership) => (
+            <Card
+              key={membership.team_id}
+              className="cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
+              onClick={() => router.push(`/t/${membership.team_id}/home`)}
+            >
+              <CardHeader>
+                <CardTitle>{membership.team_name}</CardTitle>
+                <CardDescription>{membership.role === "owner" ? "Owner" : "Miembro"}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col items-center gap-4">
+        <h2 className={hasTeams ? "text-muted-foreground text-base" : "text-xl font-semibold text-f1-foreground"}>
+          {hasTeams ? "O empieza otro equipo" : "¿Cómo empezamos?"}
+        </h2>
+        <div className="flex gap-4">
+          <Card
+            className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
+            onClick={() => setMode("create")}
+          >
+            <CardHeader>
+              <CardTitle>Crear equipo</CardTitle>
+              <CardDescription>Empieza un hackathon nuevo</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card
+            className="w-56 cursor-pointer transition-colors hover:border-f1-border-hover hover:shadow-md"
+            onClick={() => setMode("join")}
+          >
+            <CardHeader>
+              <CardTitle>Unirme con código</CardTitle>
+              <CardDescription>Ya tengo el código de mi equipo</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
       </div>
     </div>
   );

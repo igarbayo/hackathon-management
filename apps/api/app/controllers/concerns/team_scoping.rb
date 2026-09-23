@@ -94,6 +94,10 @@ module TeamScoping
       @team = Team.active.where(id: team_id_param).first
       @membership = @team && Membership.where(team_id: @team.id, user_id: current_user.id).first
       raise ApiError::NotFound.new(message: "equipo no encontrado") unless @membership
+
+      # RF-TEAM-013: solo sesión web, no Bearer (un token de CLI/integración
+      # actuando sobre un equipo no significa que la persona lo esté viendo).
+      current_user.remember_last_team!(@team.id)
     end
   end
 

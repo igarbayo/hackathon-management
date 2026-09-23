@@ -48,4 +48,53 @@ RSpec.describe User, type: :model do
 
     expect(duplicate).not_to be_valid
   end
+
+  describe "#gemini_api_key" do
+    it "se guarda cifrada y se descifra de vuelta al leerla" do
+      user = create(:user)
+
+      user.gemini_api_key = "AIzaSyTest123"
+      user.save!
+      user.reload
+
+      expect(user.gemini_api_key_encrypted).not_to include("AIzaSyTest123")
+      expect(user.gemini_api_key).to eq("AIzaSyTest123")
+      expect(user.gemini_api_key_configured?).to be true
+    end
+
+    it "sin clave, no está configurada" do
+      user = create(:user)
+
+      expect(user.gemini_api_key).to be_nil
+      expect(user.gemini_api_key_configured?).to be false
+    end
+
+    it "se puede quitar asignando un valor en blanco" do
+      user = create(:user)
+      user.update!(gemini_api_key: "AIzaSyTest123")
+
+      user.update!(gemini_api_key: "")
+
+      expect(user.reload.gemini_api_key_configured?).to be false
+    end
+  end
+
+  describe "#remember_last_team!" do
+    it "guarda el equipo como el último abierto" do
+      user = create(:user)
+      team = create(:team)
+
+      user.remember_last_team!(team.id)
+
+      expect(user.reload.last_team_id).to eq(team.id)
+    end
+
+    it "no escribe si ya era ese equipo" do
+      team = create(:team)
+      user = create(:user, last_team_id: team.id)
+
+      expect(user).not_to receive(:set)
+      user.remember_last_team!(team.id)
+    end
+  end
 end
