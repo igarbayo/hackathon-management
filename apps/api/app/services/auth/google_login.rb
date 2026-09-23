@@ -118,7 +118,8 @@ module Auth
       user ||= (email.present? ? User.where(email: email).first : nil)
 
       if user
-        user.update!(google_sub: google_sub, avatar_url: user.avatar_url || claims["picture"])
+        # RF-AUTH-011: la foto es la del último proveedor con el que se entró.
+        user.update!(google_sub: google_sub, avatar_url: claims["picture"].presence || user.avatar_url)
       else
         user = User.create!(
           email: email,

@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogOut } from "@/hooks/use-me";
 import type { Me } from "@/types/api";
 
@@ -37,7 +38,7 @@ function initials(name: string) {
 }
 
 /**
- * Pie del sidebar F0: avatar y nombre del usuario, con un menú que agrupa
+ * Pie del sidebar F0: avatar (foto de Google/GitHub o iniciales) y nombre del usuario, con un menú que agrupa
  * el tema (antes un botón suelto en la cabecera) y cerrar sesión.
  */
 export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; iconOnly?: boolean }) {
@@ -59,9 +60,15 @@ export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; ic
           className="flex w-full items-center gap-2 rounded p-1.5 text-left hover:bg-f1-background-secondary-hover focus-ring"
           aria-label="Menú de usuario"
         >
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-f1-background-selected-bold text-sm font-medium text-f1-foreground-inverse">
-            {initials(me.name || me.email)}
-          </div>
+          {/* RF-AUTH-011: foto de Google/GitHub; si no hay o no carga, iniciales. */}
+          <Avatar className="size-7">
+            {me.avatar_url && (
+              <AvatarImage src={me.avatar_url} alt="" referrerPolicy="no-referrer" />
+            )}
+            <AvatarFallback className="bg-f1-background-selected-bold text-sm font-medium text-f1-foreground-inverse">
+              {initials(me.name || me.email)}
+            </AvatarFallback>
+          </Avatar>
           {!iconOnly && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-f1-foreground">{me.name}</p>
