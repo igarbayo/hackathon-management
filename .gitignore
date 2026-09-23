@@ -30,6 +30,7 @@ packages/shared-schemas/dist/
 !.env.example
 !apps/web/.env.example
 !apps/api/.env.example
+!apps/api/.env.production.example
 !packages/cli/.env.example
 
 # Editors / OS

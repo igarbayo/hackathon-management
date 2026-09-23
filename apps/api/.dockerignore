@@ -1,0 +1,16 @@
+.git/
+log/*
+!log/.keep
+tmp/*
+!tmp/.keep
+storage/*
+!storage/.keep
+config/master.key
+.env
+.env.*
+!.env.example
+spec/
+.rspec
+.rubocop.yml
+README.md
+vendor/bundle/

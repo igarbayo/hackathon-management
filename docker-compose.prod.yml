@@ -1,0 +1,24 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.prod
+    image: hackboard-api:local
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./apps/api/.env.production
+    restart: unless-stopped
+    mem_limit: 400m
+    environment:
+      RAILS_MAX_THREADS: "3"
+
+  worker:
+    image: hackboard-api:local
+    command: bundle exec sidekiq -C config/sidekiq.yml -c 3
+    env_file:
+      - ./apps/api/.env.production
+    depends_on:
+      - api
+    restart: unless-stopped
+    mem_limit: 350m
