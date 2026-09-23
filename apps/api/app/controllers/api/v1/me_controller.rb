@@ -9,7 +9,13 @@ module Api
 
       def update
         attrs = params.permit(:name, :password).to_h.compact_blank
-        current_user.update!(attrs)
+        current_user.assign_attributes(attrs)
+
+        # RF-AI-021: clave personal de Gemini. A diferencia de name/password,
+        # se acepta explícitamente vacía para poder quitarla.
+        current_user.gemini_api_key = params[:gemini_api_key].presence if params.key?(:gemini_api_key)
+
+        current_user.save!
 
         render json: MeSerializer.new(current_user).as_json
       end

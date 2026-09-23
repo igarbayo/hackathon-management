@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { LogoHorizontal } from "@/components/brand/logo";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { useSignUp } from "@/hooks/use-me";
 import { ApiError } from "@/lib/api-client";
@@ -32,10 +33,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-4">
+      <LogoHorizontal className="h-12" priority />
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Crear cuenta en Hackboard</CardTitle>
+          <CardTitle>
+            <h1>Crear cuenta en Hackboard</h1>
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <OAuthButtons />
@@ -80,6 +84,6 @@ export default function SignupPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

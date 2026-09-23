@@ -64,14 +64,11 @@ RSpec.describe "Disparo de eventos de webhooks", type: :request do
       }.to_json,
       headers: { "Content-Type" => "application/json" }
     )
-    original_key = ENV["GEMINI_API_KEY"]
-    ENV["GEMINI_API_KEY"] = "test-key"
+    owner.user.update!(gemini_api_key: "test-key")
 
     analysis = Analysis::Enqueue.call(team: owner.team, trigger: "manual")
     Analysis::RunJob.new.perform(analysis.id.to_s)
 
     expect(Webhooks::DeliverJob.jobs.size).to eq(1)
-  ensure
-    ENV["GEMINI_API_KEY"] = original_key
   end
 end

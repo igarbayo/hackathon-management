@@ -237,9 +237,11 @@
   --white-90: 0 0% 100% / 0.9;
   --white-100: 0 0% 100%;
 
-  --accent-50: 348 80% 50%;
-  --accent-60: 348 80% 42%;
-  --accent-70: 347 80% 34%;
+  /* Acento de marca: el morado de los logos (#5E3A8C, public/logo-*.svg),
+     en lugar del radical de F0 (ver specs/13-sistema-diseno.md, RNF-UI-005) */
+  --accent-50: 266 41% 39%;
+  --accent-60: 266 41% 32%;
+  --accent-70: 266 42% 26%;
 
   --warning-50: 25 95% 53%;
   --warning-60: 24 69% 49%;
@@ -301,9 +303,9 @@
   --neutral-solid-40: 0 0% 100% / 0.4;
   --neutral-solid-50: 0 0% 100% / 0.5;
 
-  --accent-50: 348 80% 42%;
-  --accent-60: 348 80% 50%;
-  --accent-70: 348 80% 50%;
+  --accent-50: 266 41% 45%;
+  --accent-60: 266 45% 55%;
+  --accent-70: 266 60% 75%;
 
   --warning-50: 24 69% 40%;
   --warning-60: 24 69% 49%;

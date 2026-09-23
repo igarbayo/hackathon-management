@@ -53,12 +53,12 @@ RSpec.describe User, type: :model do
     it "se guarda cifrada y se descifra de vuelta al leerla" do
       user = create(:user)
 
-      user.gemini_api_key = "AIzaSyTest123"
+      user.gemini_api_key = "fake-gemini-key"
       user.save!
       user.reload
 
-      expect(user.gemini_api_key_encrypted).not_to include("AIzaSyTest123")
-      expect(user.gemini_api_key).to eq("AIzaSyTest123")
+      expect(user.gemini_api_key_encrypted).not_to include("fake-gemini-key")
+      expect(user.gemini_api_key).to eq("fake-gemini-key")
       expect(user.gemini_api_key_configured?).to be true
     end
 
@@ -71,7 +71,7 @@ RSpec.describe User, type: :model do
 
     it "se puede quitar asignando un valor en blanco" do
       user = create(:user)
-      user.update!(gemini_api_key: "AIzaSyTest123")
+      user.update!(gemini_api_key: "fake-gemini-key")
 
       user.update!(gemini_api_key: "")
 

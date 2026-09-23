@@ -55,11 +55,16 @@ module Attribution
     end
 
     def ask_ai(groups)
+      # RF-AI-021: es un job de fondo sin actor, así que usa la clave del
+      # owner del equipo. Sin ella, no se llama a la IA (sin fallback).
+      api_key = Ai::KeyOwner.for(team)&.gemini_api_key
+      return groups.each { |g| mark_attempted(g) } if api_key.blank?
+
       context = Attribution::BuildSuggestionContext.call(team: team, groups: groups)
       system_prompt = File.read(Rails.root.join("app/lib/ai/prompts/#{PROMPT_VERSION}.md"))
       schema = Ai::Schemas.load("attribution-suggestion")
 
-      response = Ai::ProviderFactory.build.generate_json(system: system_prompt, prompt: context.to_json, schema: schema)
+      response = Ai::ProviderFactory.build(api_key: api_key).generate_json(system: system_prompt, prompt: context.to_json, schema: schema)
       by_group = groups.index_by(&:id)
 
       Array(response.data["assignments"]).each do |assignment|

@@ -12,6 +12,7 @@ class MeSerializer
       avatar_url: user.avatar_url,
       github_login: user.github_login,
       has_password: user.password_digest.present?,
+      gemini_api_key_configured: user.gemini_api_key_configured?,
       last_team_id: user.last_team_id&.to_s,
       memberships: memberships
     }

@@ -30,6 +30,15 @@ export function useLogIn() {
   });
 }
 
+export function useUpdateMe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: { name?: string; password?: string; gemini_api_key?: string }) =>
+      apiClient.patch<Me>("/api/v1/me", params),
+    onSuccess: (me) => queryClient.setQueryData(meKey, me),
+  });
+}
+
 export function useLogOut() {
   const queryClient = useQueryClient();
   return useMutation({

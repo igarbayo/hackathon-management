@@ -1,6 +1,6 @@
 # 09 · Privacidad y seguridad
 
-> **Estado de implementación:** Implementada (revisión dedicada contra el catálogo de RNF-SEC-\*/RF-SEC-\*, ver CHANGELOG) · **Última actualización:** 2026-09-22. `[ABIERTO]` sin resolver: plazo exacto de retención y política de privacidad/términos antes de lanzar (RF-SEC-005, exportación en JSON, sigue en `Propuesto`).
+> **Estado de implementación:** Implementada (revisión dedicada contra el catálogo de RNF-SEC-\*/RF-SEC-\*, ver CHANGELOG) · **Última actualización:** 2026-09-23. `[ABIERTO]` sin resolver: plazo exacto de retención y política de privacidad/términos antes de lanzar (RF-SEC-005, exportación en JSON, sigue en `Propuesto`).
 
 ## Principios
 
@@ -27,6 +27,7 @@
 | Texto de prompts | CLI | **No** | — |
 | Resúmenes de `report_progress` | MCP | Sí (≤ 500 caracteres) | Ver [retención](#retención) |
 | Tokens de acceso personales | Ajustes | Solo el SHA-256, el prefijo, los scopes y `last_used_at` | Hasta 30 días después de revocarse o caducar |
+| Clave personal de Gemini | Ajustes | Cifrada (`GeminiApiKeyCipher`), nunca en claro tras guardarla; la API solo informa de si está configurada | Mientras exista la cuenta o hasta que se quite |
 | Marca `via` de cambios por API o MCP | API, MCP | Sí (canal, token y nombre del cliente; nunca el cuerpo de la petición) | Como los eventos |
 | Respuestas guardadas por `Idempotency-Key` | API | Solo en Redis | 24 h |
 | Salidas de la IA | Gemini | Sí (`AiAnalysis`) | Como los eventos |
@@ -39,11 +40,11 @@
 | Google | Solo la redirección de login (OpenID Connect) | Identificar al usuario. Hackboard no pide acceso a Gmail, Drive ni ningún otro dato de Google |
 | Anthropic (claude.ai), si un miembro lo conecta | Los resultados de las herramientas MCP que Claude llame, según los scopes aprobados | Que el miembro consulte y actualice el tablero desde el chat |
 | Destinos de webhooks salientes (los elige un owner) | Eventos de features, objetivos, milestones, análisis y actividad de GitHub y del sistema. **Nunca** eventos de Claude Code ni de MCP | Integrar con otras herramientas del equipo |
-| Google (Gemini API) | El contexto de [06](06-analisis-ia.md#construcción-del-contexto-analysisbuildcontext): títulos, descripciones, mensajes de commit, rutas y recuentos | Análisis y atribución |
+| Google (Gemini API), con la clave de quien corresponda ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) | El contexto de [06](06-analisis-ia.md#construcción-del-contexto-analysisbuildcontext): títulos, descripciones, mensajes de commit, rutas y recuentos | Análisis y atribución |
 | Hosting, Mongo y Redis gestionados | Todo lo persistido | Infraestructura |
 | Apps y agentes que el miembro conecta con un token | Lo que permitan los scopes del token (como mínimo, todo lo que el miembro ve del equipo) | Lo decide el miembro. Hackboard no controla qué hace ese tercero con los datos; la web lo avisa al crear el token |
 
-[ABIERTO] Revisar los términos de uso de datos del plan de Gemini API que se contrate (que no se usen los datos para entrenar) y documentarlo aquí.
+[ABIERTO] Revisar los términos de uso de datos del plan de Gemini API que contrate cada persona (que no se usen los datos para entrenar) y documentarlo aquí; al ser una clave personal, Hackboard ya no puede garantizarlo por todo el mundo, solo avisar de qué se envía.
 
 ## Requisitos de seguridad
 

@@ -12,6 +12,13 @@ module Mcp
 
       def self.call(team:, membership:, resolved_token:, args:)
         Analysis::Quota.check_manual!(team)
+        # Sin membership (token de integración: actúa como la integración,
+        # no como una persona), RunJob cae a la clave del owner del equipo,
+        # igual que un análisis programado.
+        if membership && membership.user.gemini_api_key.blank?
+          raise Mcp::ToolError, "Configura tu clave de Gemini en tu perfil (Ajustes) para poder analizar."
+        end
+
         analysis = Analysis::Enqueue.call(team: team, trigger: "manual", requested_by: membership&.user)
 
         { id: analysis.id.to_s, status: analysis.status }

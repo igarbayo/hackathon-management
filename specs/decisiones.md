@@ -119,3 +119,25 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **Instalar `@factorialco/f0-react` directamente:** es lo más fiel al pie de la letra, pero el paquete fija `react`/`react-dom` en exactamente `18.3.1` y exige Tailwind `^3.4.3` más unas 20 dependencias de Radix y otra veintena de paquetes pesados (`pdfjs-dist`, `livekit-client`, `@xyflow/react`…), lo que obligaría a bajar el proyecto de Next 16/React 19/Tailwind v4 a un stack antiguo solo para el aspecto visual. Sus componentes de aplicación (`ApplicationFrame`, `OneDataCollection`) son además experimentales y pensados para el propio monorepo de Factorial, sin documentación de uso en Next.js.
   - **Híbrido, solo `@factorialco/f0-core` como dependencia npm:** casi el mismo resultado que la opción elegida, pero ata el build a la publicación de ese paquete en vez de a una copia literal de los tokens, sin ninguna ventaja real dado que los tokens son un puñado de constantes estables.
 - **Consecuencias:** cualquier deriva entre los tokens copiados y una futura versión de `f0-core` hay que detectarla a mano (no hay paquete que avise). Los componentes no son instancias reales de F0: replican su clase CSS pero no heredan su lógica (accesibilidad ARIA fina, animaciones con `motion`, i18n). RF-UX-001 pasa a referenciar F0 explícitamente en vez de una alusión genérica a "tipo Factorial".
+
+## ADR-0014
+
+**Clave de Gemini por persona en vez de una clave compartida del servidor** · Aceptado · 2026-09-23
+
+- **Contexto:** hasta ahora la app usaba una única `GEMINI_API_KEY` del servidor para todo el consumo de IA de todos los equipos (análisis programado, manual y atribución sugerida). Con varios equipos usando la herramienta a la vez, todo el gasto de tokens recaía sobre esa clave, puesta y pagada por una sola persona.
+- **Decisión:** cada persona pone su propia clave de Gemini en su perfil (RF-AI-021, [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)), cifrada en reposo. Las acciones que dispara alguien (manual, MCP) usan su clave; lo automático de un equipo (cron, atribución) usa la del owner del equipo. Sin clave puesta, esa llamada a la IA simplemente no se hace (se marca `skipped`/`no_api_key` o se reintenta en el siguiente ciclo) — no hay fallback a una clave compartida.
+- **Alternativas:**
+  - **Clave a nivel de equipo, puesta por el owner:** más simple (un solo campo en `Team.settings`), pero no resuelve el problema para equipos con un owner que no quiere o no puede poner su clave, y no permite que un miembro use la suya para sus propias acciones bajo demanda.
+  - **Mantener `GEMINI_API_KEY` del servidor como fallback:** menos disruptivo, pero no cumple el objetivo (si nadie configura la suya, se sigue gastando la clave compartida).
+- **Consecuencias:** `Ai::Gemini`/`Ai::ProviderFactory.build` pasan a exigir `api_key:` explícito, ya no leen `ENV["GEMINI_API_KEY"]`. `rake ai:eval` (herramienta de desarrollador, no runtime de la app) sigue leyendo esa variable del entorno de quien lo ejecuta. Un equipo sin ninguna clave puesta no tiene IA hasta que alguien la configure; la pantalla de análisis y el botón "Analizar ahora" lo indican.
+
+## ADR-0015
+
+**Acento de marca morado en lugar del radical de F0** · Aceptado · 2026-09-23
+
+- **Contexto:** con los tokens de F0 portados tal cual ([ADR-0013](#adr-0013)), el acento de toda la web (botón primario, textos e iconos de acento) era el radical carmesí de Factorial. Hackboard tiene ya logos propios en morado (`#5E3A8C`) y el carmesí chocaba con ellos.
+- **Decisión:** se sustituyen solo `--accent-50/60/70` por la escala del morado de los logos, en claro y en oscuro (RNF-UI-005, [13](13-sistema-diseno.md)). El resto de la paleta de F0 (neutros, `selected`/anillo de foco viridian, estados, moods, gráficos) no se toca.
+- **Alternativas:**
+  - **Mantener el radical de F0 y usar el morado solo en los logos:** fiel a F0, pero la marca y la interfaz tendrían dos colores protagonistas que compiten.
+  - **Teñir de morado también `selected` y el anillo de foco:** más "de marca", pero confunde acento (acción principal) con selección, y el viridian es parte de cómo F0 distingue ambos estados.
+- **Consecuencias:** es la primera desviación deliberada de un valor de F0; cualquier nueva desviación debe quedar documentada igual en la spec 13. El morado oscuro con texto blanco cumple AA en ambos temas.
