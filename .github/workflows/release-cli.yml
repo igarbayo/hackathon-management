@@ -1,0 +1,55 @@
+# Publica el CLI `hackboard` en npm con provenance (RNF-SEC-012).
+#
+# Se dispara al empujar un tag `cli-vX.Y.Z` que coincida con la versión de
+# packages/cli/package.json. La provenance firma el paquete con la identidad
+# OIDC de este workflow, así que cualquiera puede comprobar en npmjs.com que
+# el tarball salió de este repo y de este commit, no de un portátil.
+#
+# Requisitos (una vez): secreto NPM_TOKEN con un token "Automation" o
+# "Granular" de una cuenta de npm con 2FA activado.
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - "cli-v*"
+
+concurrency:
+  group: release-cli
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # necesario para npm publish --provenance
+
+jobs:
+  publish:
+    name: npm publish · hackboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Comprobar que el tag coincide con la versión
+        run: |
+          expected="cli-v$(node -p "require('./packages/cli/package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "El tag $GITHUB_REF_NAME no coincide con la versión del paquete ($expected)." >&2
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: npm audit (RNF-SEC-011)
+        run: npm audit --audit-level=high
+
+      # prepublishOnly limpia dist, compila y pasa los tests antes de subir nada.
+      - name: Publicar
+        run: npm publish --workspace packages/cli --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -3,7 +3,21 @@
   "version": "0.1.0",
   "description": "CLI de Hackboard: instala hooks de Claude Code y envía eventos de actividad a la API.",
   "license": "UNLICENSED",
-  "private": true,
+  "keywords": [
+    "hackboard",
+    "hackathon",
+    "claude-code",
+    "hooks",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igarbayo/hackathon-management.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/igarbayo/hackathon-management/issues"
+  },
   "bin": {
     "hackboard": "dist/bin/hackboard.js"
   },
@@ -15,12 +29,15 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "dependencies": {
-    "@hackboard/shared-schemas": "*"
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -140,5 +140,7 @@ export async function runInit(argv: string[]): Promise<void> {
   if (options.mcp !== false) await maybeRegisterMcp(options.scope, result.token);
 
   await runTest();
-  console.log(`\nListo. Tus eventos aparecerán en ${(process.env.APP_URL ?? "http://localhost:3000")}/activity`);
+  // verification_url la genera la api con su APP_URL, así que su origen es la web
+  // correcta en cualquier despliegue sin que el CLI tenga que conocerla.
+  console.log(`\nListo. Tus eventos aparecerán en ${new URL(device.verification_url).origin}/t/${result.team.id}/activity`);
 }
