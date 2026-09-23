@@ -154,3 +154,14 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **GPL-3.0:** solo obliga al distribuir copias; ejecutar la app en un servidor propio no es distribuir ("SaaS loophole").
   - **AGPL-3.0-only:** descartada a favor de "or later" (recomendación de la FSF; compatibilidad con futuras versiones).
 - **Consecuencias:** quien despliegue una versión **modificada** como servicio debe ofrecer su código a sus usuarios (§13); el despliegue propio debería enlazar al repositorio desde la interfaz (pendiente: requiere un requisito de UI en [04](04-pantallas.md)). Todo código copiado o adaptado de otro proyecto necesita cabecera SPDX con su autor y licencia, el texto de esa licencia en `LICENSES/` y una fila en `docs/COMPONENTS_LICENSE.md`; si no, `reuse lint` rompe el CI. Al no ser libres los logos, el repositorio no es 100 % software libre, y quien despliegue un fork necesita su propia marca. Algunas organizaciones prohíben AGPL internamente; se asume porque el público son equipos y organizadores de hackathons. Mientras Ignacio Garbayo sea el único titular del copyright se puede relicenciar (p. ej. `packages/shared-schemas` a MIT); con contribuciones externas sin CLA ya no.
+
+## ADR-0017
+
+**Neutros grises (tipo Discord) en el modo oscuro** · Aceptado · 2026-09-23
+
+- **Contexto:** el modo oscuro de F0 tiñe de azul marino el fondo de paneles y tarjetas (`--neutral-0: 218 48% 10%`) y las sombras. Con el acento morado de marca ([ADR-0015](#adr-0015)) ese azul no convencía: se pidió un gris neutro como el de la interfaz oscura de Discord.
+- **Decisión:** en `.dark` se sustituyen `--neutral-0` por `228 6% 20%` (#313338), `--page` por `225 6% 13%` (#1e1f22, opaco en vez de blanco al 3 %), `--neutral-2/3` por blancos translúcidos y `--shadow-color` por negro (RNF-UI-006, [13](13-sistema-diseno.md)). Los demás neutros oscuros ya eran blancos translúcidos y se quedan. Matiza ADR-0015, que dejaba intactos todos los neutros de F0: el modo claro sigue siéndolo.
+- **Alternativas:**
+  - **Mantener el azul marino de F0:** fiel a F0, pero es justo el tono que no gustaba.
+  - **Negro puro o casi (`#121212`):** más contraste y ahorra batería en OLED, pero los paneles flotantes pierden separación con el fondo de página y cansa más en sesiones largas.
+- **Consecuencias:** segunda desviación deliberada de F0, documentada en la spec 13. El texto blanco (y los secundarios al 50 %) sobre `#313338` sigue cumpliendo AA. El `theme-color` oscuro (`BRAND_COLOR_DARK`, morado) y la imagen Open Graph no cambian.

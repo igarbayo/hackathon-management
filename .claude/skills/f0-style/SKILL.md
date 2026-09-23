@@ -27,7 +27,7 @@ Fuente real: `packages/core/src/tokens/colors.ts` de F0.
 
 **Special:** `f1-special-ring` (foco, viridian), `f1-special-page` (fondo de la app, detrás del panel), `f1-special-highlight`.
 
-Paleta base (HSL, light mode): accent=morado de marca `266 41% 39%` (#5E3A8C de los logos; la única desviación de F0, que usa radical `348 80% 50%` — RNF-UI-005, ADR-0015), selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Los neutros son azul-marino translúcido (`--neutral-100: 218 48% 10%`).
+Paleta base (HSL, light mode): accent=morado de marca `266 41% 39%` (#5E3A8C de los logos; la única desviación de F0, que usa radical `348 80% 50%` — RNF-UI-005, ADR-0015), selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Los neutros son azul-marino translúcido (`--neutral-100: 218 48% 10%`) en claro; en oscuro son grises tipo Discord (paneles `228 6% 20%`, página `225 6% 13%`), la segunda desviación de F0 (RNF-UI-006).
 
 ## Tipografía
 
