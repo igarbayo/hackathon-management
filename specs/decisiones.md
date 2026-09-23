@@ -119,3 +119,14 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **Instalar `@factorialco/f0-react` directamente:** es lo más fiel al pie de la letra, pero el paquete fija `react`/`react-dom` en exactamente `18.3.1` y exige Tailwind `^3.4.3` más unas 20 dependencias de Radix y otra veintena de paquetes pesados (`pdfjs-dist`, `livekit-client`, `@xyflow/react`…), lo que obligaría a bajar el proyecto de Next 16/React 19/Tailwind v4 a un stack antiguo solo para el aspecto visual. Sus componentes de aplicación (`ApplicationFrame`, `OneDataCollection`) son además experimentales y pensados para el propio monorepo de Factorial, sin documentación de uso en Next.js.
   - **Híbrido, solo `@factorialco/f0-core` como dependencia npm:** casi el mismo resultado que la opción elegida, pero ata el build a la publicación de ese paquete en vez de a una copia literal de los tokens, sin ninguna ventaja real dado que los tokens son un puñado de constantes estables.
 - **Consecuencias:** cualquier deriva entre los tokens copiados y una futura versión de `f0-core` hay que detectarla a mano (no hay paquete que avise). Los componentes no son instancias reales de F0: replican su clase CSS pero no heredan su lógica (accesibilidad ARIA fina, animaciones con `motion`, i18n). RF-UX-001 pasa a referenciar F0 explícitamente en vez de una alusión genérica a "tipo Factorial".
+
+## ADR-0015
+
+**Acento de marca morado en lugar del radical de F0** · Aceptado · 2026-09-23
+
+- **Contexto:** con los tokens de F0 portados tal cual ([ADR-0013](#adr-0013)), el acento de toda la web (botón primario, textos e iconos de acento) era el radical carmesí de Factorial. Hackboard tiene ya logos propios en morado (`#5E3A8C`) y el carmesí chocaba con ellos.
+- **Decisión:** se sustituyen solo `--accent-50/60/70` por la escala del morado de los logos, en claro y en oscuro (RNF-UI-005, [13](13-sistema-diseno.md)). El resto de la paleta de F0 (neutros, `selected`/anillo de foco viridian, estados, moods, gráficos) no se toca.
+- **Alternativas:**
+  - **Mantener el radical de F0 y usar el morado solo en los logos:** fiel a F0, pero la marca y la interfaz tendrían dos colores protagonistas que compiten.
+  - **Teñir de morado también `selected` y el anillo de foco:** más "de marca", pero confunde acento (acción principal) con selección, y el viridian es parte de cómo F0 distingue ambos estados.
+- **Consecuencias:** es la primera desviación deliberada de un valor de F0; cualquier nueva desviación debe quedar documentada igual en la spec 13. El morado oscuro con texto blanco cumple AA en ambos temas.

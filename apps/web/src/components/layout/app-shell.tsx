@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MenuIcon } from "lucide-react";
+import { LogoHorizontal, LogoIcon } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useMe } from "@/hooks/use-me";
@@ -32,6 +34,13 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
         </aside>
 
         <aside className="hidden w-14 shrink-0 flex-col items-center rounded-xl border border-f1-border-secondary bg-f1-background shadow-lg md:flex lg:hidden">
+          <Link
+            href={`/t/${teamId}/home`}
+            aria-label="Hackboard, ir a inicio"
+            className="focus-ring mt-3 rounded-full"
+          >
+            <LogoIcon className="size-8" />
+          </Link>
           <div className="flex-1 overflow-y-auto">
             <SidebarNav teamId={teamId} iconOnly />
           </div>
@@ -57,6 +66,7 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
                 </div>
               </SheetContent>
             </Sheet>
+            <LogoIcon className="size-6 shrink-0" />
             <span className="truncate text-base font-semibold text-f1-foreground">{team?.hackathon?.name}</span>
           </header>
 
@@ -80,6 +90,9 @@ function SidebarHeader({
 }) {
   return (
     <div className="flex flex-col gap-1 border-b border-f1-border-secondary p-3">
+      <Link href={`/t/${teamId}/home`} aria-label="Hackboard, ir a inicio" className="focus-ring mb-2 self-start rounded-sm">
+        <LogoHorizontal className="h-7" />
+      </Link>
       {memberships && <TeamSelector memberships={memberships} currentTeamId={teamId} />}
       {hackathonName && <p className="truncate text-sm text-f1-foreground-secondary">{hackathonName}</p>}
     </div>

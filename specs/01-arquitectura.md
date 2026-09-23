@@ -128,6 +128,7 @@ Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, outbound
 | `WEBHOOK_SECRETS_KEY` | api | Clave para cifrar los secretos de los webhooks salientes |
 | `AI_PROVIDER` | api | `gemini` (por defecto). Deja preparado el cambio de proveedor |
 | `NEXT_PUBLIC_API_URL` | web | Base de la API |
+| `NEXT_PUBLIC_SITE_URL` | web | URL pública de la web (`metadataBase`, `canonical`, sitemap, robots, JSON-LD, `llms.txt`). Por defecto `https://hackboard.ignaciogarbayo.com` |
 | `HACKBOARD_API_URL` | cli | Por defecto, la URL de producción |
 
 ## Entornos

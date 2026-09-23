@@ -15,6 +15,15 @@
 | RF-UX-007 | Buscador global `Ctrl/Cmd+K`: salta a una feature por clave o título, o a una pantalla. | Propuesto [F2] |
 | RF-UX-008 | Las claves `F-n` y `O-n` que aparecen en cualquier texto se renderizan como enlaces. | Aceptado [F2] |
 
+## Marca y SEO — `RF-UX`
+
+| ID | Requisito | Estado |
+|----|-----------|--------|
+| RF-UX-040 | **Marca:** los logos de `apps/web/public/` (`logo-horizontal.svg`, `logo-horizontal-negativo.svg`, `logo-icono.svg`, `logo-icono-transparente.svg`) son la única identidad visual. El horizontal va en la cabecera del sidebar y encima de la tarjeta de login y registro; el icono, en el sidebar de solo iconos y en la barra superior móvil. En modo oscuro se usa el negativo sin su fondo (`logo-horizontal-negativo-transparente.svg`). Favicon (`app/favicon.ico`, `app/icon.svg`), `apple-icon.png` e iconos del manifest (`public/icons/`) salen del mismo logo. | Implementado |
+| RF-UX-041 | **Metadata y previsualización social:** `metadataBase` desde `NEXT_PUBLIC_SITE_URL`, título con plantilla `%s · Hackboard`, descripción, `canonical`, Open Graph (`es_ES`) y tarjeta `summary_large_image` de X. Imagen OG de 1200×630 generada en build (`app/opengraph-image.tsx`) con el logo negativo. Las páginas públicas usan `publicPageMetadata` (`lib/site.ts`) para no perder la imagen OG al sobrescribir `openGraph`. `theme-color` con el morado de marca. | Implementado |
+| RF-UX-042 | **Datos estructurados:** JSON-LD (`schema.org`) en todas las páginas con `Organization`, `WebSite` y `SoftwareApplication`. | Implementado |
+| RF-UX-043 | **Indexación:** solo `/`, `/login` y `/signup` son indexables. `robots.txt` bloquea `/t/`, `/onboarding`, `/oauth/` y `/cli/`, y esas rutas llevan además `noindex, nofollow`. `sitemap.xml` con las rutas públicas y `manifest.webmanifest` con nombre, colores e iconos. | Implementado |
+| RF-UX-044 | **`/llms.txt`** ([llmstxt.org](https://llmstxt.org)): qué es Hackboard, qué hace y dónde están sus puntos de entrada públicos (registro, OpenAPI, servidor MCP y discovery de OAuth 2.1), con las URLs de `NEXT_PUBLIC_SITE_URL` y `NEXT_PUBLIC_API_URL`. Nunca incluye datos de equipos. | Implementado |
 Rutas: `/login`, `/signup`, `/onboarding`, `/oauth/consent`, `/t/[teamId]/{home,objectives,features,features/[key],decisions,deadlines,activity,analysis,settings}`.
 
 | Menú | Icono Lucide | Ruta |

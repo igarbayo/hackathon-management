@@ -27,7 +27,7 @@ Fuente real: `packages/core/src/tokens/colors.ts` de F0.
 
 **Special:** `f1-special-ring` (foco, viridian), `f1-special-page` (fondo de la app, detrás del panel), `f1-special-highlight`.
 
-Paleta base (HSL, light mode): accent=radical `348 80% 50%`, selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Los neutros son azul-marino translúcido (`--neutral-100: 218 48% 10%`).
+Paleta base (HSL, light mode): accent=morado de marca `266 41% 39%` (#5E3A8C de los logos; la única desviación de F0, que usa radical `348 80% 50%` — RNF-UI-005, ADR-0015), selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Los neutros son azul-marino translúcido (`--neutral-100: 218 48% 10%`).
 
 ## Tipografía
 
@@ -71,7 +71,7 @@ Aplícalo a todo elemento interactivo custom (no lo necesitas en elementos que y
 
 Fuente real: `packages/react/src/ui/Action/variants.ts` de F0.
 
-- **Variantes:** `default` (fondo `f1-background-accent-bold`, texto inverso — es el primario, acento rojo/radical), `outline` (fondo `f1-background-inverse-secondary` + anillo `f1-border`), `neutral` (fondo `f1-background-secondary`), `critical` (fondo `f1-background-secondary`, texto `f1-foreground-critical`, hover sólido `f1-background-critical-bold`), `ghost` (transparente), `promote` (fondo `f1-background-promote`), `outlinePromote`, `link`.
+- **Variantes:** `default` (fondo `f1-background-accent-bold`, texto inverso — es el primario, acento morado de marca), `outline` (fondo `f1-background-inverse-secondary` + anillo `f1-border`), `neutral` (fondo `f1-background-secondary`), `critical` (fondo `f1-background-secondary`, texto `f1-foreground-critical`, hover sólido `f1-background-critical-bold`), `ghost` (transparente), `promote` (fondo `f1-background-promote`), `outlinePromote`, `link`.
 - **Tamaños:** `sm` 24px + `rounded-sm`, `md` (default) 32px + `rounded`, `lg` 40px + `rounded-md`.
 - Solo un botón `default` por sección. El primario va a la derecha cuando se empareja con "Cancelar". `critical` es solo para acciones irreversibles y siempre con confirmación.
 - Escritura: sentence case, 1-3 palabras, verbo imperativo, nombra el objeto en lo destructivo ("Eliminar objetivo").

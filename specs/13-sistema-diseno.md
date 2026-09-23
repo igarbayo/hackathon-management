@@ -12,6 +12,7 @@
 | RNF-UI-002 | Tipografía Inter (pesos 400, 500 y 600 vía `next/font/google`) con la escala F0 (`xs` a `4xl`, tamaño base 14px/0.875rem). | Aceptado [F1] |
 | RNF-UI-003 | Radios (`2xs` 0.25rem … `3xl` 1.5rem) y sombras (`shadow`, `md`, `lg`, `xl`, todas `hsl(var(--shadow)/α)`) según `packages/core/src/tokens/borderRadius.ts` y `shadows.ts` de F0. Los elementos interactivos siguen el mapeo de F0: tamaño `sm` → `rounded-sm`, `md` → `rounded`, `lg` → `rounded-md`. | Aceptado [F1] |
 | RNF-UI-004 | Iconos: Lucide (no el set propio de F0), con los tamaños de F0 (`size-4` = `md`, `size-3` = `sm`) y dentro de los mismos contenedores (avatar de módulo, tag) que usa F0 con sus propios iconos. | Aceptado [F1] |
+| RNF-UI-005 | **Acento de marca:** la única desviación de la paleta de F0. `--accent-50/60/70` usan el morado de los logos (`#5E3A8C` = `266 41% 39%`) en lugar del radical (`348 80% 50%`) de F0; en modo oscuro se aclaran (`266 41% 45%` / `266 45% 55%` / `266 60% 75%`) para mantener el contraste AA sobre el fondo oscuro. Afecta a todo lo que usa los tokens `*-accent*` (botón primario, `f1-foreground-accent`, `f1-special-highlight`…). `--mood-super-negative` y los categóricos de gráficos no cambian: tienen significado propio, no son marca. Ver [ADR-0015](decisiones.md#adr-0015). | Implementado |
 
 ## Escritura y patrones — `RNF-UI`
 
