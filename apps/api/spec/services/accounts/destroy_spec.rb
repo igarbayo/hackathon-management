@@ -28,12 +28,14 @@ RSpec.describe Accounts::Destroy do
 
   it "anonimiza el actor de sus eventos de GitHub y conserva el login" do
     event = create(:activity_event, :github_commit, team: team,
-                   actor: { "user_id" => user.id.to_s, "membership_id" => membership.id.to_s, "display" => "Ana", "github_login" => "ana" })
+                   actor: { "user_id" => user.id.to_s, "membership_id" => membership.id.to_s, "display" => "Ana", "github_login" => "ana",
+                              "email" => "ana@example.com", "author_name" => "Ana" })
 
     described_class.call(user: user)
 
     expect(event.reload.actor).to include(
-      "user_id" => nil, "membership_id" => nil, "display" => "Usuario eliminado", "github_login" => "ana"
+      "user_id" => nil, "membership_id" => nil, "display" => "Usuario eliminado", "github_login" => "ana",
+      "email" => nil, "author_name" => nil
     )
     expect(User.where(id: user.id).first).to be_nil
   end

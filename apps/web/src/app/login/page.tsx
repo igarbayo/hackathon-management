@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LogoHorizontal } from "@/components/brand/logo";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { PasswordInput } from "@/components/auth/password-input";
 import { useLogIn } from "@/hooks/use-me";
 import { ApiError } from "@/lib/api-client";
 
@@ -57,9 +58,8 @@ function LoginContent() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

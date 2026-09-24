@@ -1,6 +1,7 @@
 # Borrado de cuenta (RF-AUTH-007, RF-SEC-004): elimina los datos personales
 # del usuario. Lo que es historia del equipo (commits, pushes, PRs) se queda,
-# pero con el actor anonimizado como "Usuario eliminado" + login de GitHub.
+# pero con el actor anonimizado como "Usuario eliminado" + login de GitHub
+# (sin el email ni el nombre de autor que guarda RF-GH-024).
 module Accounts
   class Destroy
     DELETED_DISPLAY = "Usuario eliminado"
@@ -76,7 +77,9 @@ module Accounts
       ActivityEvent.where(:team_id.in => team_ids, "actor.user_id" => user.id.to_s).update_all(
         "actor.user_id" => nil,
         "actor.membership_id" => nil,
-        "actor.display" => DELETED_DISPLAY
+        "actor.display" => DELETED_DISPLAY,
+        "actor.email" => nil,
+        "actor.author_name" => nil
       )
     end
 

@@ -21,6 +21,7 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
   const { data: me } = useMe();
   const { data: team } = useTeam(teamId);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const closeDrawer = () => setDrawerOpen(false);
 
   return (
     <div className="min-h-screen bg-f1-special-page">
@@ -58,9 +59,14 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
               <SheetContent side="left" className="w-64 p-0">
                 <SheetTitle className="sr-only">Menú</SheetTitle>
                 <div className="flex h-full flex-col">
-                  <SidebarHeader teamId={teamId} memberships={me?.memberships} hackathonName={team?.hackathon?.name} />
+                  <SidebarHeader
+                    teamId={teamId}
+                    memberships={me?.memberships}
+                    hackathonName={team?.hackathon?.name}
+                    onNavigate={closeDrawer}
+                  />
                   <div className="flex-1 overflow-y-auto">
-                    <SidebarNav teamId={teamId} />
+                    <SidebarNav teamId={teamId} onNavigate={closeDrawer} />
                   </div>
                   <SidebarFooter me={me} />
                 </div>
@@ -83,17 +89,24 @@ function SidebarHeader({
   teamId,
   memberships,
   hackathonName,
+  onNavigate,
 }: {
   teamId: string;
   memberships: { team_id: string; team_name: string | null; role: "owner" | "member" }[] | undefined;
   hackathonName: string | null | undefined;
+  onNavigate?: () => void;
 }) {
   return (
     <div className="flex flex-col gap-1 border-b border-f1-border-secondary p-3">
-      <Link href={`/t/${teamId}/home`} aria-label="Hackboard, ir a inicio" className="focus-ring mb-2 self-start rounded-sm">
+      <Link
+        href={`/t/${teamId}/home`}
+        onClick={onNavigate}
+        aria-label="Hackboard, ir a inicio"
+        className="focus-ring mb-2 self-start rounded-sm"
+      >
         <LogoHorizontal className="h-7" />
       </Link>
-      {memberships && <TeamSelector memberships={memberships} currentTeamId={teamId} />}
+      {memberships && <TeamSelector memberships={memberships} currentTeamId={teamId} onNavigate={onNavigate} />}
       {hackathonName && <p className="truncate text-sm text-f1-foreground-secondary">{hackathonName}</p>}
     </div>
   );

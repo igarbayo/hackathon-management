@@ -42,6 +42,7 @@ module Api
         scope = scope.where(source: params[:source]) if params[:source].present?
         scope = scope.where(kind: params[:kind]) if params[:kind].present?
         scope = apply_attribution_status_filter(scope) if params[:attribution_status].present?
+        scope = scope.where(source: "github", "actor.user_id" => nil) if params[:actor_status] == "unlinked"
         scope = apply_via_filter(scope) if params[:via].present?
         scope = scope.where("via.token_id" => BSON::ObjectId.from_string(params[:token_id])) if params[:token_id].present?
         scope = scope.where(:occurred_at.gte => Time.iso8601(params[:since])) if params[:since].present?

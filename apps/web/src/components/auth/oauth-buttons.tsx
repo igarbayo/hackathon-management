@@ -1,5 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { GitHubLogo, GoogleLogo } from "./provider-logos";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -8,13 +9,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 // el servidor tiene que ver la petición para fijar el state firmado.
 // Se estiliza el <a> directamente en vez de envolverlo en Button: Base UI
 // desaconseja renderizar enlaces a través del botón (tienen semántica propia).
+// Cada botón lleva el logo del proveedor delante del texto, como es habitual.
 export function OAuthButtons() {
   return (
     <div className="flex flex-col gap-2">
       <a href={`${API_URL}/api/v1/auth/google`} className={cn(buttonVariants({ variant: "outline" }))}>
+        <GoogleLogo />
         Continuar con Google
       </a>
       <a href={`${API_URL}/api/v1/auth/github`} className={cn(buttonVariants({ variant: "outline" }))}>
+        <GitHubLogo />
         Continuar con GitHub
       </a>
     </div>

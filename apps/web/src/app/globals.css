@@ -295,9 +295,12 @@
    aterriza en un ancestro distinto de `:root` */
 .dark:root,
 :root .dark {
-  --neutral-0: 218 48% 10%;
-  --neutral-2: 210 91% 22% / 0.02;
-  --neutral-3: 219 88% 17% / 0.02;
+  /* Neutros grises en vez del azul marino de F0 (RNF-UI-006), con los tonos
+     del modo oscuro de Discord: #313338 los paneles y #1e1f22 el fondo de
+     página que queda entre ellos. */
+  --neutral-0: 228 6% 20%;
+  --neutral-2: 0 0% 100% / 0.02;
+  --neutral-3: 0 0% 100% / 0.03;
   --neutral-5: 0 0% 100% / 0.05;
   --neutral-10: 0 0% 100% / 0.1;
   --neutral-20: 0 0% 100% / 0.2;
@@ -342,8 +345,8 @@
   --promote-70: 38 92% 54%;
 
   --ring: var(--selected-50);
-  --page: var(--white-3);
-  --shadow-color: 218 48% 10%;
+  --page: 225 6% 13%;
+  --shadow-color: 0 0% 0%;
 }
 
 @layer base {

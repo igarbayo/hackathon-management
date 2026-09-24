@@ -154,3 +154,25 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
   - **GPL-3.0:** solo obliga al distribuir copias; ejecutar la app en un servidor propio no es distribuir ("SaaS loophole").
   - **AGPL-3.0-only:** descartada a favor de "or later" (recomendación de la FSF; compatibilidad con futuras versiones).
 - **Consecuencias:** quien despliegue una versión **modificada** como servicio debe ofrecer su código a sus usuarios (§13); el despliegue propio debería enlazar al repositorio desde la interfaz (pendiente: requiere un requisito de UI en [04](04-pantallas.md)). Todo código copiado o adaptado de otro proyecto necesita cabecera SPDX con su autor y licencia, el texto de esa licencia en `LICENSES/` y una fila en `docs/COMPONENTS_LICENSE.md`; si no, `reuse lint` rompe el CI. Al no ser libres los logos, el repositorio no es 100 % software libre, y quien despliegue un fork necesita su propia marca. Algunas organizaciones prohíben AGPL internamente; se asume porque el público son equipos y organizadores de hackathons. Mientras Ignacio Garbayo sea el único titular del copyright se puede relicenciar (p. ej. `packages/shared-schemas` a MIT); con contribuciones externas sin CLA ya no.
+
+## ADR-0017
+
+**Neutros grises (tipo Discord) en el modo oscuro** · Aceptado · 2026-09-23
+
+- **Contexto:** el modo oscuro de F0 tiñe de azul marino el fondo de paneles y tarjetas (`--neutral-0: 218 48% 10%`) y las sombras. Con el acento morado de marca ([ADR-0015](#adr-0015)) ese azul no convencía: se pidió un gris neutro como el de la interfaz oscura de Discord.
+- **Decisión:** en `.dark` se sustituyen `--neutral-0` por `228 6% 20%` (#313338), `--page` por `225 6% 13%` (#1e1f22, opaco en vez de blanco al 3 %), `--neutral-2/3` por blancos translúcidos y `--shadow-color` por negro (RNF-UI-006, [13](13-sistema-diseno.md)). Los demás neutros oscuros ya eran blancos translúcidos y se quedan. Matiza ADR-0015, que dejaba intactos todos los neutros de F0: el modo claro sigue siéndolo.
+- **Alternativas:**
+  - **Mantener el azul marino de F0:** fiel a F0, pero es justo el tono que no gustaba.
+  - **Negro puro o casi (`#121212`):** más contraste y ahorra batería en OLED, pero los paneles flotantes pierden separación con el fondo de página y cansa más en sesiones largas.
+- **Consecuencias:** segunda desviación deliberada de F0, documentada en la spec 13. El texto blanco (y los secundarios al 50 %) sobre `#313338` sigue cumpliendo AA. El `theme-color` oscuro (`BRAND_COLOR_DARK`, morado) y la imagen Open Graph no cambian.
+
+## ADR-0018
+
+**Los commits se asignan a la identidad de GitHub de su autor, también hacia atrás** · Aceptado · 2026-09-23
+
+- **Contexto:** los eventos de GitHub solo se asignaban a una persona si ya era miembro del equipo cuando llegaba el commit. El email del autor se usaba para buscarla y se descartaba, así que quien se unía más tarde nunca recuperaba sus commits. La sugerencia "¿Este autor es un miembro?" de la spec 07 no se llegó a implementar.
+- **Decisión:** cada evento de GitHub guarda la identidad de su autor (`actor.github_login`, `actor.email`, `actor.author_name`) aunque no sea miembro. Cuando una persona entra en el equipo, o vincula GitHub o Google, o añade identidades, un job le asigna los eventos **sin usuario** que coinciden con su login o sus emails. Para lo que no coincide (otro email, otra cuenta), cualquiera puede decir "Son míos" sobre eventos sueltos o sobre un autor entero, y por defecto esa identidad pasa a sus `git_identities` para los commits futuros. Un owner puede asignar cualquier evento a cualquier miembro. Las asignaciones manuales quedan marcadas (`mapped_by: "manual"`) y se ven en el feed. Ver RF-GH-024 ([07](07-integracion-github.md#mapeo-de-autores)) y RF-ACT-018 ([04](04-pantallas.md)).
+- **Alternativas:**
+  - **Solo manual (la sugerencia en ajustes de la spec 07):** más control, pero obliga a cada persona a buscar sus commits aunque su login o su email ya digan quién es.
+  - **Crear miembros "fantasma" por cada autor de commit:** el feed y "Quién hizo qué" serían exactos desde el primer commit, pero llenaría el equipo de miembros que no existen y complica permisos y cuotas.
+- **Consecuencias:** se guarda el email del autor de los commits, que ya figuraba en el inventario de datos de la spec 09; la API no lo expone en los eventos (ni en webhooks salientes ni en el MCP), solo en la lista de autores sin vincular, a los miembros del equipo y solo con sesión web (ningún token ni app conectada la ve). El email de un commit no está verificado y el de una cuenta con contraseña tampoco, así que alguien del equipo podría registrarse con el email de otro autor y quedarse con sus commits sin usuario: se asume porque solo afecta a eventos sin dueño de un equipo en el que ya es miembro, la asignación nunca quita eventos a nadie y un owner puede corregirla. Los eventos importados antes de este cambio no tienen `email`: solo se asignan por login o a mano.

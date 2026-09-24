@@ -201,7 +201,8 @@ export default function PrivacyPage() {
           <p>
             Si has hecho commits en un repositorio que un equipo vincula a Hackboard, se guardan tu nombre, tu email de git
             y los metadatos de esos commits, obtenidos de GitHub. Se usan solo para el feed de actividad de ese equipo y se
-            borran con los plazos de arriba. Puedes oponerte o pedir que se borren escribiendo a <Mail />.
+            borran con los plazos de arriba. Si más adelante te unes a ese equipo, esos commits se asocian a tu cuenta por tu
+            login o tu email de git. Puedes oponerte o pedir que se borren escribiendo a <Mail />.
           </p>
         </Section>
 

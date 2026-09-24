@@ -45,4 +45,29 @@ RSpec.describe Github::MapAuthor do
     expect(result["display"]).to eq("Desconocido")
     expect(result["github_login"]).to eq("desconocido")
   end
+
+  it "guarda siempre la identidad del autor, sea o no miembro (ADR-0018)" do
+    result = described_class.call(team: team, login: "Grace", email: "Grace@Example.com", display_name: "Grace Hopper")
+
+    expect(result).to include("github_login" => "Grace", "email" => "grace@example.com", "author_name" => "Grace Hopper")
+    expect(result["mapped_by"]).to be_nil
+  end
+
+  it "compara el login sin distinguir mayúsculas y marca mapped_by auto" do
+    user = create(:user, github_login: "AdaLovelace")
+    membership = create(:membership, team: team, user: user)
+
+    result = described_class.call(team: team, login: "adalovelace", email: nil, display_name: nil)
+
+    expect(result["membership_id"]).to eq(membership.id.to_s)
+    expect(result["mapped_by"]).to eq("auto")
+  end
+
+  it "mapea por un login guardado en git_identities" do
+    membership = create(:membership, team: team, git_identities: [ "ada-alt" ])
+
+    result = described_class.call(team: team, login: "Ada-Alt", email: nil, display_name: nil)
+
+    expect(result["membership_id"]).to eq(membership.id.to_s)
+  end
 end

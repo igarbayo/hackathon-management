@@ -9,7 +9,9 @@ class ActivityEventSerializer
       source: event.source,
       kind: event.kind,
       occurred_at: event.occurred_at.iso8601,
-      actor: event.actor,
+      # ADR-0018: el email del autor y unclaimed_by no salen de la API
+      # (tampoco en webhooks salientes ni en el MCP).
+      actor: event.actor.except("email", "unclaimed_by"),
       repository_id: event.repository_id&.to_s,
       branch: event.branch,
       sha: event.sha,

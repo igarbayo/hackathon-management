@@ -9,7 +9,7 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
   await page.goto("/signup");
   await page.getByLabel("Nombre").fill("Ada Lovelace");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña").fill("supersecret123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);

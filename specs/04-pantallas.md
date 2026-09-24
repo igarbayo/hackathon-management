@@ -6,8 +6,8 @@
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px. | Aceptado [F1] |
-| RF-UX-002 | Arriba del menú: selector de equipo (si el usuario tiene más de uno) y nombre del hackathon. | Aceptado [F1] |
+| RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px, que se cierra al elegir cualquier opción (navegación, logo o cambio de equipo). | Aceptado [F1] |
+| RF-UX-002 | Arriba del menú: selector de equipo (si el usuario tiene más de uno), que muestra siempre el nombre del equipo y nunca su id, y nombre del hackathon. | Aceptado [F1] |
 | RF-UX-003 | Barra superior con una **cuenta atrás persistente** al siguiente milestone. Cambia a ámbar a menos de 3 h y a rojo a menos de 1 h. | Aceptado [F2] |
 | RF-UX-004 | Todas las fechas se muestran en la zona horaria del hackathon e indican la zona. | Aceptado [F1] |
 | RF-UX-005 | Todas las pantallas tienen estados de *cargando* (skeleton), *vacío* (con un CTA para crear lo primero) y *error* (con reintento). | Aceptado [F1] |
@@ -54,9 +54,10 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 |----|-----------|--------|
 | RF-TEAM-010 | El flujo de crear el equipo tiene como máximo 3 pantallas y los pasos 4 y 5 se pueden saltar. | Aceptado [F1] |
 | RF-TEAM-011 | El enlace `…/join?code=` hace login o registro y la unión en un solo paso. | Aceptado [F1] |
-| RF-AUTH-010 | Login y registro muestran "Continuar con Google" y "Continuar con GitHub" encima del formulario de email. En el perfil se ven los proveedores vinculados y se pueden desvincular (RF-AUTH-009). | Aceptado [F1] |
-| RF-AUTH-012 | Ajustes tiene una tarjeta "Borrar cuenta" (RF-AUTH-007, RF-SEC-004), al final de la página. Abre un diálogo que explica qué se borra y exige escribir el email de la cuenta para habilitar el botón (no basta con un sí/no). Si el servidor responde `409` (único owner de un equipo con más miembros) el error se muestra en el diálogo; si va bien, se vacía la caché y se vuelve a `/login`. | Implementado [F2] |
+| RF-AUTH-010 | Login y registro muestran "Continuar con Google" y "Continuar con GitHub" encima del formulario de email, cada uno con el logo oficial de su proveedor delante del texto (la "G" de Google en sus colores y el GitHub mark en el color del texto). En el perfil se ven los proveedores vinculados y se pueden desvincular (RF-AUTH-009). | Aceptado [F1] |
 | RF-AUTH-011 | El pie del sidebar muestra la foto de perfil de Google o GitHub (`avatar_url` de `/me`). Se actualiza en cada login con ese proveedor, así que prevalece la del último con el que se entró; si el proveedor no trae foto se conserva la anterior. Sin foto, o si no carga, se muestran las iniciales. | Implementado [F1] |
+| RF-AUTH-012 | Los campos de contraseña de login y registro llevan un botón de ojo a la derecha que alterna entre mostrar y ocultar lo escrito. Empieza oculta; el botón es accesible ("Mostrar contraseña" / "Ocultar contraseña", `aria-pressed`) y no envía el formulario. | Implementado [F1] |
+| RF-AUTH-013 | Ajustes tiene una tarjeta "Borrar cuenta" (RF-AUTH-007, RF-SEC-004), al final de la página. Abre un diálogo que explica qué se borra y exige escribir el email de la cuenta para habilitar el botón (no basta con un sí/no). Si el servidor responde `409` (único owner de un equipo con más miembros) el error se muestra en el diálogo; si va bien, se vacía la caché y se vuelve a `/login`. | Implementado [F2] |
 | RF-TEAM-012 | Checklist de puesta en marcha en Inicio. Se oculta cuando está completo o si se descarta. | Aceptado [F2] |
 | RF-TEAM-013 | Al volver a entrar, aterriza directamente en `last_team_id` (RF-AUTH-005), que se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo. Si no hay uno guardado (p. ej. la cuenta nunca abrió ningún equipo tras esta funcionalidad) pero ya es miembro de alguno, onboarding le deja elegir a cuál entrar en vez de forzarle a crear uno nuevo o unirse con código. | Aceptado [F1] |
 
@@ -140,6 +141,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-ACT-014 | Los eventos consecutivos de un mismo actor en la misma rama en menos de 10 min se agrupan ("Ana hizo 4 commits en f-12") y se pueden expandir. | Aceptado [F3] |
 | RF-ACT-015 | Los eventos de Claude Code nunca muestran texto de prompts con el nivel `metadata`. Muestran "Sesión de Claude Code · 6 ficheros editados en `f-12-login`". | Aceptado [F5] |
 | RF-ACT-016 | Selección múltiple para confirmar o reasignar en bloque. | Aceptado [F4] |
+| RF-ACT-018 | **Autores sin vincular y "Son míos".** Filtro "Autores sin vincular" con la lista de esos autores (login, email, número de eventos) y un botón "Son míos" por autor. Casillas en los eventos de GitHub para seleccionar varios y una barra con "Son míos", "No son míos" y, para owners, "Asignar a…" un miembro. La casilla "Asignarme también los futuros de este autor" (para owners, "Asignar también…") va marcada por defecto. Un miembro solo puede seleccionar eventos sin usuario o suyos; un owner, cualquiera de GitHub. Los eventos asignados a mano muestran un discreto "asignado a mano" junto al actor. Ver [07](07-integracion-github.md#mapeo-de-autores) y [ADR-0018](decisiones.md#adr-0018). | Implementado |
 | RF-ACT-017 | Los eventos con `via` muestran una etiqueta "vía API" o "vía MCP · <cliente>" junto al actor, y el nombre del token en un tooltip. Filtro "Hecho por agentes/API" y filtro por token (RF-API-008). | Aceptado [F3] |
 
 ---

@@ -84,7 +84,7 @@ Sesiones web con cookie opaca.
 | `user_id`, `team_id` | ObjectId | Pareja única |
 | `role` | String | `owner` \| `member` |
 | `display_name` | String | Por defecto, `user.name` |
-| `git_identities` | Array<String> | Emails y logins de git extra para mapear autores de commits ([07](07-integracion-github.md)) |
+| `git_identities` | Array<String> | Emails (con `@`) y logins de GitHub (sin `@`) extra para mapear autores de commits, en minúsculas. Una misma identidad no puede estar en dos miembros del mismo equipo ([07](07-integracion-github.md#mapeo-de-autores)) |
 | `claude_code` | embebido `ClaudeCodeLink` | `nil` si no está conectado |
 
 **ClaudeCodeLink** (embebido):
@@ -286,7 +286,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `dedupe_key` | String | Único por equipo. P. ej. `gh:commit:<sha>`, `cc:<client_event_id>` |
 | `occurred_at` | Time | Cuándo ocurrió (según la fuente) |
 | `received_at` | Time | |
-| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable) |
+| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable). Solo en eventos de GitHub: `email` (nullable, en minúsculas, solo commits), `author_name` (nombre del autor en git, se conserva aunque el evento se asigne a un miembro), `mapped_by` (`auto` \| `manual` \| nil) y `unclaimed_by` (Array de `membership_id` que han dicho "No son míos"; la asignación automática no se los vuelve a dar). La API no expone `email` ni `unclaimed_by` en el evento ([07](07-integracion-github.md#mapeo-de-autores)) |
 | `repository_id` | ObjectId | Nullable |
 | `branch` | String | Nullable |
 | `sha` | String | Nullable |

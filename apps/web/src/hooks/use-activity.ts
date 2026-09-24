@@ -1,13 +1,16 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { ActivityEvent } from "@/types/activity";
+import type { ActivityEvent, ClaimResult, UnlinkedAuthor } from "@/types/activity";
 
 interface ActivityPage {
   data: ActivityEvent[];
   next_cursor: string | null;
 }
 
-export function useActivity(teamId: string | undefined, filters: { attribution_status?: string; feature_id?: string }) {
+export function useActivity(
+  teamId: string | undefined,
+  filters: { attribution_status?: string; feature_id?: string; actor_status?: string },
+) {
   return useInfiniteQuery({
     queryKey: ["teams", teamId, "activity", filters],
     queryFn: ({ pageParam }: { pageParam: string | undefined }) => {
@@ -30,5 +33,50 @@ export function useDecideAttribution(teamId: string) {
     mutationFn: ({ eventId, action, featureId }: { eventId: string; action: string; featureId?: string }) =>
       apiClient.post(`/api/v1/teams/${teamId}/activity/${eventId}/attribution`, { action, feature_id: featureId }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKey(teamId) }),
+  });
+}
+
+// RF-ACT-018: autores sin vincular y "Son míos" / "No son míos".
+export function useUnlinkedAuthors(teamId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...activityKey(teamId), "unlinked-authors"],
+    queryFn: () => apiClient.get<{ data: UnlinkedAuthor[] }>(`/api/v1/teams/${teamId}/activity/unlinked_authors`).then((r) => r.data),
+    enabled,
+  });
+}
+
+export interface ClaimInput {
+  eventIds?: string[];
+  author?: { github_login: string | null; email: string | null };
+  membershipId?: string;
+  includeFuture: boolean;
+}
+
+export function useClaimActivity(teamId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ eventIds, author, membershipId, includeFuture }: ClaimInput) =>
+      apiClient.post<ClaimResult>(`/api/v1/teams/${teamId}/activity/claim`, {
+        event_ids: eventIds,
+        author,
+        membership_id: membershipId,
+        include_future: includeFuture,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: activityKey(teamId) });
+      queryClient.invalidateQueries({ queryKey: ["teams", teamId, "members"] });
+    },
+  });
+}
+
+export function useUnclaimActivity(teamId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (eventIds: string[]) =>
+      apiClient.post<ClaimResult>(`/api/v1/teams/${teamId}/activity/unclaim`, { event_ids: eventIds }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: activityKey(teamId) });
+      queryClient.invalidateQueries({ queryKey: ["teams", teamId, "members"] });
+    },
   });
 }
