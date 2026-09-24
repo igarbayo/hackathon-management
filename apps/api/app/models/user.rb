@@ -23,6 +23,7 @@ class User
   validates :github_uid, uniqueness: true, allow_nil: true
   validates :google_sub, uniqueness: true, allow_nil: true
   validates :password, length: { minimum: 10 }, if: -> { password.present? }
+  validate :password_fits_bcrypt
   validate :has_login_method
 
   has_many :memberships, dependent: :destroy
@@ -67,6 +68,17 @@ class User
 
   def enqueue_claims
     memberships.each { |membership| Activity::ClaimForMembershipJob.perform_async(membership.id.to_s) }
+  end
+
+  # bcrypt solo usa los primeros 72 bytes: más allá, dos contraseñas que
+  # empiezan igual darían el mismo hash. Se cuenta en bytes, no en
+  # caracteres (una "ñ" ocupa 2). `has_secure_password validations: false`
+  # no lo comprueba por su cuenta.
+  def password_fits_bcrypt
+    return if password.blank?
+    return if password.bytesize <= ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED
+
+    errors.add(:password, "es demasiado larga (máximo 72 bytes; unos 72 caracteres sin tildes)")
   end
 
   def has_login_method

@@ -65,10 +65,11 @@ export default function SignupPage() {
                 id="password"
                 required
                 minLength={10}
+                maxLength={72}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <p className="text-muted-foreground text-sm">Mínimo 10 caracteres.</p>
+              <p className="text-muted-foreground text-sm">Entre 10 y 72 caracteres.</p>
             </div>
             {error && <p className="text-destructive text-base">{error}</p>}
             <Button type="submit" loading={signUp.isPending}>

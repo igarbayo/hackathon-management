@@ -21,6 +21,15 @@ RSpec.describe "Auth", type: :request do
       expect(json_response["error"]["code"]).to eq("validation_failed")
     end
 
+    it "rechaza contraseñas de más de 72 bytes" do
+      post "/api/v1/auth/signup",
+           params: { email: "ada@example.com", name: "Ada", password: "a" * 73 },
+           headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(json_response["error"]["code"]).to eq("validation_failed")
+    end
+
     it "aplica rate limit tras 10 registros por IP (RNF-SEC-005)" do
       headers = csrf_headers
 

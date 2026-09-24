@@ -29,6 +29,26 @@ RSpec.describe User, type: :model do
     expect(user.errors[:base]).to be_present
   end
 
+  describe "longitud máxima de la contraseña (límite de bcrypt)" do
+    it "acepta 72 bytes" do
+      expect(build(:user, password: "a" * 72)).to be_valid
+    end
+
+    it "rechaza más de 72 bytes" do
+      user = build(:user, password: "a" * 73)
+
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to be_present
+    end
+
+    it "cuenta bytes, no caracteres" do
+      user = build(:user, password: "ñ" * 37)
+
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to be_present
+    end
+  end
+
   it "es válido solo con github_uid, sin contraseña" do
     user = build(:user, password: nil, github_uid: 12_345)
 

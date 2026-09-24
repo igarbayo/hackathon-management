@@ -49,7 +49,7 @@
 | DELETE | `/me` | Borra la cuenta. Falla si el usuario es el único owner de un equipo con más miembros | RF-AUTH-007 [F2] |
 
 Reglas:
-- La contraseña tiene un mínimo de 10 caracteres.
+- La contraseña tiene un mínimo de 10 caracteres y un máximo de 72 bytes (el límite de bcrypt: más allá los bytes se ignoran). Se comprueba en el alta y al cambiarla; el login no la valida, así que una contraseña larga anterior sigue funcionando.
 - El login tiene rate limit: 10 intentos cada 15 min por IP y por email.
 - [ABIERTO] Recuperación de contraseña por email. Necesita un proveedor de email; en el MVP el login con GitHub o con Google es la alternativa.
 
