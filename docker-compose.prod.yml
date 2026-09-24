@@ -1,3 +1,11 @@
+# Los logs llevan IPs (09-privacidad-seguridad, registros técnicos): se rotan
+# para que no se acumulen sin límite, como promete /privacy.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   api:
     build:
@@ -10,6 +18,7 @@ services:
       - ./apps/api/.env.production
     restart: unless-stopped
     mem_limit: 400m
+    logging: *logging
     environment:
       RAILS_MAX_THREADS: "3"
 
@@ -22,3 +31,4 @@ services:
       - api
     restart: unless-stopped
     mem_limit: 350m
+    logging: *logging

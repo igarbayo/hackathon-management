@@ -76,6 +76,14 @@ export default function SignupPage() {
             </Button>
           </form>
 
+          <p className="text-muted-foreground text-sm">
+            Tienes que tener al menos 16 años. Al crear la cuenta trataré tus datos como explica la{" "}
+            <Link href="/privacy" className="text-foreground underline">
+              política de privacidad
+            </Link>
+            .
+          </p>
+
           <p className="text-muted-foreground text-center text-base">
             ¿Ya tienes cuenta?{" "}
             <Link href="/login" className="text-foreground underline">

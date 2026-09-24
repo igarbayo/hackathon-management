@@ -36,33 +36,9 @@ module Api
       end
 
       def destroy
-        memberships = Membership.where(user_id: current_user.id).to_a
-
-        memberships.each do |membership|
-          other_members = Membership.where(team_id: membership.team_id).where(:id.ne => membership.id)
-          other_owners = other_members.where(role: "owner")
-
-          next unless membership.owner? && other_owners.empty?
-
-          if other_members.exists?
-            raise ApiError::Conflict.new(
-              message: "eres el único owner de \"#{membership.team.name}\" y tiene más miembros: " \
-                       "transfiere la propiedad antes de borrar la cuenta"
-            )
-          end
-        end
-
-        memberships.each do |membership|
-          team = membership.team
-          orphaning_team = membership.owner? && Membership.where(team_id: team.id).where(:id.ne => membership.id).empty?
-          team.update!(deleted_at: Time.current) if orphaning_team
-
-          orphaning_team ? membership.delete : membership.destroy!
-        end
-
-        user = current_user
+        # Antes de cerrar la sesión: si el borrado falla (409), el usuario sigue dentro.
+        ::Accounts::Destroy.call(user: current_user)
         end_session!
-        user.destroy!
 
         head :no_content
       end

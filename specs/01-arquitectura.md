@@ -141,7 +141,7 @@ Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, outbound
 | `staging` | Despliegue automático desde `main` |
 | `production` | Despliegue manual con tag |
 
-[ABIERTO] Proveedor de hosting. Candidatos: Fly.io o Render para api, workers y web; MongoDB Atlas; Upstash o Redis gestionado. Hay que decidirlo antes de terminar la F1.
+Hosting de producción: servidor propio en España (Raspberry Pi, `docker-compose.prod.yml`) expuesto con Cloudflare Tunnel, MongoDB Atlas y Upstash (Redis), ambos en regiones de la Unión Europea. Lo recoge la política de privacidad (RF-SEC-007).
 
 ## Requisitos no funcionales
 

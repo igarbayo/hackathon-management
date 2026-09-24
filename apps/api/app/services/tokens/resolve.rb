@@ -27,6 +27,21 @@ module Tokens
     def self.call(raw_token, expected_resource: nil)
       return nil if raw_token.blank?
 
+      resolved = resolve(raw_token, expected_resource)
+      usable?(resolved) ? resolved : nil
+    end
+
+    # Aunque borrar un equipo o una membresía ya revoca sus tokens, un token
+    # de un equipo borrado o de una persona que ya no es miembro nunca vale:
+    # sin membresía, un PAT u OAuth actuaría como si fuera del equipo entero.
+    def self.usable?(resolved)
+      return false unless resolved&.team && !resolved.team.deleted?
+
+      resolved.kind == "integration" || resolved.membership.present?
+    end
+    private_class_method :usable?
+
+    def self.resolve(raw_token, expected_resource)
       if raw_token.start_with?(MEMBER_PREFIX)
         resolve_member(raw_token)
       elsif raw_token.start_with?(PAT_PREFIX)
@@ -37,6 +52,7 @@ module Tokens
         resolve_oauth(raw_token, expected_resource)
       end
     end
+    private_class_method :resolve
 
     def self.resolve_member(raw_token)
       membership = Membership.where("claude_code.token_digest" => Digest::SHA256.hexdigest(raw_token)).first

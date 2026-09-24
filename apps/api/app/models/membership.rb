@@ -22,6 +22,7 @@ class Membership
 
   validate :team_keeps_an_owner, on: :update, if: -> { role_changed? }
   before_destroy :ensure_not_last_owner
+  after_destroy :revoke_access
 
   index({ team_id: 1, user_id: 1 }, { unique: true })
   index({ "claude_code.token_digest" => 1 }, { unique: true, sparse: true })
@@ -51,6 +52,15 @@ class Membership
 
     errors.add(:base, "no se puede eliminar al último owner del equipo")
     throw :abort
+  end
+
+  # RF-TEAM-008: al salir o ser expulsado se revocan sus tokens de este equipo
+  # (el de Claude Code va embebido y desaparece con la membresía). Los ya
+  # revocados, p. ej. por Accounts::Destroy, conservan su motivo.
+  def revoke_access
+    AccessToken.where(team_id: team_id, membership_id: id, revoked_at: nil)
+               .update_all(revoked_at: Time.current, revoke_reason: "member_left")
+    OAuthGrant.where(team_id: team_id, membership_id: id).delete_all
   end
 
   def other_owners

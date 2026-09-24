@@ -62,4 +62,17 @@ RSpec.describe Team, type: :model do
       expect(numbers.sort).to eq((1..10).to_a)
     end
   end
+
+  describe "#soft_delete! (RF-TEAM-009)" do
+    it "marca el equipo como borrado y revoca todos sus tokens" do
+      team = create(:team)
+      pat = create(:access_token, team: team)
+      integration = create(:access_token, :integration, team: team)
+
+      team.soft_delete!
+
+      expect(team.reload).to be_deleted
+      expect([ pat.reload, integration.reload ].map(&:revoke_reason)).to all(eq("team_deleted"))
+    end
+  end
 end

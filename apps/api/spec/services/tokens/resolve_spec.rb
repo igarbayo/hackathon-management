@@ -63,4 +63,21 @@ RSpec.describe Tokens::Resolve do
     expect(described_class.call(nil)).to be_nil
     expect(described_class.call("")).to be_nil
   end
+
+  describe "equipos borrados y personas que ya no son miembros" do
+    it "nil para un PAT de un equipo borrado" do
+      result = Pat::Create.call(membership: create(:membership), name: "Mi token", preset: "agente")
+      result.record.team.update!(deleted_at: Time.current)
+
+      expect(described_class.call(result.raw_token)).to be_nil
+    end
+
+    it "nil para un PAT cuya membresía ya no existe" do
+      membership = create(:membership)
+      result = Pat::Create.call(membership: membership, name: "Mi token", preset: "agente")
+      membership.delete
+
+      expect(described_class.call(result.raw_token)).to be_nil
+    end
+  end
 end

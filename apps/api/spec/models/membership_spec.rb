@@ -70,4 +70,20 @@ RSpec.describe Membership, type: :model do
       expect(membership.claude_code.errors[:token_digest]).to be_present
     end
   end
+
+  describe "al salir o ser expulsado (RF-TEAM-008)" do
+    it "revoca sus tokens de ese equipo y borra sus grants OAuth" do
+      membership = create(:membership)
+      pat = create(:access_token, team: membership.team, membership: membership)
+      grant = create(:oauth_grant, team: membership.team, user: membership.user, membership: membership)
+      other = create(:access_token)
+
+      membership.destroy!
+
+      expect(pat.reload.revoked_at).to be_present
+      expect(pat.revoke_reason).to eq("member_left")
+      expect(OAuthGrant.where(id: grant.id).exists?).to be(false)
+      expect(other.reload.revoked_at).to be_nil
+    end
+  end
 end

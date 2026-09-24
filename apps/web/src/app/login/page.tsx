@@ -79,6 +79,11 @@ function LoginContent() {
           </p>
         </CardContent>
       </Card>
+      <p className="text-muted-foreground text-sm">
+        <Link href="/privacy" className="underline">
+          Política de privacidad
+        </Link>
+      </p>
     </main>
   );
 }

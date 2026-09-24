@@ -39,6 +39,17 @@ class Team
 
   scope :active, -> { where(deleted_at: nil) }
 
+  def deleted?
+    deleted_at.present?
+  end
+
+  # RF-TEAM-009: borrado lógico. Revoca todos los tokens del equipo (12-acceso-
+  # programatico.md#tipos-de-token); el borrado físico lo hace el RetentionJob.
+  def soft_delete!
+    update!(deleted_at: Time.current)
+    access_tokens.where(revoked_at: nil).update_all(revoked_at: Time.current, revoke_reason: "team_deleted")
+  end
+
   def formatted_code
     return code if code.blank?
 

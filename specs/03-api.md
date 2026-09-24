@@ -64,8 +64,8 @@ Reglas:
 | POST | `/teams/:id/code/rotate` | owner | Regenera el código. El anterior deja de servir | RF-TEAM-005 [F1] |
 | GET | `/teams/:id/members` | miembro | Lista con rol y estado de Claude Code (conectado, pausado, nivel) | RF-TEAM-006 [F1] |
 | PATCH | `/teams/:id/members/:mid` | owner | `role`. También `display_name` y `git_identities` (el propio miembro puede cambiar los suyos) | RF-TEAM-007 [F2] |
-| DELETE | `/teams/:id/members/:mid` | owner o el propio miembro | Expulsar o salir. Revoca el token de Claude Code | RF-TEAM-008 [F1] |
-| DELETE | `/teams/:id` | owner | Borrado lógico. Confirmación escribiendo el nombre del equipo | RF-TEAM-009 [F2] |
+| DELETE | `/teams/:id/members/:mid` | owner o el propio miembro | Expulsar o salir. Revoca el token de Claude Code, sus PAT y tokens OAuth de ese equipo (`member_left`) y borra sus `OAuthGrant` (`Membership#revoke_access`) | RF-TEAM-008 [F1] |
+| DELETE | `/teams/:id` | owner | Borrado lógico (`Team#soft_delete!`). Revoca todos los tokens del equipo (`team_deleted`). Confirmación escribiendo el nombre del equipo | RF-TEAM-009 [F2] |
 
 Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se puedan enumerar códigos.
 

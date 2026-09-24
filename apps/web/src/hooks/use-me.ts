@@ -46,3 +46,13 @@ export function useLogOut() {
     onSuccess: () => queryClient.clear(),
   });
 }
+
+// RF-AUTH-007: borra la cuenta y la sesión en el servidor; aquí solo se
+// vacía la caché para que nada del usuario quede en memoria.
+export function useDeleteMe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiClient.delete("/api/v1/me"),
+    onSuccess: () => queryClient.clear(),
+  });
+}

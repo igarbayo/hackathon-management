@@ -17,6 +17,7 @@ require "action_view/railtie"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+require_relative "../lib/middleware/cloudflare_remote_ip"
 
 module Api
   class Application < Rails::Application
@@ -26,7 +27,7 @@ module Api
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks ai_eval])
+    config.autoload_lib(ignore: %w[assets tasks ai_eval middleware])
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -44,5 +45,6 @@ module Api
     # La sesión web es una cookie opaca propia (ADR-0008), no el session
     # store de Rails: solo hace falta el middleware de cookies.
     config.middleware.use ActionDispatch::Cookies
+    config.middleware.insert_before ActionDispatch::RemoteIp, CloudflareRemoteIp
   end
 end

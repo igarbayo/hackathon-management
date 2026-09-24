@@ -1,8 +1,10 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BotIcon, CopyIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, SparklesIcon, Trash2Icon, WebhookIcon } from "lucide-react";
+import { BotIcon, CopyIcon, TriangleAlertIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, SparklesIcon, Trash2Icon, WebhookIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +13,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorState, LoadingState } from "@/components/states";
 import { PageHeader } from "@/components/f0/page-header";
-import { useMe, useUpdateMe } from "@/hooks/use-me";
+import { useDeleteMe, useMe, useUpdateMe } from "@/hooks/use-me";
 import {
   useMembers,
   useRemoveMember,
@@ -112,6 +124,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
       {isOwner && <WebhooksCard teamId={teamId} />}
       <ConnectedAppsCard />
       {isOwner && <TeamConnectedAppsCard teamId={teamId} />}
+      {me && <DeleteAccountCard email={me.email} />}
     </div>
   );
 }
@@ -946,6 +959,103 @@ function TeamConnectedAppsCard({ teamId }: { teamId: string }) {
           </div>
         ))}
       </CardContent>
+    </Card>
+  );
+}
+
+// RF-AUTH-007 / RF-SEC-004: borrar la cuenta. Es irreversible, así que se
+// confirma escribiendo el email de la cuenta, no con un simple sí/no.
+function DeleteAccountCard({ email }: { email: string }) {
+  const router = useRouter();
+  const deleteMe = useDeleteMe();
+  const [open, setOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const confirmed = confirmation.trim().toLowerCase() === email.toLowerCase();
+
+  function handleOpenChange(next: boolean) {
+    if (deleteMe.isPending) return;
+    setOpen(next);
+    if (!next) {
+      setConfirmation("");
+      setError(null);
+    }
+  }
+
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
+    if (!confirmed) return;
+    setError(null);
+    try {
+      await deleteMe.mutateAsync();
+      toast.success("Tu cuenta se ha borrado");
+      router.replace("/login");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se ha podido borrar la cuenta");
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <TriangleAlertIcon className="size-4" /> Borrar cuenta
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <p className="text-muted-foreground text-sm">
+          Borra tu cuenta y tus datos personales en todos tus equipos. Si eres el único owner de un equipo con más
+          miembros, antes tienes que pasarle la propiedad a otro. Más detalles en la{" "}
+          <Link href="/privacy" className="text-foreground underline">
+            política de privacidad
+          </Link>
+          .
+        </p>
+        <div>
+          <Button variant="destructive" onClick={() => setOpen(true)}>
+            Borrar cuenta
+          </Button>
+        </div>
+      </CardContent>
+
+      <AlertDialog open={open} onOpenChange={handleOpenChange}>
+        <AlertDialogContent>
+          <form onSubmit={handleDelete} className="flex flex-col gap-4">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Borrar tu cuenta</AlertDialogTitle>
+              <AlertDialogDescription>
+                No se puede deshacer. Se borran tu perfil, tus sesiones, tus tokens y apps conectadas, tu clave de Gemini
+                y tu actividad de Claude Code. En la actividad de GitHub pasarás a aparecer como «Usuario eliminado». Los
+                equipos en los que eres el único miembro se eliminan.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="delete-account-confirmation">
+                Escribe <span className="text-foreground font-semibold">{email}</span> para confirmar
+              </Label>
+              <Input
+                id="delete-account-confirmation"
+                type="email"
+                autoComplete="off"
+                value={confirmation}
+                onChange={(e) => setConfirmation(e.target.value)}
+                disabled={deleteMe.isPending}
+              />
+            </div>
+            {error && (
+              <p role="alert" className="text-destructive text-base">
+                {error}
+              </p>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleteMe.isPending}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction type="submit" variant="destructive" disabled={!confirmed} loading={deleteMe.isPending}>
+                Borrar cuenta
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

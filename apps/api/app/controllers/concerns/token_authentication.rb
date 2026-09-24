@@ -18,7 +18,7 @@ module TokenAuthentication
     raise ApiError::Unauthenticated.new(message: "token no reconocido") unless token.start_with?(MEMBER_PREFIX)
 
     membership = Membership.where("claude_code.token_digest" => Digest::SHA256.hexdigest(token)).first
-    raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless membership
+    raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless membership && !membership.team.deleted?
 
     @current_membership = membership
     @current_team = membership.team

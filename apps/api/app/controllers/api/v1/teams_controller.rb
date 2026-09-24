@@ -51,7 +51,7 @@ module Api
           raise ApiError::BadRequest.new(message: "hay que escribir el nombre del equipo para confirmar")
         end
 
-        current_team.update!(deleted_at: Time.current)
+        current_team.soft_delete!
         head :no_content
       end
     end
