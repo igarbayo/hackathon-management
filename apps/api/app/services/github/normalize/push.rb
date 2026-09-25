@@ -1,4 +1,5 @@
-# push -> un ActivityEvent commit por commit (07-integracion-github.md#normalización-por-evento).
+# push -> one commit ActivityEvent per commit
+# (07-integracion-github.md#normalización-por-evento).
 module Github
   module Normalize
     class Push

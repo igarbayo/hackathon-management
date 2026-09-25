@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class GetFeature
       def self.tool_name = "get_feature"
-      def self.description = "Detalle de una feature: descripción, objetivos, asignados, pros y contras con votos, ramas vinculadas y sus últimos eventos atribuidos."
+      def self.description = "Details of a feature: description, objectives, assignees, pros and cons with votes, linked branches and its latest attributed events."
       def self.scope = nil
       def self.read_only? = true
 

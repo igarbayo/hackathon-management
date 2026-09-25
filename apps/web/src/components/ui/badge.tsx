@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2026 Ignacio Garbayo
 // SPDX-License-Identifier: MIT AND AGPL-3.0-or-later
 //
-// Generado con la CLI de shadcn/ui (https://github.com/shadcn-ui/ui), MIT License:
-// texto completo en LICENSES/MIT.txt. Los cambios propios son AGPL-3.0-or-later.
+// Generated with the shadcn/ui CLI (https://github.com/shadcn-ui/ui), MIT License:
+// full text in LICENSES/MIT.txt. Our own changes are AGPL-3.0-or-later.
 
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
@@ -11,10 +11,10 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
 /**
- * Calcado de F0TagStatus / BaseTag (packages/react/src/components/tags/…
- * de F0): forma de píldora, 24px de alto, texto y color de fondo a juego
- * por estado. Se añaden `positive`/`warning`/`info`, que no existían en la
- * paleta de shadcn de partida. Ver specs/13-sistema-diseno.md.
+ * Copied from F0TagStatus / BaseTag (packages/react/src/components/tags/…
+ * in F0): pill shape, 24px high, matching text and background color per
+ * status. It adds `positive`/`warning`/`info`, which the starting shadcn
+ * palette did not have. See specs/13-sistema-diseno.md.
  */
 const badgeVariants = cva(
   "group/badge inline-flex h-6 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full px-2 py-0.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-f1-special-ring focus-visible:ring-offset-1 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&>svg]:pointer-events-none [&>svg]:size-3.5",

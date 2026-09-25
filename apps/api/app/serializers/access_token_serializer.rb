@@ -1,5 +1,5 @@
-# Nunca expone token_digest ni el valor en claro (RNF-SEC-002): eso solo se
-# devuelve una vez, en la respuesta de creación.
+# It never exposes token_digest or the plain value (RNF-SEC-002): that is only
+# returned once, in the create response.
 class AccessTokenSerializer
   def initialize(token)
     @token = token

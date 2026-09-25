@@ -1,6 +1,6 @@
-# POST /teams/:team_id/cli/device/approve (RF-CC-002). La persona ya tiene
-# sesión y es miembro del equipo (TeamScoping); aquí solo se resuelve el
-# device_authorization pendiente contra ese team/membership.
+# POST /teams/:team_id/cli/device/approve (RF-CC-002). The person already has a
+# session and is a team member (TeamScoping); here the pending
+# device_authorization is only resolved against that team/membership.
 module Cli
   class ApproveDevice
     def self.call(team:, membership:, user_code:, privacy_level:)
@@ -16,16 +16,16 @@ module Cli
 
     def call
       record = DeviceAuthorization.find_by_user_code(user_code)
-      raise ApiError::NotFound.new(message: "código no encontrado") unless record
-      raise ApiError::BadRequest.new(message: "este código ya no está disponible") unless record.status == "pending"
-      raise ApiError::BadRequest.new(message: "este código ha caducado") if record.expired?
+      raise ApiError::NotFound.new(message: "code not found") unless record
+      raise ApiError::BadRequest.new(message: "this code is no longer available") unless record.status == "pending"
+      raise ApiError::BadRequest.new(message: "this code has expired") if record.expired?
 
       if record.team_id.present? && record.team_id != team.id
-        raise ApiError::Conflict.new(message: "este código es de otro equipo")
+        raise ApiError::Conflict.new(message: "this code belongs to another team")
       end
 
       unless ClaudeCodeLink::PRIVACY_LEVELS.include?(privacy_level)
-        raise ApiError::BadRequest.new(message: "nivel de privacidad no válido")
+        raise ApiError::BadRequest.new(message: "invalid privacy level")
       end
 
       record.update!(

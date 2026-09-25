@@ -20,21 +20,21 @@ RSpec.describe Analysis::RunJob do
   end
 
   let(:valid_output) do
-    { "summary" => "Vais bien", "coverage" => [], "orphan_features" => [], "gaps" => [], "risks" => [] }
+    { "summary" => "You are on track", "coverage" => [], "orphan_features" => [], "gaps" => [], "risks" => [] }
   end
 
   def enqueue(team, trigger: "manual")
     Analysis::Enqueue.call(team: team, trigger: trigger)
   end
 
-  # RF-AI-021: sin requested_by, resolve_api_key usa la clave del owner.
+  # RF-AI-021: with no requested_by, resolve_api_key uses the owner's key.
   def team_with_ai_key
     team = create(:team, :with_owner)
     team.memberships.first.user.update!(gemini_api_key: "test-key")
     team
   end
 
-  it "crea un AiAnalysis succeeded con el resultado posvalidado" do
+  it "creates a succeeded AiAnalysis with the post-validated result" do
     team = team_with_ai_key
     stub_gemini(valid_output)
     analysis = enqueue(team)
@@ -43,12 +43,12 @@ RSpec.describe Analysis::RunJob do
 
     analysis.reload
     expect(analysis.status).to eq("succeeded")
-    expect(analysis.result["summary"]).to eq("Vais bien")
+    expect(analysis.result["summary"]).to eq("You are on track")
     expect(analysis.usage).to eq("input_tokens" => 500, "output_tokens" => 120)
-    expect(analysis.prompt_version).to eq("coverage_v1")
+    expect(analysis.prompt_version).to eq("coverage_v2")
   end
 
-  it "en manual con requested_by, usa la clave de quien lo pidió y no la del owner" do
+  it "for a manual run with requested_by, uses the requester's key and not the owner's" do
     team = create(:team, :with_owner)
     requester = create(:membership, team: team, role: "member")
     requester.user.update!(gemini_api_key: "requester-key")
@@ -62,7 +62,7 @@ RSpec.describe Analysis::RunJob do
     expect(analysis.reload.status).to eq("succeeded")
   end
 
-  it "no llama a la IA si el contexto no cambió desde el último análisis completado (skip)" do
+  it "does not call the AI if the context has not changed since the last completed analysis (skip)" do
     team = team_with_ai_key
     stub = stub_gemini(valid_output)
 
@@ -75,7 +75,7 @@ RSpec.describe Analysis::RunJob do
     expect(second.skip_reason).to eq("no_changes")
   end
 
-  it "marca skipped/no_api_key si nadie del equipo tiene una clave de Gemini configurada" do
+  it "marks skipped/no_api_key if nobody in the team has a Gemini key set up" do
     team = create(:team, :with_owner)
     analysis = enqueue(team)
 
@@ -86,9 +86,9 @@ RSpec.describe Analysis::RunJob do
     expect(analysis.skip_reason).to eq("no_api_key")
   end
 
-  it "marca failed si la IA no devuelve un JSON que cumpla el schema, tras reintentar una vez" do
+  it "marks failed if the AI does not return JSON that matches the schema, after one retry" do
     team = team_with_ai_key
-    stub = stub_gemini({ "summary" => "falta todo lo demás" })
+    stub = stub_gemini({ "summary" => "everything else is missing" })
     analysis = enqueue(team)
 
     described_class.new.perform(analysis.id.to_s)
@@ -97,7 +97,7 @@ RSpec.describe Analysis::RunJob do
     expect(analysis.reload.status).to eq("failed")
   end
 
-  it "no ejecuta dos análisis a la vez para el mismo equipo (lock)" do
+  it "does not run two analyses at once for the same team (lock)" do
     team = team_with_ai_key
     analysis = enqueue(team)
     Analysis::Lock.acquire(team.id.to_s)
@@ -107,7 +107,7 @@ RSpec.describe Analysis::RunJob do
     expect(analysis.reload.status).to eq("queued")
   end
 
-  it "es idempotente: no vuelve a ejecutar un análisis que ya no está queued" do
+  it "is idempotent: does not run again an analysis that is no longer queued" do
     team = team_with_ai_key
     stub = stub_gemini(valid_output)
     analysis = enqueue(team)

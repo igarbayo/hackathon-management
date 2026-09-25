@@ -1,5 +1,5 @@
-# Los installation tokens se cachean en Redis y nunca en Mongo (RNF-GH-001).
-# GitHub los emite con 1h de validez; se cachean ~55 min.
+# Installation tokens are cached in Redis and never in Mongo (RNF-GH-001).
+# GitHub issues them valid for 1h; they are cached for ~55 min.
 module Github
   class InstallationToken
     CACHE_TTL = 55.minutes.to_i
@@ -23,7 +23,7 @@ module Github
         req.headers["Authorization"] = "Bearer #{Github::AppJwt.generate}"
       end
 
-      raise "No se pudo crear el installation token: #{response.status}" unless response.success?
+      raise "Could not create the installation token: #{response.status}" unless response.success?
 
       response.body["token"]
     end

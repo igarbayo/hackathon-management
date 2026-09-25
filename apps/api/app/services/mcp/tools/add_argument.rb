@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class AddArgument
       def self.tool_name = "add_argument"
-      def self.description = "Añade un pro o un contra a una feature, con el miembro que llama como autor."
+      def self.description = "Adds a pro or a con to a feature, with the calling member as the author."
       def self.scope = "arguments:write"
       def self.read_only? = false
 
@@ -20,7 +20,7 @@ module Mcp
       end
 
       def self.call(team:, membership:, resolved_token:, args:)
-        raise Mcp::ToolError, "add_argument necesita un token de miembro o PAT de una persona." unless membership
+        raise Mcp::ToolError, "add_argument needs a member token or a person's PAT." unless membership
 
         feature = Mcp::FindFeature.call(team: team, key: args["feature_key"])
         argument = feature.arguments.create!(kind: args["kind"], text: args["text"], author_id: membership.user_id)

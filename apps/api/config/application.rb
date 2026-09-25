@@ -42,8 +42,8 @@ module Api
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
-    # La sesión web es una cookie opaca propia (ADR-0008), no el session
-    # store de Rails: solo hace falta el middleware de cookies.
+    # The web session is our own opaque cookie (ADR-0008), not the Rails session
+    # store: only the cookies middleware is needed.
     config.middleware.use ActionDispatch::Cookies
     config.middleware.insert_before ActionDispatch::RemoteIp, CloudflareRemoteIp
   end

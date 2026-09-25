@@ -1,12 +1,12 @@
-# RF-ACT-018 (ADR-0018): autores sin vincular y asignación manual del autor
-# de eventos de GitHub ("Son míos", "Asignar a…", "No son míos").
+# RF-ACT-018 (ADR-0018): unlinked authors and manual assignment of the author of
+# GitHub events ("These are mine", "Assign to…", "Not mine").
 module Api
   module V1
     class ActivityClaimsController < Api::V1::BaseController
       include TeamScoping
 
-      # Es la única respuesta con emails de autores: solo para personas del
-      # equipo en la web, nunca para tokens ni apps conectadas (ADR-0018).
+      # It is the only response with author emails: only for team members on the
+      # web app, never for tokens or connected apps (ADR-0018).
       session_only :unlinked_authors
       requires_scope "attribution:write", only: %i[claim unclaim]
 
@@ -38,10 +38,10 @@ module Api
 
       private
 
-      # Un token de integración actúa como el equipo, no como una persona:
-      # no tiene a quién asignar "míos".
+      # An integration token acts as the team, not as a person: there is nobody
+      # to assign "mine" to.
       def require_personal_membership!
-        current_membership || raise(ApiError::Forbidden.new(message: "hace falta actuar como un miembro del equipo"))
+        current_membership || raise(ApiError::Forbidden.new(message: "you have to act as a team member"))
       end
 
       def claim_events(by)
@@ -49,7 +49,7 @@ module Api
         return find_events(params[:event_ids]) if author.blank?
 
         identities = [ author[:github_login], author[:email] ].filter_map { |i| ::Activity::AuthorIdentity.normalize(i) }
-        raise ApiError::BadRequest.new(message: "author necesita github_login o email") if identities.empty?
+        raise ApiError::BadRequest.new(message: "author needs github_login or email") if identities.empty?
 
         scope = ActivityEvent.where(team_id: current_team.id, source: "github")
                              .any_of(*::Activity::AuthorIdentity.event_conditions(identities))
@@ -59,15 +59,15 @@ module Api
 
       def find_events(ids)
         ids = Array(ids)
-        raise ApiError::BadRequest.new(message: "event_ids es obligatorio") if ids.empty?
-        raise ApiError::BadRequest.new(message: "máximo #{BULK_LIMIT} eventos") if ids.size > BULK_LIMIT
+        raise ApiError::BadRequest.new(message: "event_ids is required") if ids.empty?
+        raise ApiError::BadRequest.new(message: "at most #{BULK_LIMIT} events") if ids.size > BULK_LIMIT
 
         ActivityEvent.where(team_id: current_team.id, :id.in => ids).to_a
       end
 
       def find_membership(id)
         Membership.where(team_id: current_team.id, id: id).first.tap do |membership|
-          raise ApiError::NotFound.new(message: "miembro no encontrado") unless membership
+          raise ApiError::NotFound.new(message: "member not found") unless membership
         end
       end
     end

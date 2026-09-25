@@ -1,7 +1,7 @@
 {
   "name": "hackboard",
   "version": "0.1.0",
-  "description": "CLI de Hackboard: instala hooks de Claude Code y envía eventos de actividad a la API.",
+  "description": "Hackboard CLI: installs Claude Code hooks and sends activity events to the API.",
   "license": "AGPL-3.0-or-later",
   "keywords": [
     "hackboard",

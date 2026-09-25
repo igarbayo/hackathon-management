@@ -1,15 +1,15 @@
 require "rails_helper"
 
 RSpec.describe "GET /api/v1/token", type: :request do
-  it "401 sin Authorization" do
+  it "401 without Authorization" do
     get "/api/v1/token"
 
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "devuelve equipo, miembro, scopes y caducidad de un PAT" do
+  it "returns the team, member, scopes and expiry of a PAT" do
     membership = create(:membership)
-    result = Pat::Create.call(membership: membership, name: "Mi token", preset: "agente")
+    result = Pat::Create.call(membership: membership, name: "My token", preset: "agent")
 
     get "/api/v1/token", headers: { "Authorization" => "Bearer #{result.raw_token}" }
 
@@ -20,7 +20,7 @@ RSpec.describe "GET /api/v1/token", type: :request do
     expect(json_response["scopes"]).to include("features:write")
   end
 
-  it "funciona también con un token de miembro" do
+  it "also works with a member token" do
     membership = create(:membership)
     membership.update!(claude_code_attributes: { token_digest: Digest::SHA256.hexdigest("hb_mt_x"), token_prefix: "hb_mt_x", privacy_level: "metadata" })
 

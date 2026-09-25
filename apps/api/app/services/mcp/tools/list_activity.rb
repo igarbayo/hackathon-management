@@ -4,7 +4,7 @@ module Mcp
       MAX_LIMIT = 50
 
       def self.tool_name = "list_activity"
-      def self.description = "Eventos del feed de actividad del equipo, tal como los ve la web (mismas reglas de privacidad)."
+      def self.description = "Events from the team's activity feed, as the web app shows them (same privacy rules)."
       def self.scope = nil
       def self.read_only? = true
 

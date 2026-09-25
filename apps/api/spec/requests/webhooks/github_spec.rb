@@ -13,7 +13,7 @@ RSpec.describe "Webhooks::Github", type: :request do
     { "X-Hub-Signature-256" => signature, "X-GitHub-Delivery" => SecureRandom.uuid, "X-GitHub-Event" => "push", "CONTENT_TYPE" => "application/json" }
   end
 
-  it "401 con firma inválida" do
+  it "401 with an invalid signature" do
     body = { repository: { id: 1 } }.to_json
 
     post "/api/v1/webhooks/github", params: body, headers: { "X-Hub-Signature-256" => "sha256=nope", "X-GitHub-Event" => "push", "X-GitHub-Delivery" => "x" }
@@ -21,7 +21,7 @@ RSpec.describe "Webhooks::Github", type: :request do
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "202 y encola el job con firma válida" do
+  it "202 and queues the job with a valid signature" do
     body = { repository: { id: 1 }, ref: "refs/heads/main", commits: [] }.to_json
     headers = signed_headers(body)
 
@@ -33,7 +33,7 @@ RSpec.describe "Webhooks::Github", type: :request do
     expect(WebhookDelivery.where(delivery_id: headers["X-GitHub-Delivery"]).first.status).to eq("received")
   end
 
-  it "200 e ignora una entrega repetida (mismo X-GitHub-Delivery)" do
+  it "200 and ignores a repeated delivery (same X-GitHub-Delivery)" do
     body = { repository: { id: 1 } }.to_json
     headers = signed_headers(body)
     create(:webhook_delivery, delivery_id: headers["X-GitHub-Delivery"])

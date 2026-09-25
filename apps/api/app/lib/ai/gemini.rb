@@ -1,8 +1,8 @@
-# Implementación por defecto de Ai::Provider (ADR-0003). El modelo se
-# configura con GEMINI_MODEL: qué modelo concreto usar por defecto queda
-# [ABIERTO] en 06-analisis-ia.md, así que no se hardcodea ninguno aquí. La
-# clave de API la resuelve quien construye el proveedor (Ai::KeyOwner): cada
-# persona usa la suya, nunca una compartida del servidor (RF-AI-021).
+# Default implementation of Ai::Provider (ADR-0003). The model is set with
+# GEMINI_MODEL: which exact model to use by default is still [ABIERTO] in
+# 06-analisis-ia.md, so none is hardcoded here. Whoever builds the provider
+# resolves the API key (Ai::KeyOwner): each person uses their own, never a
+# shared server key (RF-AI-021).
 module Ai
   class Gemini < Provider
     API_BASE = "https://generativelanguage.googleapis.com/v1beta/"
@@ -20,7 +20,7 @@ module Ai
         req.body = body
       end
 
-      raise Provider::GenerationError, "Gemini respondió #{response.status}: #{response.body}" unless response.success?
+      raise Provider::GenerationError, "Gemini responded #{response.status}: #{response.body}" unless response.success?
 
       parse_response(response.body)
     end
@@ -44,7 +44,7 @@ module Ai
 
     def parse_response(body)
       text = body.dig("candidates", 0, "content", "parts", 0, "text")
-      raise Provider::GenerationError, "Gemini no devolvió texto" if text.blank?
+      raise Provider::GenerationError, "Gemini returned no text" if text.blank?
 
       data = JSON.parse(text)
       usage = {
@@ -54,7 +54,7 @@ module Ai
 
       Provider::Result.new(data: data, usage: usage, model: model)
     rescue JSON::ParserError => e
-      raise Provider::InvalidOutputError, "Gemini no devolvió JSON válido: #{e.message}"
+      raise Provider::InvalidOutputError, "Gemini did not return valid JSON: #{e.message}"
     end
 
     def model

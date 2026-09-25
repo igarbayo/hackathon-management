@@ -2,10 +2,10 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
-// RNF-UI-001 (specs/13-sistema-diseno.md): la web sigue el sistema de
-// diseño F0 con tokens semánticos (`f1-*` y los alias de shadcn ya
-// mapeados a ellos en globals.css). Prohibido colar un color de la paleta
-// de Tailwind en crudo o un hex dentro de `className`.
+// RNF-UI-001 (specs/13-sistema-diseno.md): the web app follows the F0
+// design system with semantic tokens (`f1-*` and the shadcn aliases already
+// mapped to them in globals.css). Raw Tailwind palette colors and hex values
+// inside `className` are not allowed.
 const PALETTE_COLORS =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 const rawPaletteSelector = `JSXAttribute[name.name='className'] Literal[value=/\\b(bg|text|border|ring|from|via|to|fill|stroke|decoration|outline|divide|accent|caret)-(${PALETTE_COLORS})-[0-9]{2,3}\\b/]`;
@@ -22,12 +22,12 @@ const eslintConfig = defineConfig([
         {
           selector: rawPaletteSelector,
           message:
-            "Usa un token f1-* (o su alias shadcn) en vez de un color de la paleta Tailwind en crudo — RNF-UI-001, ver specs/13-sistema-diseno.md.",
+            "Use an f1-* token (or its shadcn alias) instead of a raw Tailwind palette color — RNF-UI-001, see specs/13-sistema-diseno.md.",
         },
         {
           selector: hexColorSelector,
           message:
-            "No se permiten colores hexadecimales en className — usa un token f1-* — RNF-UI-001, ver specs/13-sistema-diseno.md.",
+            "Hex colors are not allowed in className — use an f1-* token — RNF-UI-001, see specs/13-sistema-diseno.md.",
         },
       ],
     },

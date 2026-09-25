@@ -19,13 +19,13 @@ import type { VariantProps } from "class-variance-authority";
 
 type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
-const STATUS_LABEL: Record<string, string> = { covered: "Cubierto", partial: "Parcial", uncovered: "Sin cubrir" };
+const STATUS_LABEL: Record<string, string> = { covered: "Covered", partial: "Partial", uncovered: "Not covered" };
 const STATUS_VARIANT: Record<string, BadgeTone> = {
   covered: "positive",
   partial: "warning",
   uncovered: "destructive",
 };
-const SEVERITY_LABEL: Record<string, string> = { high: "Alta", medium: "Media", low: "Baja" };
+const SEVERITY_LABEL: Record<string, string> = { high: "High", medium: "Medium", low: "Low" };
 const SEVERITY_ALERT_VARIANT: Record<string, "critical" | "warning" | "neutral"> = {
   high: "critical",
   medium: "warning",
@@ -55,9 +55,9 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
       await runAnalysis.mutateAsync();
     } catch (err) {
       if (err instanceof ApiError && err.code === "rate_limited") {
-        toast.warning("Se ha alcanzado la cuota de análisis manuales de hoy.");
+        toast.warning("You have reached today's limit of manual analyses.");
       } else if (err instanceof ApiError && err.code === "missing_gemini_api_key") {
-        toast.warning("Configura tu clave de Gemini en Equipo y ajustes para poder analizar.");
+        toast.warning("Set up your Gemini key in Team and settings to run an analysis.");
       }
     }
   }
@@ -66,14 +66,14 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
     <div className="flex flex-col gap-6">
       <PageHeader
         icon={SparklesIcon}
-        title="Análisis IA"
+        title="AI analysis"
         description={
-          analysis ? `${analysis.model} · hace ${relativeTime(analysis.finished_at ?? analysis.created_at)}` : undefined
+          analysis ? `${analysis.model} · ${relativeTime(analysis.finished_at ?? analysis.created_at)}` : undefined
         }
         actions={
           aiEnabled && (
             <Button onClick={handleRun} loading={runAnalysis.isPending}>
-              <SparklesIcon className="size-4" /> Analizar ahora
+              <SparklesIcon className="size-4" /> Analyze now
             </Button>
           )
         }
@@ -82,14 +82,14 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
       <AlertsCard alerts={alerts} />
 
       {!aiEnabled ? (
-        <EmptyState icon={SparklesIcon} title="El análisis con IA está desactivado" description="Un owner puede activarlo en Equipo y ajustes." />
+        <EmptyState icon={SparklesIcon} title="AI analysis is turned off" description="An owner can turn it on in Team and settings." />
       ) : !analysis ? (
-        <EmptyState icon={SparklesIcon} title="Todavía no hay ningún análisis" description="Lanza el primero con “Analizar ahora”." />
+        <EmptyState icon={SparklesIcon} title="No analyses yet" description="Run the first one with “Analyze now”." />
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Resumen</CardTitle>
+              <CardTitle className="text-base">Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-base text-f1-foreground">{analysis.result?.summary}</p>
@@ -98,7 +98,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Cobertura de objetivos</CardTitle>
+              <CardTitle className="text-base">Objective coverage</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
               {analysis.result?.coverage.map((entry) => (
@@ -119,7 +119,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
           {(analysis.result?.orphan_features.length ?? 0) > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Esto sobra</CardTitle>
+                <CardTitle className="text-base">Not needed</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 {analysis.result?.orphan_features.map((o) => (
@@ -134,13 +134,13 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
           {(analysis.result?.gaps.length ?? 0) > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Huecos</CardTitle>
+                <CardTitle className="text-base">Gaps</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 {analysis.result?.gaps.map((g, i) => (
                   <div key={i} className="rounded-md border border-f1-border p-2 text-base">
                     {g.objective_key && <Badge variant="outline">{g.objective_key}</Badge>} {g.description}
-                    <p className="mt-1 text-sm text-f1-foreground-secondary">Sugerencia: {g.suggested_feature_title}</p>
+                    <p className="mt-1 text-sm text-f1-foreground-secondary">Suggestion: {g.suggested_feature_title}</p>
                   </div>
                 ))}
               </CardContent>

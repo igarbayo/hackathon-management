@@ -1,5 +1,5 @@
-# RF-FEAT-005: mueve la tarjeta en el kanban calculando `position` como un
-# float entre sus vecinos, para no tener que reindexar el resto de la columna.
+# RF-FEAT-005: moves the card on the kanban, working out `position` as a float
+# between its neighbors, so the rest of the column does not need reindexing.
 module Features
   class Move
     def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil)
@@ -20,7 +20,7 @@ module Features
           kind: "feature_status_changed",
           dedupe_key: "system:feature_status_changed:#{feature.id}:#{feature.updated_at.to_f}",
           occurred_at: Time.current,
-          title: "#{feature.key} pasó a #{status}",
+          title: "#{feature.key} moved to #{status}",
           payload: { entity: "feature", key: feature.key, action: "status_changed", fields: [ "status" ] },
           via: via
         )

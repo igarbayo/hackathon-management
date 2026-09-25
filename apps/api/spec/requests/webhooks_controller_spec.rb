@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Webhooks salientes", type: :request do
+RSpec.describe "Outgoing webhooks", type: :request do
   describe "POST /api/v1/teams/:team_id/webhooks" do
-    it "un owner crea un webhook y ve el secreto una sola vez" do
+    it "an owner creates a webhook and sees the secret only once" do
       owner = create(:membership, :owner)
       sign_in_as(owner.user)
 
@@ -14,7 +14,7 @@ RSpec.describe "Webhooks salientes", type: :request do
       expect(json_response["events"]).to eq([ "feature.created" ])
     end
 
-    it "un miembro normal no puede crear webhooks" do
+    it "a regular member cannot create webhooks" do
       member = create(:membership)
       sign_in_as(member.user)
 
@@ -23,9 +23,9 @@ RSpec.describe "Webhooks salientes", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "session_only: ningún token puede gestionar webhooks" do
+    it "session_only: no token can manage webhooks" do
       owner = create(:membership, :owner)
-      token = Pat::Create.call(membership: owner, name: "Completo", preset: "completo").raw_token
+      token = Pat::Create.call(membership: owner, name: "Completo", preset: "full").raw_token
 
       get "/api/v1/teams/#{owner.team.id}/webhooks", headers: { "Authorization" => "Bearer #{token}" }
 
@@ -33,7 +33,7 @@ RSpec.describe "Webhooks salientes", type: :request do
       expect(json_response["error"]["code"]).to eq("session_required")
     end
 
-    it "rechaza URLs que no sean HTTPS" do
+    it "rejects URLs that are not HTTPS" do
       owner = create(:membership, :owner)
       sign_in_as(owner.user)
 
@@ -44,21 +44,21 @@ RSpec.describe "Webhooks salientes", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/webhooks/:id/rotate_secret" do
-    it "rota el secreto y lo devuelve una sola vez" do
+    it "rotates the secret and returns it only once" do
       owner = create(:membership, :owner)
-      webhook = create(:outbound_webhook, team: owner.team, secret: "viejo")
+      webhook = create(:outbound_webhook, team: owner.team, secret: "old")
       sign_in_as(owner.user)
 
       post "/api/v1/teams/#{owner.team.id}/webhooks/#{webhook.id}/rotate_secret", headers: csrf_headers
 
       expect(response).to have_http_status(:ok)
-      expect(json_response["secret"]).not_to eq("viejo")
+      expect(json_response["secret"]).not_to eq("old")
       expect(webhook.reload.secret).to eq(json_response["secret"])
     end
   end
 
   describe "POST /api/v1/teams/:team_id/webhooks/:id/test" do
-    it "encola un ping" do
+    it "queues a ping" do
       owner = create(:membership, :owner)
       webhook = create(:outbound_webhook, team: owner.team, events: [ "ping" ])
       sign_in_as(owner.user)
@@ -70,8 +70,8 @@ RSpec.describe "Webhooks salientes", type: :request do
     end
   end
 
-  describe "GET .../deliveries y POST .../deliveries/:id/redeliver" do
-    it "lista las entregas y permite reenviar una" do
+  describe "GET .../deliveries and POST .../deliveries/:id/redeliver" do
+    it "lists the deliveries and lets you redeliver one" do
       owner = create(:membership, :owner)
       webhook = create(:outbound_webhook, team: owner.team)
       delivery = create(:outbound_delivery, team: owner.team, outbound_webhook: webhook, status: "failed", payload: { "event" => "ping" })
@@ -86,13 +86,13 @@ RSpec.describe "Webhooks salientes", type: :request do
     end
   end
 
-  describe "creación con un objetivo real dispara el webhook (integración end-to-end sin red)" do
-    it "objective.created llega a Webhooks::Enqueue" do
+  describe "creating a real objective fires the webhook (end-to-end integration with no network)" do
+    it "objective.created reaches Webhooks::Enqueue" do
       owner = create(:membership, :owner)
       create(:outbound_webhook, team: owner.team, events: [ "objective.created" ])
       sign_in_as(owner.user)
 
-      post "/api/v1/teams/#{owner.team.id}/objectives", params: { title: "Nuevo", priority: "must" }, headers: csrf_headers, as: :json
+      post "/api/v1/teams/#{owner.team.id}/objectives", params: { title: "New", priority: "must" }, headers: csrf_headers, as: :json
 
       expect(Webhooks::DeliverJob.jobs.size).to eq(1)
     end

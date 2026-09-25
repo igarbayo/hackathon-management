@@ -8,15 +8,15 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     body
   end
 
-  it "401 sin Authorization, con WWW-Authenticate apuntando a los metadatos" do
+  it "401 without Authorization, with WWW-Authenticate pointing to the metadata" do
     post "/api/v1/mcp", params: rpc("tools/list"), as: :json
 
     expect(response).to have_http_status(:unauthorized)
     expect(response.headers["WWW-Authenticate"]).to include("resource_metadata=")
   end
 
-  it "initialize devuelve protocolVersion, capabilities y un Mcp-Session-Id" do
-    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "completo").raw_token
+  it "initialize returns protocolVersion, capabilities and an Mcp-Session-Id" do
+    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "full").raw_token
 
     post "/api/v1/mcp", params: rpc("initialize", { clientInfo: { name: "claude-code", version: "1.0" }, protocolVersion: "2025-06-18" }),
                          headers: { "Authorization" => "Bearer #{token}" }, as: :json
@@ -27,8 +27,8 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(response.headers["Mcp-Session-Id"]).to be_present
   end
 
-  it "notifications/initialized (sin id) no lleva respuesta" do
-    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "completo").raw_token
+  it "notifications/initialized (no id) gets no response" do
+    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "full").raw_token
 
     post "/api/v1/mcp", params: rpc("notifications/initialized", nil, id: nil), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -36,8 +36,8 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(response.body).to be_blank
   end
 
-  it "tools/list solo devuelve lo que el token puede usar" do
-    token = Pat::Create.call(membership: create(:membership), name: "Solo lectura", preset: "observar").raw_token
+  it "tools/list only returns what the token can use" do
+    token = Pat::Create.call(membership: create(:membership), name: "Read only", preset: "observe").raw_token
 
     post "/api/v1/mcp", params: rpc("tools/list"), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -46,9 +46,9 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(names).not_to include("create_feature", "report_progress")
   end
 
-  it "tools/call de whoami funciona de punta a punta" do
+  it "tools/call for whoami works end to end" do
     membership = create(:membership)
-    token = Pat::Create.call(membership: membership, name: "Agente", preset: "completo").raw_token
+    token = Pat::Create.call(membership: membership, name: "Agente", preset: "full").raw_token
 
     post "/api/v1/mcp", params: rpc("tools/call", { name: "whoami", arguments: {} }), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -57,8 +57,8 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(text["team"]["id"]).to eq(membership.team.id.to_s)
   end
 
-  it "tools/call sin el scope necesario da un error de protocolo, no una llamada" do
-    token = Pat::Create.call(membership: create(:membership), name: "Solo lectura", preset: "observar").raw_token
+  it "tools/call without the required scope returns a protocol error, not a call" do
+    token = Pat::Create.call(membership: create(:membership), name: "Read only", preset: "observe").raw_token
 
     post "/api/v1/mcp", params: rpc("tools/call", { name: "create_feature", arguments: { title: "x" } }), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -66,8 +66,8 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(Feature.count).to eq(0)
   end
 
-  it "un error de dominio dentro de la herramienta vuelve como isError, no como error de protocolo" do
-    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "completo").raw_token
+  it "a domain error inside the tool comes back as isError, not as a protocol error" do
+    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "full").raw_token
 
     post "/api/v1/mcp", params: rpc("tools/call", { name: "get_feature", arguments: { key: "F-999" } }), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -76,16 +76,16 @@ RSpec.describe "POST /api/v1/mcp", type: :request do
     expect(json_response["result"]["content"].first["text"]).to include("F-999")
   end
 
-  it "herramienta desconocida da un error de protocolo" do
-    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "completo").raw_token
+  it "an unknown tool returns a protocol error" do
+    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "full").raw_token
 
     post "/api/v1/mcp", params: rpc("tools/call", { name: "no_existe", arguments: {} }), headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
     expect(json_response["error"]["code"]).to eq(-32602)
   end
 
-  it "aplica el rate limit de 120/min por token" do
-    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "completo").raw_token
+  it "applies the rate limit of 120/min per token" do
+    token = Pat::Create.call(membership: create(:membership), name: "Agente", preset: "full").raw_token
 
     120.times { post "/api/v1/mcp", params: rpc("tools/list"), headers: { "Authorization" => "Bearer #{token}" }, as: :json }
     post "/api/v1/mcp", params: rpc("tools/list"), headers: { "Authorization" => "Bearer #{token}" }, as: :json

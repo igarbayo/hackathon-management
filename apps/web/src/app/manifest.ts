@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { BRAND_COLOR, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
-// RF-UX-043: manifest de la web app con los iconos del logo (public/icons/).
+// RF-UX-043: web app manifest with the logo icons (public/icons/).
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: SITE_NAME,
     short_name: SITE_NAME,
     description: SITE_DESCRIPTION,
-    lang: "es",
+    lang: "en",
     start_url: "/",
     display: "standalone",
     background_color: "#FFFFFF",

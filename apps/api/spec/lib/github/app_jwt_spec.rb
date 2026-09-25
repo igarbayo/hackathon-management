@@ -11,7 +11,7 @@ RSpec.describe Github::AppJwt do
     ENV["GITHUB_APP_PRIVATE_KEY"] = original_key
   end
 
-  it "genera un JWT RS256 con iss, iat y exp <= 10 minutos" do
+  it "generates an RS256 JWT with iss, iat and exp <= 10 minutes" do
     token = described_class.generate
     payload, header = JWT.decode(token, described_class.private_key.public_key, true, algorithms: [ "RS256" ])
 

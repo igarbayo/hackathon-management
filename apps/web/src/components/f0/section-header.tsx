@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { cn } from "cn"
 
-/** Calcado de SectionHeader de F0: título de sección + acción opcional. */
+/** Copied from F0's SectionHeader: section title + optional action. */
 function SectionHeader({
   title,
   description,

@@ -1,7 +1,7 @@
-# RF-ATR-004/005. Ojo: el cuerpo trae un campo llamado "action", que en
-# Rails choca con params[:action] (el nombre de la acción del controlador,
-# que gana siempre en el merge). Por eso se lee del cuerpo crudo con
-# request.request_parameters en vez de con params[:action].
+# RF-ATR-004/005. Careful: the body has a field called "action", which in Rails
+# clashes with params[:action] (the controller action name, which always wins in
+# the merge). That is why it is read from the raw body with
+# request.request_parameters instead of params[:action].
 module Api
   module V1
     class ActivityAttributionsController < Api::V1::BaseController
@@ -25,7 +25,7 @@ module Api
 
       def bulk
         event_ids = Array(bulk_params["event_ids"])
-        raise ApiError::BadRequest.new(message: "máximo #{BULK_LIMIT} eventos") if event_ids.size > BULK_LIMIT
+        raise ApiError::BadRequest.new(message: "at most #{BULK_LIMIT} events") if event_ids.size > BULK_LIMIT
 
         action = bulk_params["action"]
         feature = find_feature_param(bulk_params["feature_id"])
@@ -54,7 +54,7 @@ module Api
 
       def find_event(id)
         ActivityEvent.where(team_id: current_team.id, id: id).first.tap do |event|
-          raise ApiError::NotFound.new(message: "evento no encontrado") unless event
+          raise ApiError::NotFound.new(message: "event not found") unless event
         end
       end
 
@@ -62,7 +62,7 @@ module Api
         return nil if feature_id.blank?
 
         Feature.where(team_id: current_team.id, id: feature_id).first.tap do |feature|
-          raise ApiError::NotFound.new(message: "feature no encontrada") unless feature
+          raise ApiError::NotFound.new(message: "feature not found") unless feature
         end
       end
     end

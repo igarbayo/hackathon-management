@@ -69,10 +69,10 @@ export function KanbanColumn({
           </div>
           <form onSubmit={handleQuickCreate} className="p-2 pt-0">
             <Input
-              placeholder="Nueva feature + Enter"
+              placeholder="New feature + Enter"
               value={quickTitle}
               onChange={(e) => setQuickTitle(e.target.value)}
-              aria-label={`Nueva feature en ${title}`}
+              aria-label={`New feature in ${title}`}
               className="bg-f1-background"
             />
           </form>

@@ -2,10 +2,10 @@ import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { paths } from "./paths";
 
-// La cola agrega por turno, de UserPromptSubmit a Stop
-// (08-integracion-claude-code.md#qué-recoge-cada-hook). Cada hook es un
-// proceso nuevo, así que el estado del turno en curso vive en disco,
-// indexado por session_id.
+// The queue groups by turn, from UserPromptSubmit to Stop
+// (08-integracion-claude-code.md#qué-recoge-cada-hook). Each hook is a new
+// process, so the state of the current turn lives on disk, indexed by
+// session_id.
 export interface TurnState {
   prompt_chars?: number;
   files: { path: string; tool: string }[];
@@ -45,7 +45,7 @@ export function closeTurn(sessionId: string): TurnState | null {
   try {
     unlinkSync(statePath(sessionId));
   } catch {
-    // no-op: puede que Stop llegue sin UserPromptSubmit previo
+    // no-op: Stop may arrive with no earlier UserPromptSubmit
   }
   return state;
 }

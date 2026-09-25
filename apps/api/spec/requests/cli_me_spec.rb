@@ -8,13 +8,13 @@ RSpec.describe "PATCH/DELETE /api/v1/cli/me", type: :request do
     membership.update!(claude_code_attributes: { token_digest: Digest::SHA256.hexdigest(raw_token), token_prefix: raw_token[0, 12], privacy_level: "metadata" })
   end
 
-  it "401 sin Authorization" do
+  it "401 without Authorization" do
     patch "/api/v1/cli/me", params: { paused: true }, as: :json
 
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "reanuda un enlace pausado con el mismo token (sin CSRF, no hay cookie)" do
+  it "resumes a paused link with the same token (no CSRF, there is no cookie)" do
     membership.claude_code.update!(paused: true)
 
     patch "/api/v1/cli/me", params: { paused: false }, headers: { "Authorization" => "Bearer #{raw_token}" }, as: :json
@@ -23,21 +23,21 @@ RSpec.describe "PATCH/DELETE /api/v1/cli/me", type: :request do
     expect(membership.reload.claude_code.paused).to be false
   end
 
-  it "cambia el nivel de privacidad" do
+  it "changes the privacy level" do
     patch "/api/v1/cli/me", params: { privacy_level: "summaries" }, headers: { "Authorization" => "Bearer #{raw_token}" }, as: :json
 
     expect(response).to have_http_status(:ok)
     expect(membership.reload.claude_code.privacy_level).to eq("summaries")
   end
 
-  it "hackboard uninstall: DELETE revoca el token" do
+  it "hackboard uninstall: DELETE revokes the token" do
     delete "/api/v1/cli/me", headers: { "Authorization" => "Bearer #{raw_token}" }
 
     expect(response).to have_http_status(:no_content)
     expect(membership.reload.claude_code).to be_nil
   end
 
-  it "DELETE ?purge=true borra también los eventos propios" do
+  it "DELETE ?purge=true also deletes your own events" do
     event = create(:activity_event, :claude_turn, team: membership.team, actor: { "membership_id" => membership.id.to_s })
 
     delete "/api/v1/cli/me?purge=true", headers: { "Authorization" => "Bearer #{raw_token}" }
@@ -46,7 +46,7 @@ RSpec.describe "PATCH/DELETE /api/v1/cli/me", type: :request do
     expect(ActivityEvent.where(id: event.id).first).to be_nil
   end
 
-  it "DELETE ?purge=true borra también los eventos de mcp (RF-SEC-002), no solo los de claude_code" do
+  it "DELETE ?purge=true also deletes mcp events (RF-SEC-002), not only claude_code ones" do
     mcp_event = create(
       :activity_event,
       team: membership.team,

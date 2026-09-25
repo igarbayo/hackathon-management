@@ -1,7 +1,7 @@
-# Guarda el clientInfo.name del `initialize` (recortado a 40 caracteres,
-# 12-acceso-programatico.md#servidor-mcp) bajo un Mcp-Session-Id para poder
-# usarlo como via.client en las llamadas a tools/call de esa misma sesión.
-# Dato informativo y no confiable: nunca se usa para autorizar nada.
+# Stores the clientInfo.name from `initialize` (cut to 40 characters,
+# 12-acceso-programatico.md#servidor-mcp) under an Mcp-Session-Id so it can be
+# used as via.client in the tools/call calls of that same session. Informational
+# and untrusted data: it is never used to authorize anything.
 module Mcp
   module SessionStore
     TTL = 4.hours

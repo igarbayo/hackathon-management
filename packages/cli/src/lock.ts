@@ -1,9 +1,9 @@
 import { existsSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { ensureConfigDir, paths } from "./paths";
 
-// "Un lock de fichero evita que haya dos flush a la vez" (08-integracion-claude-code.md).
-// Basado en la edad del fichero, no en comprobar el PID: es más simple y
-// suficiente para el volumen de un CLI de hooks.
+// "A file lock keeps two flushes from running at once" (08-integracion-claude-code.md).
+// Based on the file age, not on checking the PID: it is simpler and enough for the volume
+// of a hooks CLI.
 const STALE_MS = 5 * 60 * 1000;
 
 export function acquireLock(): boolean {

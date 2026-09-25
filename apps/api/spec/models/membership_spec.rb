@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Membership, type: :model do
-  it "no permite que el mismo usuario tenga dos membresías en el mismo equipo" do
+  it "does not allow the same user to have two memberships in the same team" do
     team = create(:team)
     user = create(:user)
     create(:membership, team: team, user: user)
@@ -11,15 +11,15 @@ RSpec.describe Membership, type: :model do
     expect(duplicate).not_to be_valid
   end
 
-  it "usa el nombre del usuario como display_name por defecto" do
+  it "uses the user's name as display_name by default" do
     user = create(:user, name: "Grace Hopper")
     membership = create(:membership, user: user, display_name: nil)
 
     expect(membership.display_name).to eq("Grace Hopper")
   end
 
-  describe "invariante: siempre hay al menos un owner" do
-    it "no deja bajar de categoría al último owner" do
+  describe "invariant: there is always at least one owner" do
+    it "does not let the last owner be demoted" do
       team = create(:team)
       owner = create(:membership, :owner, team: team)
 
@@ -29,14 +29,14 @@ RSpec.describe Membership, type: :model do
       expect(owner.errors[:role]).to be_present
     end
 
-    it "no deja eliminar al último owner" do
+    it "does not let the last owner be removed" do
       team = create(:team)
       owner = create(:membership, :owner, team: team)
 
       expect(owner.destroy).to be false
     end
 
-    it "sí deja degradar a un owner si hay otro" do
+    it "lets an owner be demoted if there is another one" do
       team = create(:team)
       owner_a = create(:membership, :owner, team: team)
       create(:membership, :owner, team: team)
@@ -46,7 +46,7 @@ RSpec.describe Membership, type: :model do
       expect(owner_a).to be_valid
     end
 
-    it "sí deja eliminar a un owner si hay otro" do
+    it "lets an owner be removed if there is another one" do
       team = create(:team)
       owner_a = create(:membership, :owner, team: team)
       create(:membership, :owner, team: team)
@@ -55,14 +55,14 @@ RSpec.describe Membership, type: :model do
     end
   end
 
-  describe "ClaudeCodeLink embebido" do
-    it "es nil por defecto" do
+  describe "embedded ClaudeCodeLink" do
+    it "is nil by default" do
       membership = create(:membership)
 
       expect(membership.claude_code).to be_nil
     end
 
-    it "exige token_digest y token_prefix cuando existe" do
+    it "requires token_digest and token_prefix when it exists" do
       membership = build(:membership)
       membership.build_claude_code(privacy_level: "metadata")
 
@@ -71,8 +71,8 @@ RSpec.describe Membership, type: :model do
     end
   end
 
-  describe "al salir o ser expulsado (RF-TEAM-008)" do
-    it "revoca sus tokens de ese equipo y borra sus grants OAuth" do
+  describe "when leaving or being removed (RF-TEAM-008)" do
+    it "revokes their tokens for that team and deletes their OAuth grants" do
       membership = create(:membership)
       pat = create(:access_token, team: membership.team, membership: membership)
       grant = create(:oauth_grant, team: membership.team, user: membership.user, membership: membership)

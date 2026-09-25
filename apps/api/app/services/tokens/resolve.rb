@@ -1,11 +1,11 @@
-# Resuelve cualquier Bearer de la API de dominio (no la ingesta de Claude
-# Code, que tiene su propio TokenAuthentication) a un miembro/equipo/scopes,
-# sea cual sea su prefijo (12-acceso-programatico.md#tipos-de-token).
+# Resolves any Bearer of the domain API (not the Claude Code ingest, which has
+# its own TokenAuthentication) to a member/team/scopes, whatever its prefix
+# (12-acceso-programatico.md#tipos-de-token).
 module Tokens
   Resolved = Struct.new(:kind, :team, :membership, :scopes, :token_record, :token_prefix, :client_name, keyword_init: true) do
-    # client_name lo rellena Mcp::Dispatch a partir del initialize de esa
-    # sesión (12-acceso-programatico.md#servidor-mcp); dato informativo, no
-    # se usa nunca para autorizar.
+    # Mcp::Dispatch fills in client_name from that session's initialize
+    # (12-acceso-programatico.md#servidor-mcp); informational data, never used
+    # to authorize.
     def via(channel:, client: nil)
       { "channel" => channel, "token_kind" => kind, "token_id" => token_record&.id&.to_s, "token_prefix" => token_prefix, "client" => client || client_name }
     end
@@ -17,13 +17,13 @@ module Tokens
     INTEGRATION_PREFIX = "hb_it_"
     OAUTH_PREFIX = "hb_oat_"
 
-    # Scopes fijos del token de miembro (12-acceso-programatico.md#tipos-de-token):
-    # CLI de hooks y MCP básico.
+    # Fixed scopes of the member token (12-acceso-programatico.md#tipos-de-token):
+    # hooks CLI and basic MCP.
     MEMBER_SCOPES = %w[ingest read progress:write].freeze
 
-    # expected_resource (RFC 8707, RNF-SEC-015): solo lo comprueban los
-    # tokens OAuth, que están ligados a un recurso concreto. Los demás
-    # prefijos ya sirven solo a su propio uso (CLI, PAT del equipo…).
+    # expected_resource (RFC 8707, RNF-SEC-015): only OAuth tokens check it,
+    # since they are tied to a specific resource. The other prefixes already
+    # serve only their own use (CLI, team PAT…).
     def self.call(raw_token, expected_resource: nil)
       return nil if raw_token.blank?
 
@@ -31,9 +31,10 @@ module Tokens
       usable?(resolved) ? resolved : nil
     end
 
-    # Aunque borrar un equipo o una membresía ya revoca sus tokens, un token
-    # de un equipo borrado o de una persona que ya no es miembro nunca vale:
-    # sin membresía, un PAT u OAuth actuaría como si fuera del equipo entero.
+    # Even though deleting a team or a membership already revokes its tokens, a
+    # token from a deleted team or from someone who is no longer a member is
+    # never valid: with no membership, a PAT or OAuth token would act as if it
+    # were the whole team.
     def self.usable?(resolved)
       return false unless resolved&.team && !resolved.team.deleted?
 
@@ -90,7 +91,7 @@ module Tokens
     end
     private_class_method :resolve_oauth
 
-    # Resolución de 1 min (RF-API-003): no escribe en cada petición.
+    # 1 min resolution (RF-API-003): it does not write on every request.
     def self.touch_last_used(token)
       return if token.last_used_at && token.last_used_at > 1.minute.ago
 

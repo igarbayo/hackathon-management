@@ -1,6 +1,6 @@
-# Device flow del CLI (RF-CC-001, RF-CC-002). Sin team_id/membership_id
-# hasta que se aprueba: como User/Session/OAuthClient, es una excepción
-# puntual a la regla multi-tenant mientras está pending.
+# CLI device flow (RF-CC-001, RF-CC-002). No team_id/membership_id until it is
+# approved: like User/Session/OAuthClient, it is a one-off exception to the
+# multi-tenant rule while it is pending.
 class DeviceAuthorization
   include Mongoid::Document
   include Mongoid::Timestamps

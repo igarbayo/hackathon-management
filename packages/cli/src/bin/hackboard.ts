@@ -12,19 +12,19 @@ import { log } from "../log";
 
 function printHelp(): void {
   process.stdout.write(`${CLI_NAME} ${CLI_VERSION}\n`);
-  process.stdout.write("Comandos: init, status, pause, resume, privacy <metadata|summaries|off>, test, uninstall [--purge]\n");
+  process.stdout.write("Commands: init, status, pause, resume, privacy <metadata|summaries|off>, test, uninstall [--purge]\n");
 }
 
 async function main(argv: string[]): Promise<void> {
   const [command, ...rest] = argv;
 
-  // RNF-CC-001: hook y flush nunca bloquean ni rompen Claude Code, nunca
-  // escriben en stdout, y siempre salen con código 0. Los errores van al log.
+  // RNF-CC-001: hook and flush never block or break Claude Code, never write to
+  // stdout, and always exit with code 0. Errors go to the log.
   if (command === "hook") {
     try {
       runHook(rest[0]);
     } catch (error) {
-      log(`error en hook ${rest[0]}: ${(error as Error).message}`);
+      log(`hook error ${rest[0]}: ${(error as Error).message}`);
     }
     return;
   }
@@ -33,7 +33,7 @@ async function main(argv: string[]): Promise<void> {
     try {
       await runFlush();
     } catch (error) {
-      log(`error en flush: ${(error as Error).message}`);
+      log(`flush error: ${(error as Error).message}`);
     }
     return;
   }

@@ -55,7 +55,7 @@ module Api
         feature = find_feature
 
         if ActivityEvent.where(team_id: current_team.id, "attribution.feature_id" => feature.id).exists?
-          raise ApiError::Conflict.new(message: "tiene eventos atribuidos, hay que descartarla (status: discarded) en vez de borrarla")
+          raise ApiError::Conflict.new(message: "it has attributed events, drop it (status: discarded) instead of deleting it")
         end
 
         feature.destroy!

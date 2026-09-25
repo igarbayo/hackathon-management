@@ -48,7 +48,7 @@ module Api
         require_owner!
 
         unless params[:confirm_name] == current_team.name
-          raise ApiError::BadRequest.new(message: "hay que escribir el nombre del equipo para confirmar")
+          raise ApiError::BadRequest.new(message: "type the team name to confirm")
         end
 
         current_team.soft_delete!

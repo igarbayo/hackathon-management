@@ -1,5 +1,6 @@
-# Paginación por cursor descendente por (occurred_at, _id), tal como pide
-# 03-api.md#convenciones-generales: { data: [...], next_cursor: "…" | null }.
+# Descending cursor pagination by (occurred_at, _id), as
+# 03-api.md#convenciones-generales asks: { data: [...], next_cursor: "…" | null
+# }.
 module CursorPage
   module_function
 

@@ -1,6 +1,6 @@
-# RF-GH-023: al vincular un repo se importa el histórico reciente. Alcance:
-# los commits de la rama por defecto desde hackathon.starts_at (máx. 200) y
-# los PRs abiertos. RNF-GH-003: también sirve para "Resincronizar".
+# RF-GH-023: linking a repo imports its recent history. Scope: commits on the
+# default branch since hackathon.starts_at (max. 200) and open PRs. RNF-GH-003:
+# it is also used for "Resync".
 module Github
   class ImportHistoryJob
     include Sidekiq::Job

@@ -1,6 +1,6 @@
-# Contador de ventana fija en Redis. No pretende ser exacto al límite (una
-# ventana fija permite ráfagas en el borde), pero es suficiente para frenar
-# fuerza bruta y enumeración (03-api.md, RNF-API-001).
+# Fixed-window counter in Redis. It does not try to be exact at the limit (a
+# fixed window allows bursts at the edge), but it is enough to stop brute force
+# and enumeration (03-api.md, RNF-API-001).
 module RateLimiter
   class LimitExceeded < StandardError
     attr_reader :retry_after

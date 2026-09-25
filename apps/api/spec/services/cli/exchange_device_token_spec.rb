@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Cli::ExchangeDeviceToken do
-  it "authorization_pending si todavía no se ha aprobado" do
+  it "authorization_pending if it has not been approved yet" do
     creation = Cli::CreateDeviceAuthorization.call
 
     result = described_class.call(device_code: creation.device_code)
@@ -9,7 +9,7 @@ RSpec.describe Cli::ExchangeDeviceToken do
     expect(result.outcome).to eq(:authorization_pending)
   end
 
-  it "access_denied si se rechazó" do
+  it "access_denied if it was denied" do
     creation = Cli::CreateDeviceAuthorization.call
     creation.record.update!(status: "denied")
 
@@ -18,7 +18,7 @@ RSpec.describe Cli::ExchangeDeviceToken do
     expect(result.outcome).to eq(:access_denied)
   end
 
-  it "expired_token si pasaron los 15 minutos" do
+  it "expired_token if the 15 minutes have passed" do
     creation = Cli::CreateDeviceAuthorization.call
     creation.record.update!(expires_at: 1.minute.ago)
 
@@ -27,13 +27,13 @@ RSpec.describe Cli::ExchangeDeviceToken do
     expect(result.outcome).to eq(:expired_token)
   end
 
-  it "invalid_grant si el device_code no existe" do
-    result = described_class.call(device_code: "no-existe")
+  it "invalid_grant if the device_code does not exist" do
+    result = described_class.call(device_code: "does-not-exist")
 
     expect(result.outcome).to eq(:invalid_grant)
   end
 
-  it "mintea un token hb_mt_ una sola vez y guarda solo su hash" do
+  it "mints an hb_mt_ token only once and stores only its hash" do
     creation = Cli::CreateDeviceAuthorization.call
     membership = create(:membership)
     creation.record.update!(status: "approved", team: membership.team, membership: membership, privacy_level: "metadata")

@@ -1,5 +1,5 @@
-# Construye el contexto que se envía a la IA (06-analisis-ia.md#construcción-del-contexto-analysisbuildcontext).
-# Solo texto y metadatos. Nunca diffs, contenido de ficheros ni prompts.
+# Builds the context sent to the AI (06-analisis-ia.md#construcción-del-contexto-analysisbuildcontext). Only
+# text and metadata. Never diffs, file contents or prompts.
 module Analysis
   class BuildContext
     CHALLENGE_TEXT_LIMIT = 6_000

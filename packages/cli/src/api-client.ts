@@ -23,7 +23,7 @@ export async function createDevice(teamCode?: string): Promise<DeviceAuthorizati
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(teamCode ? { team_code: teamCode } : {}),
   });
-  if (!response.ok) throw new Error(`No se ha podido iniciar el device flow (${response.status})`);
+  if (!response.ok) throw new Error(`Could not start the device flow (${response.status})`);
   return parseJson<DeviceAuthorization>(response);
 }
 
@@ -51,7 +51,7 @@ export interface CliConfigResponse {
 
 export async function fetchConfig(token: string): Promise<CliConfigResponse> {
   const response = await fetch(`${apiBaseUrl()}/api/v1/cli/config`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!response.ok) throw new Error(`No se ha podido descargar /cli/config (${response.status})`);
+  if (!response.ok) throw new Error(`Could not download /cli/config (${response.status})`);
   return parseJson<CliConfigResponse>(response);
 }
 
@@ -79,7 +79,7 @@ export async function updateMyLink(token: string, params: { privacy_level?: stri
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(params),
   });
-  if (!response.ok) throw new Error(`No se ha podido sincronizar con el servidor (${response.status})`);
+  if (!response.ok) throw new Error(`Could not sync with the server (${response.status})`);
 }
 
 export async function revokeMyLink(token: string, purge: boolean): Promise<void> {

@@ -9,8 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { Feature } from "@/types/api";
 import type { Attribution } from "@/types/activity";
 
-// RF-ACT-012: confirmada (sólido), sugerida (borde discontinuo, con ✓/✗ y
-// el motivo en un tooltip) o sin atribuir (Asignar a…).
+// RF-ACT-012: confirmed (solid), suggested (dashed border, with ✓/✗ and the
+// reason in a tooltip) or unattributed (Assign to…).
 export function AttributionChip({
   attribution,
   features,
@@ -47,10 +47,10 @@ export function AttributionChip({
         ) : (
           suggestedBadge
         )}
-        <Button variant="ghost" size="icon-xs" aria-label="Confirmar" onClick={onConfirm}>
+        <Button variant="ghost" size="icon-xs" aria-label="Confirm" onClick={onConfirm}>
           <CheckIcon className="size-3.5" />
         </Button>
-        <Button variant="ghost" size="icon-xs" aria-label="Rechazar" onClick={onReject}>
+        <Button variant="ghost" size="icon-xs" aria-label="Reject" onClick={onReject}>
           <XIcon className="size-3.5" />
         </Button>
       </div>
@@ -66,7 +66,7 @@ export function AttributionChip({
         }}
       >
         <SelectTrigger className="h-6 w-32 text-sm" data-size="sm">
-          <SelectValue placeholder="Elige…" />
+          <SelectValue placeholder="Choose…" />
         </SelectTrigger>
         <SelectContent>
           {features.map((f) => (
@@ -81,7 +81,7 @@ export function AttributionChip({
 
   return (
     <Button variant="outline" size="xs" onClick={() => setAssigning(true)}>
-      Asignar a…
+      Assign to…
     </Button>
   );
 }

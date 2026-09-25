@@ -1,6 +1,6 @@
-# Lanza Activity::ClaimForMembership al crear una membresía, al cambiar el
-# login de GitHub o el email de la persona, o al añadir git_identities
-# (07-integracion-github.md#mapeo-de-autores). Idempotente.
+# Runs Activity::ClaimForMembership when a membership is created, when the
+# person's GitHub login or email changes, or when git_identities are added
+# (07-integracion-github.md#mapeo-de-autores). Idempotent.
 module Activity
   class ClaimForMembershipJob
     include Sidekiq::Job

@@ -1,4 +1,4 @@
-# X-Hackboard-Signature-256: sha256=HMAC(secreto, timestamp + "." + cuerpo)
+# X-Hackboard-Signature-256: sha256=HMAC(secret, timestamp + "." + body)
 # (12-acceso-programatico.md#webhooks-salientes).
 module Webhooks
   module Sign

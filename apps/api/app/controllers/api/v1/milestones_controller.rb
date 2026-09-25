@@ -40,7 +40,7 @@ module Api
 
       def find_milestone
         Milestone.where(team_id: current_team.id, id: params[:id]).first.tap do |milestone|
-          raise ApiError::NotFound.new(message: "milestone no encontrado") unless milestone
+          raise ApiError::NotFound.new(message: "milestone not found") unless milestone
         end
       end
 

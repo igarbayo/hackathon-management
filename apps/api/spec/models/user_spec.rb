@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
-  it "requiere email y nombre" do
+  it "requires email and name" do
     user = User.new
 
     expect(user).not_to be_valid
@@ -9,12 +9,12 @@ RSpec.describe User, type: :model do
     expect(user.errors[:name]).to be_present
   end
 
-  it "guarda el email en minúsculas" do
+  it "stores the email in lowercase" do
     user = create(:user, email: "ADA@Example.com")
     expect(user.email).to eq("ada@example.com")
   end
 
-  it "no permite emails repetidos" do
+  it "does not allow repeated emails" do
     create(:user, email: "dup@example.com")
     duplicate = build(:user, email: "dup@example.com")
 
@@ -22,26 +22,26 @@ RSpec.describe User, type: :model do
     expect(duplicate.errors[:email]).to be_present
   end
 
-  it "exige contraseña, GitHub o Google para poder autenticar" do
+  it "requires a password, GitHub or Google to be able to authenticate" do
     user = build(:user, password: nil, github_uid: nil, google_sub: nil)
 
     expect(user).not_to be_valid
     expect(user.errors[:base]).to be_present
   end
 
-  describe "longitud máxima de la contraseña (límite de bcrypt)" do
-    it "acepta 72 bytes" do
+  describe "maximum password length (bcrypt limit)" do
+    it "accepts 72 bytes" do
       expect(build(:user, password: "a" * 72)).to be_valid
     end
 
-    it "rechaza más de 72 bytes" do
+    it "rejects more than 72 bytes" do
       user = build(:user, password: "a" * 73)
 
       expect(user).not_to be_valid
       expect(user.errors[:password]).to be_present
     end
 
-    it "cuenta bytes, no caracteres" do
+    it "counts bytes, not characters" do
       user = build(:user, password: "ñ" * 37)
 
       expect(user).not_to be_valid
@@ -49,20 +49,20 @@ RSpec.describe User, type: :model do
     end
   end
 
-  it "es válido solo con github_uid, sin contraseña" do
+  it "is valid with only github_uid, no password" do
     user = build(:user, password: nil, github_uid: 12_345)
 
     expect(user).to be_valid
   end
 
-  it "permite muchos usuarios sin github_uid (índice disperso)" do
+  it "allows many users with no github_uid (sparse index)" do
     create(:user, github_uid: nil)
     other = build(:user, github_uid: nil)
 
     expect(other).to be_valid
   end
 
-  it "no permite dos usuarios con el mismo github_uid" do
+  it "does not allow two users with the same github_uid" do
     create(:user, github_uid: 42)
     duplicate = build(:user, github_uid: 42)
 
@@ -70,7 +70,7 @@ RSpec.describe User, type: :model do
   end
 
   describe "#gemini_api_key" do
-    it "se guarda cifrada y se descifra de vuelta al leerla" do
+    it "is stored encrypted and decrypted back when read" do
       user = create(:user)
 
       user.gemini_api_key = "fake-gemini-key"
@@ -82,14 +82,14 @@ RSpec.describe User, type: :model do
       expect(user.gemini_api_key_configured?).to be true
     end
 
-    it "sin clave, no está configurada" do
+    it "with no key, it is not set up" do
       user = create(:user)
 
       expect(user.gemini_api_key).to be_nil
       expect(user.gemini_api_key_configured?).to be false
     end
 
-    it "se puede quitar asignando un valor en blanco" do
+    it "can be removed by assigning a blank value" do
       user = create(:user)
       user.update!(gemini_api_key: "fake-gemini-key")
 
@@ -100,7 +100,7 @@ RSpec.describe User, type: :model do
   end
 
   describe "#remember_last_team!" do
-    it "guarda el equipo como el último abierto" do
+    it "stores the team as the last opened one" do
       user = create(:user)
       team = create(:team)
 
@@ -109,7 +109,7 @@ RSpec.describe User, type: :model do
       expect(user.reload.last_team_id).to eq(team.id)
     end
 
-    it "no escribe si ya era ese equipo" do
+    it "does not write if it was already that team" do
       team = create(:team)
       user = create(:user, last_team_id: team.id)
 

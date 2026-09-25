@@ -1,6 +1,6 @@
 # 03 · API
 
-> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-23
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-25
 
 ## Convenciones generales
 
@@ -18,8 +18,10 @@
 ### Formato de error
 
 ```json
-{ "error": { "code": "validation_failed", "message": "Título obligatorio", "details": { "title": ["can't be blank"] } } }
+{ "error": { "code": "validation_failed", "message": "Title can't be blank", "details": { "title": ["can't be blank"] } } }
 ```
+
+`message` va siempre en inglés sencillo, pensado para mostrárselo tal cual a una persona (la web lo hace en sus formularios); un cliente que tenga que reaccionar a un error concreto decide por `code`, nunca por el texto. Lo mismo aplica a los errores de las herramientas MCP y a las descripciones de las herramientas (RNF-UI-013).
 
 | HTTP | `code` |
 |------|--------|

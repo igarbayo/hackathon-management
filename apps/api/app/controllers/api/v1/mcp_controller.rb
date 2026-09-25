@@ -1,7 +1,7 @@
-# POST /api/v1/mcp (RF-MCP-001). Streamable HTTP: una respuesta JSON por
-# petición JSON-RPC. Bearer hb_mt_/hb_pat_/hb_it_/hb_oat_. No hereda de
-# Api::V1::BaseController: no exige CSRF, igual que el resto de endpoints
-# solo-Bearer (RNF-SEC-003).
+# POST /api/v1/mcp (RF-MCP-001). Streamable HTTP: one JSON response per JSON-RPC
+# request. Bearer hb_mt_/hb_pat_/hb_it_/hb_oat_. It does not inherit from
+# Api::V1::BaseController: it does not require CSRF, like the other Bearer-only
+# endpoints (RNF-SEC-003).
 module Api
   module V1
     class McpController < ApplicationController
@@ -35,11 +35,11 @@ module Api
         token = header&.start_with?("Bearer ") ? header.delete_prefix("Bearer ") : nil
 
         if token.blank?
-          return unauthenticated!("falta el token")
+          return unauthenticated!("missing token")
         end
 
         @resolved_token = Tokens::Resolve.call(token, expected_resource: "#{ENV.fetch('API_URL', '')}/api/v1/mcp")
-        return unauthenticated!("token inválido o revocado") unless @resolved_token
+        return unauthenticated!("invalid or revoked token") unless @resolved_token
 
         @team = @resolved_token.team
         @membership = @resolved_token.membership
@@ -50,8 +50,8 @@ module Api
         render json: { error: { code: "unauthenticated", message: message } }, status: :unauthorized
       end
 
-      # RNF-API-001: mismo límite que el resto de la API con token. Deja que
-      # ApplicationController#render_rate_limited (rescue_from) dé el 429.
+      # RNF-API-001: same limit as the rest of the API with a token. It lets
+      # ApplicationController#render_rate_limited (rescue_from) return the 429.
       def enforce_mcp_rate_limit!
         return unless @resolved_token
 

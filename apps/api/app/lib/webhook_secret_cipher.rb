@@ -1,8 +1,8 @@
-# Cifra los secretos de firma de OutboundWebhook con WEBHOOK_SECRETS_KEY
-# (01-arquitectura.md#configuración-variables-de-entorno). Hace falta poder
-# recuperar el secreto en claro para firmar cada entrega, así que se cifra
-# en vez de guardar solo un hash. Usa AES-256-GCM directamente (en vez de
-# ActiveSupport::MessageEncryptor) para no depender de su formato de mensaje.
+# Encrypts the OutboundWebhook signing secrets with WEBHOOK_SECRETS_KEY
+# (01-arquitectura.md#configuración-variables-de-entorno). The plain secret must
+# be recoverable to sign each delivery, so it is encrypted instead of storing
+# only a hash. It uses AES-256-GCM directly (instead of
+# ActiveSupport::MessageEncryptor) so it does not depend on its message format.
 module WebhookSecretCipher
   class MissingKeyError < StandardError; end
 
@@ -38,7 +38,7 @@ module WebhookSecretCipher
 
   def key
     raw_key = ENV.fetch("WEBHOOK_SECRETS_KEY") do
-      raise MissingKeyError, "Falta la variable de entorno WEBHOOK_SECRETS_KEY"
+      raise MissingKeyError, "Missing environment variable WEBHOOK_SECRETS_KEY"
     end
 
     Digest::SHA256.digest(raw_key)

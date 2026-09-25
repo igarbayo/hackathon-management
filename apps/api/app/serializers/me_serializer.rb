@@ -1,4 +1,4 @@
-# RF-AUTH-005: usuario, membresías (equipo y rol) y last_team_id.
+# RF-AUTH-005: user, memberships (team and role) and last_team_id.
 class MeSerializer
   def initialize(user)
     @user = user

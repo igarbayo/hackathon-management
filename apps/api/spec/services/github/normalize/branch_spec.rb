@@ -4,7 +4,7 @@ RSpec.describe Github::Normalize::Branch do
   let(:team) { create(:team) }
   let(:repository) { create(:repository, team: team) }
 
-  it "crea branch_created para ref_type branch" do
+  it "creates branch_created for ref_type branch" do
     described_class.call(team: team, repository: repository, kind: "branch_created",
                           payload: { "ref" => "f-12-login", "ref_type" => "branch", "sender" => { "login" => "octocat" } })
 
@@ -13,7 +13,7 @@ RSpec.describe Github::Normalize::Branch do
     expect(event.branch).to eq("f-12-login")
   end
 
-  it "ignora ref_type tag" do
+  it "ignores ref_type tag" do
     described_class.call(team: team, repository: repository, kind: "branch_created",
                           payload: { "ref" => "v1.0.0", "ref_type" => "tag" })
 

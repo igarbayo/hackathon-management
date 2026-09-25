@@ -1,7 +1,7 @@
-# POST /cli/device/token (RF-CC-001). Sigue la semántica de errores de
-# RFC 8628 (authorization_pending / access_denied / expired_token /
-# invalid_grant) porque es lo que hackboard (el CLI) espera parsear, a
-# diferencia del resto de la API que usa el formato de ApiError.
+# POST /cli/device/token (RF-CC-001). It follows RFC 8628's error semantics
+# (authorization_pending / access_denied / expired_token / invalid_grant)
+# because that is what hackboard (the CLI) expects to parse, unlike the rest of
+# the API, which uses the ApiError format.
 module Cli
   class ExchangeDeviceToken
     Result = Struct.new(:outcome, :token, :team, :membership, keyword_init: true)

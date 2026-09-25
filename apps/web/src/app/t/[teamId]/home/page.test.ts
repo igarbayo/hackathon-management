@@ -24,19 +24,19 @@ function feature(status: Feature["status"]): Feature {
 }
 
 describe("progressByStatus", () => {
-  it("no cuenta discarded en el total", () => {
+  it("does not count discarded in the total", () => {
     const result = progressByStatus([feature("done"), feature("discarded")]);
     expect(result.total).toBe(1);
     expect(result.donePercent).toBe(100);
   });
 
-  it("devuelve 0% sin features contables" , () => {
+  it("returns 0% with no countable features", () => {
     const result = progressByStatus([feature("discarded")]);
     expect(result.donePercent).toBe(0);
     expect(result.total).toBe(0);
   });
 
-  it("calcula el porcentaje redondeado" , () => {
+  it("works out the rounded percentage", () => {
     const result = progressByStatus([feature("done"), feature("in_progress"), feature("idea")]);
     expect(result.donePercent).toBe(33);
   });

@@ -18,8 +18,8 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
-// El backend exige X-CSRF-Token en toda petición que cambia estado
-// (03-api.md#convenciones-generales). Se cachea en memoria por pestaña.
+// The backend requires X-CSRF-Token on every request that changes state
+// (03-api.md#convenciones-generales). It is cached in memory per tab.
 let csrfTokenPromise: Promise<string> | null = null;
 
 async function fetchCsrfToken(): Promise<string> {

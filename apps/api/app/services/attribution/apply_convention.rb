@@ -1,13 +1,13 @@
-# Capa 1 (RF-ATR-001): F-n explícita en el título/resumen del evento o en la
-# rama. Devuelve las claves mencionadas y, si alguna es válida (existe en el
-# equipo y no está discarded), la feature a la que atribuir.
+# Layer 1 (RF-ATR-001): an explicit F-n in the event's title/summary or in the
+# branch. Returns the mentioned keys and, if any is valid (it exists in the team
+# and is not discarded), the feature to attribute to.
 module Attribution
   class ApplyConvention
-    # 05-atribucion.md#capa-1 da esta regex con `(?![0-9])` al final, pero esa
-    # variante SÍ matchea "F-123a" (extrae 123), contradiciendo el propio
-    # texto de la spec ("No acepta... F-123a"). Se amplía el lookahead a
-    # `(?![0-9A-Za-z])` para que rechace también letras pegadas, que es lo
-    # que la spec dice en prosa. Ver specs/CHANGELOG.md.
+    # 05-atribucion.md#capa-1 gives this regex with `(?![0-9])` at the end, but
+    # that version DOES match "F-123a" (it extracts 123), which contradicts the
+    # spec's own text ("It does not accept... F-123a"). The lookahead is widened
+    # to `(?![0-9A-Za-z])` so it also rejects attached letters, which is what
+    # the spec says in prose. See specs/CHANGELOG.md.
     KEY_PATTERN = /(?<![A-Za-z0-9])[Ff]-(\d{1,5})(?![0-9A-Za-z])/
 
     Result = Struct.new(:feature, :mentioned_keys, keyword_init: true)

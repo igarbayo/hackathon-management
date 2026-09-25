@@ -1,5 +1,5 @@
-# Metadatos públicos, sin auth (RFC 8414, RFC 9728). Los usan los clientes
-# MCP para descubrir cómo autenticarse (12-acceso-programatico.md#oauth-21).
+# Public metadata, no auth (RFC 8414, RFC 9728). MCP clients use it to find out
+# how to authenticate (12-acceso-programatico.md#oauth-21).
 module OAuth
   class DiscoveryController < ApplicationController
     def authorization_server

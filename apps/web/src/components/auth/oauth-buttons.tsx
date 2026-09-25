@@ -4,22 +4,22 @@ import { GitHubLogo, GoogleLogo } from "./provider-logos";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-// RF-AUTH-010: "Continuar con Google" y "Continuar con GitHub" encima del
-// formulario de email. Es una navegación de página completa (no fetch):
-// el servidor tiene que ver la petición para fijar el state firmado.
-// Se estiliza el <a> directamente en vez de envolverlo en Button: Base UI
-// desaconseja renderizar enlaces a través del botón (tienen semántica propia).
-// Cada botón lleva el logo del proveedor delante del texto, como es habitual.
+// RF-AUTH-010: "Continue with Google" and "Continue with GitHub" above the
+// email form. It is a full page navigation (not fetch): the server has to see
+// the request to set the signed state.
+// The <a> is styled directly instead of wrapping it in Button: Base UI advises
+// against rendering links through the button (they have their own semantics).
+// Each button shows the provider logo before the text, as usual.
 export function OAuthButtons() {
   return (
     <div className="flex flex-col gap-2">
       <a href={`${API_URL}/api/v1/auth/google`} className={cn(buttonVariants({ variant: "outline" }))}>
         <GoogleLogo />
-        Continuar con Google
+        Continue with Google
       </a>
       <a href={`${API_URL}/api/v1/auth/github`} className={cn(buttonVariants({ variant: "outline" }))}>
         <GitHubLogo />
-        Continuar con GitHub
+        Continue with GitHub
       </a>
     </div>
   );

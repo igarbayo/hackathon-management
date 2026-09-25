@@ -1,7 +1,7 @@
-# POST /cli/device y /cli/device/token (RF-CC-001). Sin sesión ni Bearer:
-# no hereda de Api::V1::BaseController para no exigir X-CSRF-Token, que el
-# CLI no tiene forma de obtener (RNF-SEC-003 solo pide CSRF en endpoints de
-# sesión).
+# POST /cli/device and /cli/device/token (RF-CC-001). No session or Bearer: it
+# does not inherit from Api::V1::BaseController so it does not require
+# X-CSRF-Token, which the CLI has no way to get (RNF-SEC-003 only asks for CSRF
+# on session endpoints).
 module Api
   module V1
     module Cli

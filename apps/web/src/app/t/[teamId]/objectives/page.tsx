@@ -83,17 +83,17 @@ export default function ObjectivesPage({ params }: { params: Promise<{ teamId: s
     <div className="flex flex-col gap-6">
       <PageHeader
         icon={TargetIcon}
-        title="Objetivos"
+        title="Objectives"
         actions={
           <label className="flex items-center gap-2 text-sm text-f1-foreground-secondary">
             <Switch size="sm" checked={showArchived} onCheckedChange={setShowArchived} />
-            Mostrar archivados
+            Show archived
           </label>
         }
       />
 
       {visible.length === 0 ? (
-        <EmptyState icon={TargetIcon} title="Todavía no hay objetivos" description="Añade el primero abajo." />
+        <EmptyState icon={TargetIcon} title="No objectives yet" description="Add the first one below." />
       ) : (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={visible.map((o) => o.id)} strategy={verticalListSortingStrategy}>
@@ -113,13 +113,13 @@ export default function ObjectivesPage({ params }: { params: Promise<{ teamId: s
 
       <form onSubmit={handleCreate} className="flex gap-2">
         <Input
-          placeholder="Nuevo objetivo…"
+          placeholder="New objective…"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          aria-label="Título del nuevo objetivo"
+          aria-label="New objective title"
         />
         <Button type="submit" loading={createObjective.isPending}>
-          Añadir
+          Add
         </Button>
       </form>
     </div>
@@ -146,7 +146,7 @@ function ObjectiveRow({
       <button
         {...attributes}
         {...listeners}
-        aria-label="Arrastrar para reordenar"
+        aria-label="Drag to reorder"
         className="focus-ring cursor-grab text-f1-foreground-secondary"
       >
         <GripVerticalIcon className="size-4" />
@@ -185,30 +185,30 @@ function ObjectiveRow({
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button variant="ghost" size="icon-sm" aria-label={`Más acciones para ${objective.title}`} />}
+            render={<Button variant="ghost" size="icon-sm" aria-label={`More actions for ${objective.title}`} />}
           >
             <EllipsisVerticalIcon />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onUpdate({ archived: !objective.archived })}>
-              {objective.archived ? "Desarchivar objetivo" : "Archivar objetivo"}
+              {objective.archived ? "Unarchive objective" : "Archive objective"}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
-              <Trash2Icon className="size-4" /> Eliminar objetivo
+              <Trash2Icon className="size-4" /> Delete objective
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar «{objective.title}»</AlertDialogTitle>
+            <AlertDialogTitle>Delete “{objective.title}”</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. El objetivo se quita de todas las features vinculadas.
+              This cannot be undone. The objective is removed from all linked features.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={onDelete}>
-              Eliminar objetivo
+              Delete objective
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

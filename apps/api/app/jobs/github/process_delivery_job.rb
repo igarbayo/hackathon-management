@@ -1,5 +1,6 @@
-# RF-GH-006. Resuelve el equipo por repository.id -> Repository activo. Si no
-# hay ninguno, marca ignored (07-integracion-github.md#recepción-de-webhooks).
+# RF-GH-006. Resolves the team through repository.id -> active Repository. If
+# there is none, it marks the delivery as ignored
+# (07-integracion-github.md#recepción-de-webhooks).
 module Github
   class ProcessDeliveryJob
     include Sidekiq::Job

@@ -1,12 +1,12 @@
-# Publica el CLI `hackboard` en npm con provenance (RNF-SEC-012).
+# Publishes the `hackboard` CLI to npm with provenance (RNF-SEC-012).
 #
-# Se dispara al empujar un tag `cli-vX.Y.Z` que coincida con la versión de
-# packages/cli/package.json. La provenance firma el paquete con la identidad
-# OIDC de este workflow, así que cualquiera puede comprobar en npmjs.com que
-# el tarball salió de este repo y de este commit, no de un portátil.
+# It runs when a `cli-vX.Y.Z` tag is pushed that matches the version in
+# packages/cli/package.json. Provenance signs the package with the OIDC identity
+# of this workflow, so anyone can check on npmjs.com that the tarball came from
+# this repo and this commit, not from a laptop.
 #
-# Requisitos (una vez): secreto NPM_TOKEN con un token "Automation" o
-# "Granular" de una cuenta de npm con 2FA activado.
+# Requirements (once): an NPM_TOKEN secret with an "Automation" or "Granular"
+# token from an npm account with 2FA turned on.
 name: Release CLI
 
 on:
@@ -20,7 +20,7 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write # necesario para npm publish --provenance
+  id-token: write # needed for npm publish --provenance
 
 jobs:
   publish:
@@ -35,11 +35,11 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      - name: Comprobar que el tag coincide con la versión
+      - name: Check that the tag matches the version
         run: |
           expected="cli-v$(node -p "require('./packages/cli/package.json').version")"
           if [ "$GITHUB_REF_NAME" != "$expected" ]; then
-            echo "El tag $GITHUB_REF_NAME no coincide con la versión del paquete ($expected)." >&2
+            echo "The tag $GITHUB_REF_NAME does not match the package version ($expected)." >&2
             exit 1
           fi
 
@@ -48,8 +48,9 @@ jobs:
       - name: npm audit (RNF-SEC-011)
         run: npm audit --audit-level=high
 
-      # prepublishOnly limpia dist, compila y pasa los tests antes de subir nada.
-      - name: Publicar
+      # prepublishOnly cleans dist, builds and runs the tests before uploading
+      # anything.
+      - name: Publish
         run: npm publish --workspace packages/cli --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,6 +1,6 @@
-# Identidad de GitHub del autor de un evento y de un miembro del equipo
-# (07-integracion-github.md#mapeo-de-autores, ADR-0018). Los logins y los
-# emails se comparan siempre en minúsculas.
+# GitHub identity of an event's author and of a team member
+# (07-integracion-github.md#mapeo-de-autores, ADR-0018). Logins and emails are
+# always compared in lowercase.
 module Activity
   module AuthorIdentity
     NOREPLY_PATTERN = /\A\d+\+(?<login>[^@]+)@users\.noreply\.github\.com\z/i
@@ -20,23 +20,23 @@ module Activity
       match && match[:login].downcase
     end
 
-    # Identidades de un evento: su login y su email (si los tiene).
+    # Identities of an event: its login and its email (if it has them).
     def for_event(event)
       actor = event.actor || {}
       [ normalize(actor["github_login"]), normalize(actor["email"]) ].compact
     end
 
-    # Logins y emails con los que se reconoce a un miembro: los de su cuenta
-    # y los de sus git_identities.
+    # Logins and emails a member is recognized by: those of their account and
+    # those of their git_identities.
     def for_membership(membership)
       user = membership.user
       identities = [ normalize(user&.github_login), normalize(user&.email) ] + Array(membership.git_identities).map { |i| normalize(i) }
       identities.compact.uniq
     end
 
-    # Criterio de Mongo para los eventos cuyo autor tiene alguna de estas
-    # identidades (login exacto sin mayúsculas, email exacto o email noreply
-    # con ese login).
+    # Mongo criteria for the events whose author has any of these identities
+    # (exact case-insensitive login, exact email or a noreply email with that
+    # login).
     def event_conditions(identities)
       identities.flat_map do |identity|
         if email?(identity)

@@ -1,5 +1,5 @@
-# Agrupa eventos candidatos a la capa 3 por (actor, rama, sesión), para
-# mandar pocas peticiones a la IA con sentido (05-atribucion.md#capa-3).
+# Groups layer 3 candidate events by (actor, branch, session), to send few,
+# meaningful requests to the AI (05-atribucion.md#capa-3).
 module Attribution
   class GroupEvents
     Group = Struct.new(:id, :events, keyword_init: true) do

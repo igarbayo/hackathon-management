@@ -2,9 +2,9 @@ import { cn } from "cn"
 import type { LucideIcon } from "lucide-react"
 
 /**
- * Calcado de F0AvatarModule/F0AvatarIcon: un icono de Lucide dentro de un
- * cuadrado redondeado de color, usado en cabeceras de página y en el feed
- * de actividad como icono de fuente. Ver specs/13-sistema-diseno.md.
+ * Copied from F0AvatarModule/F0AvatarIcon: a Lucide icon inside a colored
+ * rounded square, used in page headers and in the activity feed as the
+ * source icon. See specs/13-sistema-diseno.md.
  */
 const sizeClasses = {
   sm: "size-6 rounded-md [&_svg]:size-3.5",

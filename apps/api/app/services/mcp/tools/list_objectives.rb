@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class ListObjectives
       def self.tool_name = "list_objectives"
-      def self.description = "Lista los objetivos del equipo con su cobertura de features."
+      def self.description = "Lists the team's objectives with their feature coverage."
       def self.scope = nil
       def self.read_only? = true
 

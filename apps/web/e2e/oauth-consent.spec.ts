@@ -9,38 +9,38 @@ function pkcePair() {
   return { verifier, challenge };
 }
 
-// RF-API-012/RF-MCP-020: flujo de consentimiento OAuth 2.1 real en el
-// navegador, contra la API real. Simula un cliente MCP externo (registro
-// dinámico + PKCE) y usa la web solo para el login y la pantalla de
-// consentimiento.
-test("consentimiento OAuth: aprobar desde la web deja un token listo para el cliente", async ({ page, request }) => {
+// RF-API-012/RF-MCP-020: real OAuth 2.1 consent flow in the browser,
+// against the real API. It fakes an external MCP client (dynamic
+// registration + PKCE) and uses the web app only for login and the consent
+// screen.
+test("OAuth consent: approving from the web app leaves a token ready for the client", async ({ page, request }) => {
   const uniqueEmail = `e2e-oauth-${Date.now()}@example.com`;
 
   await page.goto("/signup");
-  await page.getByLabel("Nombre").fill("Grace Hopper");
+  await page.getByLabel("Name").fill("Grace Hopper");
   await page.getByLabel("Email").fill(uniqueEmail);
-  await page.getByLabel("Contraseña", { exact: true }).fill("supersecret123");
-  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  await page.getByLabel("Password", { exact: true }).fill("supersecret123");
+  await page.getByRole("button", { name: "Sign up" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
-  await page.getByText("Crear equipo").click();
-  await page.getByLabel("Nombre del equipo").fill("Equipo OAuth E2E");
-  await page.getByLabel("Nombre del hackathon").fill("HackUSC OAuth E2E");
-  await page.getByLabel("Fecha de fin").click();
+  await page.getByText("Create team").click();
+  await page.getByLabel("Team name").fill("OAuth E2E Team");
+  await page.getByLabel("Hackathon name").fill("HackUSC OAuth E2E");
+  await page.getByLabel("End date").click();
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
-  await page.getByRole("button", { name: "Crear equipo" }).click();
-  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByRole("button", { name: "Create team" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 
-  // 1. Un cliente externo (p. ej. claude.ai) se registra dinámicamente.
+  // 1. An external client (e.g. claude.ai) registers dynamically.
   const registerResponse = await request.post(`${API_URL}/oauth/register`, {
-    data: { redirect_uris: ["https://example-mcp-client.test/callback"], client_name: "Cliente E2E" },
+    data: { redirect_uris: ["https://example-mcp-client.test/callback"], client_name: "E2E Client" },
   });
   expect(registerResponse.ok()).toBeTruthy();
   const { client_id: clientId } = await registerResponse.json();
 
-  // 2. Pide autorización con PKCE.
+  // 2. It asks for authorization with PKCE.
   const { verifier, challenge } = pkcePair();
   const authorizeUrl =
     `${API_URL}/oauth/authorize?response_type=code&client_id=${clientId}` +
@@ -51,16 +51,16 @@ test("consentimiento OAuth: aprobar desde la web deja un token listo para el cli
 
   await page.goto(authorizeUrl);
   await expect(page).toHaveURL(/\/oauth\/consent\?request_id=/);
-  await expect(page.getByText("Cliente E2E quiere acceder a Hackboard")).toBeVisible();
-  await expect(page.getByText(/Ver el equipo/)).toBeVisible();
-  await expect(page.getByText(/Crear y editar features/)).toBeVisible();
+  await expect(page.getByText("E2E Client wants to access Hackboard")).toBeVisible();
+  await expect(page.getByText(/View the team/)).toBeVisible();
+  await expect(page.getByText(/Create and edit features/)).toBeVisible();
 
-  // 3. Aprobar navega de verdad al redirect_uri del cliente (lo bloqueamos
-  // para no salir de las páginas de la app, y comprobamos la URL final).
+  // 3. Approving really navigates to the client's redirect_uri (we block it
+  // so we do not leave the app's pages, and check the final URL).
   await page.route("https://example-mcp-client.test/**", async (route) => {
     await route.fulfill({ status: 200, body: "ok" });
   });
-  await page.getByRole("button", { name: "Aprobar" }).click();
+  await page.getByRole("button", { name: "Approve" }).click();
   await page.waitForURL(/example-mcp-client\.test\/callback/);
 
   const finalUrl = new URL(page.url());
@@ -68,7 +68,7 @@ test("consentimiento OAuth: aprobar desde la web deja un token listo para el cli
   const code = finalUrl.searchParams.get("code");
   expect(code).toBeTruthy();
 
-  // 4. El cliente canjea el código con PKCE.
+  // 4. The client exchanges the code with PKCE.
   const tokenResponse = await request.post(`${API_URL}/oauth/token`, {
     data: {
       grant_type: "authorization_code", code, redirect_uri: "https://example-mcp-client.test/callback",
@@ -80,7 +80,7 @@ test("consentimiento OAuth: aprobar desde la web deja un token listo para el cli
   expect(tokenBody.access_token).toMatch(/^hb_oat_/);
   expect(tokenBody.refresh_token).toMatch(/^hb_ort_/);
 
-  // 5. El token sirve de verdad contra el servidor MCP.
+  // 5. The token really works against the MCP server.
   const mcpResponse = await request.post(`${API_URL}/api/v1/mcp`, {
     headers: { Authorization: `Bearer ${tokenBody.access_token}` },
     data: { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "whoami", arguments: {} } },

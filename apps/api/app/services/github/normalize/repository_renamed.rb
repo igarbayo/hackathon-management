@@ -1,5 +1,6 @@
-# repository (renamed): actualiza full_name y remote_urls
-# (07-integracion-github.md#normalización-por-evento). No genera ActivityEvent.
+# repository (renamed): updates full_name and remote_urls
+# (07-integracion-github.md#normalización-por-evento). It does not create an
+# ActivityEvent.
 module Github
   module Normalize
     class RepositoryRenamed

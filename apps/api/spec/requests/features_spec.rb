@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Features", type: :request do
   describe "POST /api/v1/teams/:team_id/features" do
-    it "crea la feature con key atómica" do
+    it "creates the feature with an atomic key" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -15,7 +15,7 @@ RSpec.describe "Features", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/features/:key" do
-    it "encuentra por clave F-n" do
+    it "finds by F-n key" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       sign_in_as(membership.user)
@@ -26,7 +26,7 @@ RSpec.describe "Features", type: :request do
       expect(json_response["id"]).to eq(feature.id.to_s)
     end
 
-    it "encuentra por id" do
+    it "finds by id" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       sign_in_as(membership.user)
@@ -38,7 +38,7 @@ RSpec.describe "Features", type: :request do
   end
 
   describe "PATCH /api/v1/teams/:team_id/features/:key" do
-    it "genera un evento system al cambiar el status" do
+    it "creates a system event when the status changes" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team, status: "idea")
       sign_in_as(membership.user)
@@ -52,25 +52,25 @@ RSpec.describe "Features", type: :request do
       expect(event.payload["key"]).to eq(feature.key)
     end
 
-    it "responde 409 con If-Match desactualizado" do
+    it "returns 409 with an outdated If-Match" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       sign_in_as(membership.user)
 
       patch "/api/v1/teams/#{membership.team.id}/features/#{feature.key}",
-            params: { title: "Otro título" },
+            params: { title: "Another title" },
             headers: csrf_headers.merge("If-Match" => 1.hour.ago.iso8601(3)), as: :json
 
       expect(response).to have_http_status(:conflict)
     end
 
-    it "acepta la actualización con el If-Match correcto" do
+    it "accepts the update with the right If-Match" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       sign_in_as(membership.user)
 
       patch "/api/v1/teams/#{membership.team.id}/features/#{feature.key}",
-            params: { title: "Otro título" },
+            params: { title: "Another title" },
             headers: csrf_headers.merge("If-Match" => feature.updated_at.iso8601(3)), as: :json
 
       expect(response).to have_http_status(:ok)
@@ -78,7 +78,7 @@ RSpec.describe "Features", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/features/:key/move" do
-    it "calcula la position entre los vecinos de la columna destino" do
+    it "works out the position between the neighbors in the target column" do
       membership = create(:membership)
       team = membership.team
       card_a = create(:feature, team: team, status: "in_progress", position: 1.0)
@@ -97,7 +97,7 @@ RSpec.describe "Features", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:team_id/features/:key" do
-    it "no deja borrar una feature con eventos atribuidos" do
+    it "does not let a feature with attributed events be deleted" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       ActivityEvent.create!(
@@ -111,7 +111,7 @@ RSpec.describe "Features", type: :request do
       expect(response).to have_http_status(:conflict)
     end
 
-    it "borra una feature sin eventos" do
+    it "deletes a feature with no events" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)
       sign_in_as(membership.user)

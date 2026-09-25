@@ -1,12 +1,11 @@
-# Bearer hb_mt_ -> current_membership/current_team (01-arquitectura.md).
-# Los demás prefijos (hb_pat_, hb_oat_, hb_it_) los añade la spec 12.
+# Bearer hb_mt_ -> current_membership/current_team (01-arquitectura.md). Spec 12
+# adds the other prefixes (hb_pat_, hb_oat_, hb_it_).
 #
-# `paused` NO se comprueba aquí: es un dato del enlace, no una revocación, y
-# el token tiene que seguir sirviendo para autenticar `PATCH /cli/me` (si no,
-# `hackboard resume` no podría reanudar nunca su propio enlace pausado). Cada
-# endpoint decide qué hacer con `paused` (Ingest::ProcessBatch descarta los
-# eventos entrantes; Cli::ConfigController y Cli::MeController siguen
-# funcionando).
+# `paused` is NOT checked here: it is a property of the link, not a revocation,
+# and the token must keep working to authenticate `PATCH /cli/me` (otherwise
+# `hackboard resume` could never resume its own paused link). Each endpoint
+# decides what to do with `paused` (Ingest::ProcessBatch drops incoming events;
+# Cli::ConfigController and Cli::MeController keep working).
 module TokenAuthentication
   extend ActiveSupport::Concern
 
@@ -14,11 +13,11 @@ module TokenAuthentication
 
   def authenticate_member_token!
     token = bearer_token
-    raise ApiError::Unauthenticated.new(message: "falta el token") if token.blank?
-    raise ApiError::Unauthenticated.new(message: "token no reconocido") unless token.start_with?(MEMBER_PREFIX)
+    raise ApiError::Unauthenticated.new(message: "missing token") if token.blank?
+    raise ApiError::Unauthenticated.new(message: "unrecognized token") unless token.start_with?(MEMBER_PREFIX)
 
     membership = Membership.where("claude_code.token_digest" => Digest::SHA256.hexdigest(token)).first
-    raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless membership && !membership.team.deleted?
+    raise ApiError::Unauthenticated.new(message: "invalid or revoked token") unless membership && !membership.team.deleted?
 
     @current_membership = membership
     @current_team = membership.team

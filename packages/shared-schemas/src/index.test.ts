@@ -4,43 +4,43 @@ import { describe, expect, it } from "vitest";
 import { getSchema, listSchemaNames } from "./index";
 
 describe("shared-schemas loader", () => {
-  it("lista los schemas disponibles" , () => {
+  it("lists the available schemas", () => {
     expect(listSchemaNames()).toContain("coverage-analysis");
   });
 
-  it("lanza un error legible si se pide un schema que no existe", () => {
-    expect(() => getSchema("no-existe")).toThrowError(/No existe el schema/);
+  it("throws a readable error if a schema that does not exist is requested", () => {
+    expect(() => getSchema("does-not-exist")).toThrowError(/There is no schema/);
   });
 
-  it("coverage-analysis es un JSON Schema válido que compila con ajv", () => {
+  it("coverage-analysis is a valid JSON Schema that compiles with ajv", () => {
     const schema = getSchema("coverage-analysis");
     const ajv = new Ajv();
 
     expect(() => ajv.compile(schema)).not.toThrow();
   });
 
-  it("coverage-analysis valida una salida de ejemplo conforme al esquema de 06-analisis-ia.md", () => {
+  it("coverage-analysis validates a sample output that follows the schema in 06-analisis-ia.md", () => {
     const schema = getSchema("coverage-analysis");
     const ajv = new Ajv();
     const validate = ajv.compile(schema);
 
     const sample = {
-      summary: "Vais bien de tiempo, falta cubrir O-2.",
+      summary: "You are on time, O-2 is still not covered.",
       coverage: [
-        { objective_key: "O-1", status: "covered", feature_keys: ["F-3"], rationale: "F-3 está done" },
+        { objective_key: "O-1", status: "covered", feature_keys: ["F-3"], rationale: "F-3 is done" },
         { objective_key: "O-2", status: "uncovered", feature_keys: [], rationale: "no evaluado" },
       ],
       orphan_features: [
         { feature_key: "F-9", rationale: "no vinculada", recommendation: "link_objective", suggested_objective_key: "O-1" },
       ],
-      gaps: [{ objective_key: "O-2", description: "falta login", suggested_feature_title: "Login con GitHub" }],
+      gaps: [{ objective_key: "O-2", description: "login is missing", suggested_feature_title: "Login with GitHub" }],
       risks: [{ severity: "high", kind: "deadline", description: "F-3 vence en 1h", related_keys: ["F-3"] }],
     };
 
     expect(validate(sample)).toBe(true);
   });
 
-  it("ingest-claude-code valida un lote de ejemplo conforme a 08-integracion-claude-code.md", () => {
+  it("ingest-claude-code validates a sample batch that follows 08-integracion-claude-code.md", () => {
     const schema = getSchema("ingest-claude-code");
     const ajv = new Ajv(); addFormats(ajv);
     const validate = ajv.compile(schema);
@@ -62,7 +62,7 @@ describe("shared-schemas loader", () => {
     expect(validate(sample)).toBe(true);
   });
 
-  it("ingest-claude-code rechaza un kind desconocido" , () => {
+  it("ingest-claude-code rejects an unknown kind", () => {
     const schema = getSchema("ingest-claude-code");
     const ajv = new Ajv();
     addFormats(ajv);

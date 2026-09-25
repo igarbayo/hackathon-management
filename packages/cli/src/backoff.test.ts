@@ -20,12 +20,12 @@ describe("backoff", () => {
     vi.resetModules();
   });
 
-  it("no salta nada si nunca ha fallado", async () => {
+  it("skips nothing if it has never failed", async () => {
     const { shouldSkip } = await import("./backoff");
     expect(shouldSkip()).toBe(false);
   });
 
-  it("tras un fallo, salta hasta que pasa el delay inicial de 1s", async () => {
+  it("after a failure, skips until the initial 1s delay has passed", async () => {
     const { recordFailure, shouldSkip } = await import("./backoff");
 
     recordFailure();
@@ -33,7 +33,7 @@ describe("backoff", () => {
     expect(shouldSkip()).toBe(true);
   });
 
-  it("recordSuccess limpia el estado de backoff", async () => {
+  it("recordSuccess clears the backoff state", async () => {
     const { recordFailure, recordSuccess, shouldSkip } = await import("./backoff");
 
     recordFailure();
@@ -42,7 +42,7 @@ describe("backoff", () => {
     expect(shouldSkip()).toBe(false);
   });
 
-  it("cada fallo consecutivo dobla el delay hasta el tope de 5 minutos", async () => {
+  it("each failure in a row doubles the delay up to the 5 minute cap", async () => {
     const { recordFailure } = await import("./backoff");
     const { readFileSync } = await import("node:fs");
 

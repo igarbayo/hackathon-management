@@ -1,4 +1,4 @@
-# Cron cada 10 min por equipo con eventos pendientes (05-atribucion.md#capa-3,
+# Cron every 10 min per team with pending events (05-atribucion.md#capa-3,
 # 01-arquitectura.md#jobs-de-sidekiq).
 module Attribution
   class AiSuggestJob

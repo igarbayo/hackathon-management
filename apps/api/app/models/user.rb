@@ -28,8 +28,8 @@ class User
 
   has_many :memberships, dependent: :destroy
 
-  # ADR-0018: con un login de GitHub o un email nuevos, la persona puede
-  # reclamar eventos de GitHub sin usuario en todos sus equipos.
+  # ADR-0018: with a new GitHub login or email, the person can claim GitHub
+  # events with no user in all their teams.
   after_update :enqueue_claims, if: -> { (previous_changes.keys & %w[github_login email]).any? }
   has_many :sessions, dependent: :destroy
 
@@ -37,10 +37,10 @@ class User
   index({ github_uid: 1 }, { unique: true, sparse: true })
   index({ google_sub: 1 }, { unique: true, sparse: true })
 
-  # Clave personal de Gemini (06-analisis-ia.md#proveedor, RF-AI-021): cada
-  # persona pone la suya para que la IA de sus equipos la use en vez de una
-  # clave compartida del servidor. Se guarda cifrada (GeminiApiKeyCipher);
-  # el getter descifra bajo demanda, nunca se cachea en memoria.
+  # Personal Gemini key (06-analisis-ia.md#proveedor, RF-AI-021): each person
+  # sets their own so their teams' AI uses it instead of a shared server key. It
+  # is stored encrypted (GeminiApiKeyCipher); the getter decrypts it on demand,
+  # it is never cached in memory.
   def gemini_api_key
     return nil if gemini_api_key_encrypted.blank?
 
@@ -55,9 +55,9 @@ class User
     gemini_api_key_encrypted.present?
   end
 
-  # RF-TEAM-013: se llama al crear equipo, al unirse y en cada petición de
-  # dominio con sesión (TeamScoping), para que "el último equipo abierto"
-  # no dependa de un único punto que se pueda olvidar actualizar.
+  # RF-TEAM-013: it is called when creating a team, when joining and on every
+  # domain request with a session (TeamScoping), so "the last opened team" does
+  # not depend on a single spot that someone could forget to update.
   def remember_last_team!(team_id)
     return if last_team_id == team_id
 
@@ -70,20 +70,20 @@ class User
     memberships.each { |membership| Activity::ClaimForMembershipJob.perform_async(membership.id.to_s) }
   end
 
-  # bcrypt solo usa los primeros 72 bytes: más allá, dos contraseñas que
-  # empiezan igual darían el mismo hash. Se cuenta en bytes, no en
-  # caracteres (una "ñ" ocupa 2). `has_secure_password validations: false`
-  # no lo comprueba por su cuenta.
+  # bcrypt only uses the first 72 bytes: beyond that, two passwords that start
+  # the same would give the same hash. It counts bytes, not characters (an "ñ"
+  # takes 2). `has_secure_password validations: false` does not check it by
+  # itself.
   def password_fits_bcrypt
     return if password.blank?
     return if password.bytesize <= ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED
 
-    errors.add(:password, "es demasiado larga (máximo 72 bytes; unos 72 caracteres sin tildes)")
+    errors.add(:password, "is too long (maximum 72 bytes; about 72 characters without accents)")
   end
 
   def has_login_method
     return if password_digest.present? || github_uid.present? || google_sub.present?
 
-    errors.add(:base, "hace falta contraseña, GitHub o Google para poder iniciar sesión")
+    errors.add(:base, "a password, GitHub or Google is required to log in")
   end
 end

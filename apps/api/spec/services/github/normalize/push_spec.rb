@@ -8,12 +8,12 @@ RSpec.describe Github::Normalize::Push do
     { "ref" => ref, "before" => before, "after" => after, "forced" => forced, "commits" => commits, "sender" => { "login" => "octocat" } }
   end
 
-  def commit(sha, message: "algo", username: nil, email: "a@example.com", name: "Autor")
+  def commit(sha, message: "something", username: nil, email: "a@example.com", name: "Author")
     { "id" => sha, "message" => message, "timestamp" => Time.current.iso8601, "url" => "https://github.com/org/repo/commit/#{sha}",
       "author" => { "username" => username, "email" => email, "name" => name } }
   end
 
-  it "crea un ActivityEvent commit por cada commit del push" do
+  it "creates one commit ActivityEvent for each commit in the push" do
     payload = push_payload(commits: [ commit("sha1"), commit("sha2") ])
 
     described_class.call(team: team, repository: repository, payload: payload)
@@ -21,10 +21,10 @@ RSpec.describe Github::Normalize::Push do
     expect(ActivityEvent.where(team_id: team.id, kind: "commit").count).to eq(2)
     event = ActivityEvent.where(dedupe_key: "gh:commit:sha1").first
     expect(event.branch).to eq("f-12-login")
-    expect(event.title).to eq("algo")
+    expect(event.title).to eq("something")
   end
 
-  it "ignora los pushes de tags" do
+  it "ignores tag pushes" do
     payload = push_payload(ref: "refs/tags/v1.0.0", commits: [ commit("sha1") ])
 
     described_class.call(team: team, repository: repository, payload: payload)
@@ -32,7 +32,7 @@ RSpec.describe Github::Normalize::Push do
     expect(ActivityEvent.count).to eq(0)
   end
 
-  it "ignora los merge commits de la rama por defecto (ya están como pr_merged)" do
+  it "ignores merge commits on the default branch (they are already there as pr_merged)" do
     payload = push_payload(ref: "refs/heads/main", commits: [ commit("sha1", message: "Merge pull request #4 from org/f-4") ])
 
     described_class.call(team: team, repository: repository, payload: payload)
@@ -40,7 +40,7 @@ RSpec.describe Github::Normalize::Push do
     expect(ActivityEvent.count).to eq(0)
   end
 
-  it "en un push forced solo registra la cabecera nueva" do
+  it "on a forced push only records the new head" do
     payload = push_payload(forced: true, commits: [ commit("sha1"), commit("sha2") ])
     payload["head_commit"] = commit("sha2")
 
@@ -50,7 +50,7 @@ RSpec.describe Github::Normalize::Push do
     expect(ActivityEvent.first.sha).to eq("sha2")
   end
 
-  it "es idempotente por sha" do
+  it "is idempotent by sha" do
     payload = push_payload(commits: [ commit("sha1") ])
 
     described_class.call(team: team, repository: repository, payload: payload)
@@ -59,7 +59,7 @@ RSpec.describe Github::Normalize::Push do
     expect(ActivityEvent.count).to eq(1)
   end
 
-  it "encola FetchCommitStatsJob por cada commit creado" do
+  it "queues FetchCommitStatsJob for each commit created" do
     payload = push_payload(commits: [ commit("sha1") ])
 
     expect(Github::FetchCommitStatsJob).to receive(:perform_async).with(team.id.to_s, repository.id.to_s, "sha1")

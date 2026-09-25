@@ -1,13 +1,13 @@
 require "rails_helper"
 
 RSpec.describe Session, type: :model do
-  it "está caducada cuando expires_at ya pasó" do
+  it "is expired when expires_at has already passed" do
     session = create(:session, expires_at: 1.minute.ago)
 
     expect(session.expired?).to be true
   end
 
-  it "renueva la caducidad al tocar la actividad" do
+  it "renews the expiry when the activity is touched" do
     session = create(:session, expires_at: 1.day.from_now)
 
     session.touch_activity!

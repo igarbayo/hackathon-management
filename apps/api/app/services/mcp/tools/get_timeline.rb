@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class GetTimeline
       def self.tool_name = "get_timeline"
-      def self.description = "Milestones y features con deadline, marcando cuáles están vencidos."
+      def self.description = "Milestones and features with a deadline, marking which ones are overdue."
       def self.scope = nil
       def self.read_only? = true
 

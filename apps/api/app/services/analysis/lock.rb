@@ -1,5 +1,5 @@
-# Como mucho un análisis en curso por equipo, con lock en Redis con TTL de
-# 5 min (06-analisis-ia.md#disparo).
+# At most one analysis running per team, with a Redis lock with a 5 min TTL
+# (06-analisis-ia.md#disparo).
 module Analysis
   class Lock
     TTL_SECONDS = 5.minutes.to_i

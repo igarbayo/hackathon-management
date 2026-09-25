@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Device flow del CLI", type: :request do
+RSpec.describe "CLI device flow", type: :request do
   describe "POST /api/v1/cli/device" do
-    it "crea un device_code y un user_code sin necesitar sesión" do
+    it "creates a device_code and a user_code without needing a session" do
       post "/api/v1/cli/device"
 
       expect(response).to have_http_status(:created)
@@ -13,7 +13,7 @@ RSpec.describe "Device flow del CLI", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/cli/device/approve" do
-    it "requiere sesión" do
+    it "requires a session" do
       membership = create(:membership)
 
       post "/api/v1/teams/#{membership.team.id}/cli/device/approve", params: { user_code: "AAAA-BBBB", privacy_level: "metadata" }, headers: csrf_headers, as: :json
@@ -21,7 +21,7 @@ RSpec.describe "Device flow del CLI", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "aprueba el código y deja el device_authorization listo para canjear" do
+    it "approves the code and leaves the device_authorization ready to exchange" do
       membership = create(:membership)
       record = create(:device_authorization)
       sign_in_as(membership.user)
@@ -34,7 +34,7 @@ RSpec.describe "Device flow del CLI", type: :request do
       expect(record.membership_id).to eq(membership.id)
     end
 
-    it "exige CSRF" do
+    it "requires CSRF" do
       membership = create(:membership)
       record = create(:device_authorization)
       sign_in_as(membership.user)
@@ -46,7 +46,7 @@ RSpec.describe "Device flow del CLI", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/cli/device/deny" do
-    it "rechaza el código" do
+    it "denies the code" do
       membership = create(:membership)
       record = create(:device_authorization)
       sign_in_as(membership.user)
@@ -59,7 +59,7 @@ RSpec.describe "Device flow del CLI", type: :request do
   end
 
   describe "POST /api/v1/cli/device/token" do
-    it "authorization_pending sin sesión ni CSRF mientras no se apruebe" do
+    it "authorization_pending with no session or CSRF until it is approved" do
       post "/api/v1/cli/device"
       device_code = json_response["device_code"]
 
@@ -69,7 +69,7 @@ RSpec.describe "Device flow del CLI", type: :request do
       expect(json_response["error"]).to eq("authorization_pending")
     end
 
-    it "devuelve el token hb_mt_ tras aprobar" do
+    it "returns the hb_mt_ token after approval" do
       membership = create(:membership)
       post "/api/v1/cli/device"
       device_code = json_response["device_code"]

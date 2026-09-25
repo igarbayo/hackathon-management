@@ -1,6 +1,6 @@
-# Encola una entrega por cada webhook activo suscrito a `event`
-# (12-acceso-programatico.md#webhooks-salientes). Los eventos de
-# claude_code/mcp nunca llegan aquí: quien llama decide qué eventos existen.
+# Queues one delivery for each active webhook subscribed to `event`
+# (12-acceso-programatico.md#webhooks-salientes). claude_code/mcp events never
+# get here: the caller decides which events exist.
 module Webhooks
   class Enqueue
     def self.call(team:, event:, data:)

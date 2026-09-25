@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "IngestClaudeCodeBatch",
-  "description": "Cuerpo de POST /api/v1/ingest/claude_code (08-integracion-claude-code.md#contrato-de-ingesta)",
+  "description": "Body of POST /api/v1/ingest/claude_code (08-integracion-claude-code.md#contrato-de-ingesta)",
   "type": "object",
   "required": ["cli_version", "events"],
   "additionalProperties": false,

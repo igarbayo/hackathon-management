@@ -2,9 +2,9 @@ import type { ReactNode } from "react"
 import { cn } from "cn"
 
 /**
- * Fila de lista F0: usada dentro de una Card con `divide-y` para
- * objetivos, deadlines, miembros… sustituye al patrón repetido
- * `rounded-md border p-2` de las pantallas previas a F0.
+ * F0 list row: used inside a Card with `divide-y` for objectives,
+ * deadlines, members… It replaces the repeated `rounded-md border p-2`
+ * pattern from the screens built before F0.
  */
 function ListRow({
   children,

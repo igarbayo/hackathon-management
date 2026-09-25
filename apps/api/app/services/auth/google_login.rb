@@ -25,9 +25,9 @@ module Auth
       "#{ENV.fetch('API_URL', '')}/api/v1/auth/google/callback"
     end
 
-    # El nonce y el code_verifier de PKCE se derivan del propio `state`
-    # firmado: no hace falta guardar nada en el servidor entre /auth/google
-    # y su callback (no hay sesión todavía).
+    # The nonce and the PKCE code_verifier are derived from the signed `state`
+    # itself: nothing needs to be stored on the server between /auth/google and
+    # its callback (there is no session yet).
     def self.pkce_challenge(state)
       Base64.urlsafe_encode64(Digest::SHA256.digest(code_verifier(state)), padding: false)
     end
@@ -65,7 +65,7 @@ module Auth
       end
 
       id_token = response.body["id_token"]
-      raise AuthorizationFailed, "Google no devolvió un id_token" if id_token.blank?
+      raise AuthorizationFailed, "Google did not return an id_token" if id_token.blank?
 
       id_token
     end
@@ -78,28 +78,28 @@ module Auth
       payload, = JWT.decode(id_token, key.public_key, true, algorithms: [ "RS256" ])
 
       unless ISSUERS.include?(payload["iss"])
-        raise AuthorizationFailed, "iss inválido"
+        raise AuthorizationFailed, "invalid iss"
       end
       unless payload["aud"] == ENV.fetch("GOOGLE_CLIENT_ID", "")
-        raise AuthorizationFailed, "aud inválido"
+        raise AuthorizationFailed, "invalid aud"
       end
       unless payload["nonce"] == expected_nonce
-        raise AuthorizationFailed, "nonce inválido"
+        raise AuthorizationFailed, "invalid nonce"
       end
       unless payload["email_verified"]
-        raise AuthorizationFailed, "el email de Google no está verificado"
+        raise AuthorizationFailed, "the Google email is not verified"
       end
 
       payload
     rescue JWT::DecodeError => e
-      raise AuthorizationFailed, "id_token inválido: #{e.message}"
+      raise AuthorizationFailed, "invalid id_token: #{e.message}"
     end
     private_class_method :verify_id_token
 
     def self.jwk_for(kid)
       set = JWT::JWK::Set.new(jwks_body)
       jwk = set.find { |candidate| candidate[:kid] == kid }
-      raise AuthorizationFailed, "no se encontró la clave pública de Google (kid=#{kid})" unless jwk
+      raise AuthorizationFailed, "could not find the Google public key (kid=#{kid})" unless jwk
 
       JWT::JWK.import(jwk)
     end
@@ -118,7 +118,8 @@ module Auth
       user ||= (email.present? ? User.where(email: email).first : nil)
 
       if user
-        # RF-AUTH-011: la foto es la del último proveedor con el que se entró.
+        # RF-AUTH-011: the photo is the one from the last provider used to log
+        # in.
         user.update!(google_sub: google_sub, avatar_url: claims["picture"].presence || user.avatar_url)
       else
         user = User.create!(

@@ -14,14 +14,14 @@ import { useConsentInfo, useDecideAuthorization } from "@/hooks/use-oauth";
 import { ApiError } from "@/lib/api-client";
 
 const SCOPE_LABELS: Record<string, string> = {
-  read: "Ver el equipo: objetivos, features, argumentos, milestones, actividad y análisis",
-  "features:write": "Crear y editar features, moverlas y cambiar asignaciones",
-  "objectives:write": "Crear y editar objetivos",
-  "arguments:write": "Añadir pros y contras, y votar",
-  "milestones:write": "Crear y editar milestones",
-  "attribution:write": "Confirmar o corregir a qué feature pertenece cada evento",
-  "analyses:run": "Lanzar un análisis de cobertura con IA",
-  "progress:write": "Informar del progreso de una feature",
+  read: "View the team: objectives, features, arguments, milestones, activity and analyses",
+  "features:write": "Create and edit features, move them and change assignees",
+  "objectives:write": "Create and edit objectives",
+  "arguments:write": "Add pros and cons, and vote",
+  "milestones:write": "Create and edit milestones",
+  "attribution:write": "Confirm or correct which feature each event belongs to",
+  "analyses:run": "Run an AI coverage analysis",
+  "progress:write": "Report progress on a feature",
 };
 
 function ConsentContent() {
@@ -50,7 +50,7 @@ function ConsentContent() {
   if (me.memberships.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <p className="text-muted-foreground text-base">Todavía no tienes ningún equipo. Únete a uno antes de conectar {consent.client.name}.</p>
+        <p className="text-muted-foreground text-base">You are not in any team yet. Join one before you connect {consent.client.name}.</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ function ConsentContent() {
       const result = await decide.mutateAsync({ request_id: requestId, approve, team_id: teamId, scopes: approve ? scopes : undefined });
       window.location.href = result.redirect_url;
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido completar la autorización");
+      setError(err instanceof ApiError ? err.message : "Could not complete the authorization");
     }
   }
 
@@ -75,18 +75,18 @@ function ConsentContent() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {consent.client.name} quiere acceder a Hackboard
-            {!consent.client.first_party && <Badge variant="warning">No verificada</Badge>}
+            {consent.client.name} wants to access Hackboard
+            {!consent.client.first_party && <Badge variant="warning">Unverified</Badge>}
           </CardTitle>
           <CardDescription>
-            Elige el equipo y revisa los permisos antes de aprobar. Volverás a{" "}
+            Choose the team and review the permissions before you approve. You will go back to{" "}
             <span className="font-mono">{new URL(consent.redirect_uri).host}</span>.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {me.memberships.length > 1 && (
             <div className="flex flex-col gap-1.5">
-              <Label>Equipo</Label>
+              <Label>Team</Label>
               <Select value={teamId} onValueChange={(v) => setSelectedTeamId(v ?? undefined)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -103,7 +103,7 @@ function ConsentContent() {
           )}
 
           <div className="flex flex-col gap-2">
-            <Label>Permisos</Label>
+            <Label>Permissions</Label>
             {consent.scopes.map((scope) => (
               <label key={scope} className="flex cursor-pointer items-start gap-2 rounded-md border border-input p-2 text-base has-data-[checked]:border-primary">
                 <Checkbox
@@ -114,22 +114,22 @@ function ConsentContent() {
                 <span>{SCOPE_LABELS[scope] ?? scope}</span>
               </label>
             ))}
-            {consent.scopes.length === 0 && <p className="text-muted-foreground text-sm">Solo lectura del equipo.</p>}
+            {consent.scopes.length === 0 && <p className="text-muted-foreground text-sm">Read-only access to the team.</p>}
           </div>
 
           {error && <p className="text-destructive text-base">{error}</p>}
 
           <p className="text-muted-foreground text-sm">
-            {consent.client.name} podrá actuar en tu nombre en el equipo elegido, con los permisos marcados arriba, hasta que
-            revoques el acceso desde Apps conectadas.
+            {consent.client.name} will be able to act on your behalf in the chosen team, with the permissions checked
+            above, until you revoke access from Connected apps.
           </p>
 
           <div className="flex gap-2">
             <Button type="button" variant="outline" className="flex-1" onClick={() => handleDecision(false)} loading={decide.isPending}>
-              Rechazar
+              Deny
             </Button>
             <Button type="button" className="flex-1" onClick={() => handleDecision(true)} loading={decide.isPending} disabled={!teamId}>
-              Aprobar
+              Approve
             </Button>
           </div>
         </CardContent>

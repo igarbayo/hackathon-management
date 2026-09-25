@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class AssignFeature
       def self.tool_name = "assign_feature"
-      def self.description = "Añade o quita asignados de una feature. member es \"me\", un id o un display_name exacto."
+      def self.description = "Adds or removes assignees of a feature. member is \"me\", an id or an exact display_name."
       def self.scope = "features:write"
       def self.read_only? = false
 

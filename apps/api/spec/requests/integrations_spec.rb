@@ -1,18 +1,18 @@
 require "rails_helper"
 
-RSpec.describe "Tokens de integración", type: :request do
+RSpec.describe "Integration tokens", type: :request do
   describe "POST /api/v1/teams/:team_id/integrations" do
-    it "un owner crea una integración" do
+    it "an owner creates an integration" do
       owner = create(:membership, :owner)
       sign_in_as(owner.user)
 
-      post "/api/v1/teams/#{owner.team.id}/integrations", params: { name: "Bot de Slack", scopes: [ "features:write" ] }, headers: csrf_headers, as: :json
+      post "/api/v1/teams/#{owner.team.id}/integrations", params: { name: "Slack bot", scopes: [ "features:write" ] }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:created)
       expect(json_response["token"]).to start_with("hb_it_")
     end
 
-    it "un miembro normal no puede crear integraciones" do
+    it "a regular member cannot create integrations" do
       member = create(:membership)
       sign_in_as(member.user)
 
@@ -21,9 +21,9 @@ RSpec.describe "Tokens de integración", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "session_only: un token no puede crear integraciones" do
+    it "session_only: a token cannot create integrations" do
       owner = create(:membership, :owner)
-      token = Pat::Create.call(membership: owner, name: "Completo", preset: "completo").raw_token
+      token = Pat::Create.call(membership: owner, name: "Completo", preset: "full").raw_token
 
       post "/api/v1/teams/#{owner.team.id}/integrations", params: { name: "Bot" }, headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
@@ -33,7 +33,7 @@ RSpec.describe "Tokens de integración", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:team_id/integrations/:id" do
-    it "un owner puede revocarla" do
+    it "an owner can revoke it" do
       owner = create(:membership, :owner)
       integration = create(:access_token, :integration, team: owner.team, created_by_id: owner.user_id)
       sign_in_as(owner.user)
@@ -46,7 +46,7 @@ RSpec.describe "Tokens de integración", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/integrations/:id/rotate" do
-    it "un owner rota el token sin cambiar nombre ni scopes (RF-API-023)" do
+    it "an owner rotates the token without changing its name or scopes (RF-API-023)" do
       owner = create(:membership, :owner)
       integration = create(:access_token, :integration, team: owner.team, created_by_id: owner.user_id, scopes: [ "read", "features:write" ])
       old_digest = integration.token_digest
@@ -61,7 +61,7 @@ RSpec.describe "Tokens de integración", type: :request do
       expect(integration.scopes).to contain_exactly("read", "features:write")
     end
 
-    it "un miembro normal no puede rotarlo" do
+    it "a regular member cannot rotate it" do
       owner = create(:membership, :owner)
       integration = create(:access_token, :integration, team: owner.team, created_by_id: owner.user_id)
       member = create(:membership, team: owner.team)
@@ -73,12 +73,12 @@ RSpec.describe "Tokens de integración", type: :request do
     end
   end
 
-  describe "usar un token de integración en la API de dominio" do
-    it "crea una feature con la integración como actor, sin persona" do
+  describe "using an integration token on the domain API" do
+    it "creates a feature with the integration as the actor, with no person" do
       owner = create(:membership, :owner)
       result = Integration::Create.call(team: owner.team, created_by: owner.user, name: "Bot", scopes: [ "features:write" ])
 
-      post "/api/v1/teams/#{owner.team.id}/features", params: { title: "Hecho por el bot" }, headers: { "Authorization" => "Bearer #{result.raw_token}" }, as: :json
+      post "/api/v1/teams/#{owner.team.id}/features", params: { title: "Made by the bot" }, headers: { "Authorization" => "Bearer #{result.raw_token}" }, as: :json
 
       expect(response).to have_http_status(:created)
       expect(json_response["created_by_id"]).to be_nil
@@ -88,7 +88,7 @@ RSpec.describe "Tokens de integración", type: :request do
       expect(event.via["token_kind"]).to eq("integration")
     end
 
-    it "no puede votar ni añadir argumentos (acción de una persona)" do
+    it "cannot vote or add arguments (an action of a person)" do
       owner = create(:membership, :owner)
       feature = create(:feature, team: owner.team)
       result = Integration::Create.call(team: owner.team, created_by: owner.user, name: "Bot", scopes: [ "arguments:write" ])
@@ -99,7 +99,7 @@ RSpec.describe "Tokens de integración", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "404 si el token de integración es de otro equipo" do
+    it "404 if the integration token belongs to another team" do
       owner = create(:membership, :owner)
       other_team = create(:team)
       result = Integration::Create.call(team: owner.team, created_by: owner.user, name: "Bot", scopes: [ "read" ])

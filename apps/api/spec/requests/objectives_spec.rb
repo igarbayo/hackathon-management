@@ -2,12 +2,12 @@ require "rails_helper"
 
 RSpec.describe "Objectives", type: :request do
   describe "POST /api/v1/teams/:team_id/objectives" do
-    it "crea el objetivo con key atómica" do
+    it "creates the objective with an atomic key" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
       post "/api/v1/teams/#{membership.team.id}/objectives",
-           params: { title: "Reducir latencia", priority: "must" },
+           params: { title: "Cut latency", priority: "must" },
            headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:created)
@@ -16,7 +16,7 @@ RSpec.describe "Objectives", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/objectives" do
-    it "incluye feature_count por estado" do
+    it "includes feature_count by status" do
       membership = create(:membership)
       objective = create(:objective, team: membership.team)
       create(:feature, team: membership.team, status: "idea", objective_ids: [ objective.id ])
@@ -32,7 +32,7 @@ RSpec.describe "Objectives", type: :request do
   end
 
   describe "PATCH /api/v1/teams/:team_id/objectives/:id" do
-    it "archiva el objetivo" do
+    it "archives the objective" do
       membership = create(:membership)
       objective = create(:objective, team: membership.team)
       sign_in_as(membership.user)
@@ -46,7 +46,7 @@ RSpec.describe "Objectives", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:team_id/objectives/:id" do
-    it "borra el objetivo y lo quita de feature.objective_ids" do
+    it "deletes the objective and removes it from feature.objective_ids" do
       membership = create(:membership)
       objective = create(:objective, team: membership.team)
       feature = create(:feature, team: membership.team, objective_ids: [ objective.id ])

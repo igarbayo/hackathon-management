@@ -23,7 +23,7 @@ describe("queue", () => {
     vi.resetModules();
   });
 
-  it("encola y relee eventos en orden", async () => {
+  it("queues and reads back events in order", async () => {
     const { enqueue, readQueueEvents } = await import("./queue");
 
     enqueue({ client_event_id: "a" });
@@ -32,7 +32,7 @@ describe("queue", () => {
     expect(readQueueEvents().map((e) => e.client_event_id)).toEqual(["a", "b"]);
   });
 
-  it("quita solo los eventos indicados", async () => {
+  it("removes only the given events", async () => {
     const { enqueue, readQueueEvents, removeFromQueue } = await import("./queue");
 
     enqueue({ client_event_id: "a" });
@@ -42,7 +42,7 @@ describe("queue", () => {
     expect(readQueueEvents().map((e) => e.client_event_id)).toEqual(["b"]);
   });
 
-  it("vacía la cola", async () => {
+  it("empties the queue", async () => {
     const { enqueue, readQueueEvents, clearQueue } = await import("./queue");
 
     enqueue({ client_event_id: "a" });
@@ -51,14 +51,14 @@ describe("queue", () => {
     expect(readQueueEvents()).toEqual([]);
   });
 
-  it("descarta los eventos más antiguos al superar el tope", async () => {
+  it("drops the oldest events when over the cap", async () => {
     const { writeFileSync } = await import("node:fs");
     const { join } = await import("node:path");
     const { enqueue, readQueueEvents, MAX_QUEUE_EVENTS } = await import("./queue");
 
-    // Precarga la cola justo al límite sin pasar por enqueue() (que solo se
-    // llama una vez por proceso en uso real): así se prueba el límite sin
-    // depender de miles de llamadas síncronas en un solo test.
+    // Preloads the queue right at the limit without going through enqueue()
+    // (which in real use is called only once per process): this tests the limit
+    // without depending on thousands of synchronous calls in a single test.
     const seeded = Array.from({ length: MAX_QUEUE_EVENTS }, (_, i) => JSON.stringify({ client_event_id: `e${i}` })).join("\n");
     writeFileSync(join(dir, "queue.jsonl"), `${seeded}\n`);
 

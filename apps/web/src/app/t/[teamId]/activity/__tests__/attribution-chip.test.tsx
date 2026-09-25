@@ -23,7 +23,7 @@ const feature: Feature = {
 };
 
 describe("AttributionChip", () => {
-  it("una atribución confirmada no ofrece acciones" , () => {
+  it("a confirmed attribution offers no actions", () => {
     render(
       <AttributionChip
         attribution={{ feature_id: "f1", method: "convention", status: "confirmed", confidence: null, reason: null, decided_by_id: null, decided_at: null }}
@@ -38,7 +38,7 @@ describe("AttributionChip", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("una sugerencia ofrece confirmar y rechazar" , async () => {
+  it("a suggestion offers confirm and reject", async () => {
     const onConfirm = vi.fn();
     const onReject = vi.fn();
     const user = userEvent.setup();
@@ -53,20 +53,20 @@ describe("AttributionChip", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Confirmar" }));
+    await user.click(screen.getByRole("button", { name: "Confirm" }));
     expect(onConfirm).toHaveBeenCalledOnce();
 
-    await user.click(screen.getByRole("button", { name: "Rechazar" }));
+    await user.click(screen.getByRole("button", { name: "Reject" }));
     expect(onReject).toHaveBeenCalledOnce();
   });
 
-  it("sin atribución ofrece un botón para asignar" , async () => {
+  it("with no attribution it offers a button to assign", async () => {
     const user = userEvent.setup();
 
     render(<AttributionChip attribution={null} features={[feature]} onConfirm={vi.fn()} onReject={vi.fn()} onAssign={vi.fn()} />);
 
-    expect(screen.getByRole("button", { name: "Asignar a…" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Asignar a…" }));
+    expect(screen.getByRole("button", { name: "Assign to…" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Assign to…" }));
 
     expect(screen.getByRole("combobox")).toBeInTheDocument();
   });

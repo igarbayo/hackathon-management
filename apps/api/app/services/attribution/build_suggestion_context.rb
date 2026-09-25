@@ -1,5 +1,5 @@
-# Contexto para la capa 3 (05-atribucion.md#capa-3). Solo texto y metadatos,
-# nunca diffs ni contenido de ficheros.
+# Context for layer 3 (05-atribucion.md#capa-3). Only text and metadata, never
+# diffs or file contents.
 module Attribution
   class BuildSuggestionContext
     DESCRIPTION_LIMIT = 300

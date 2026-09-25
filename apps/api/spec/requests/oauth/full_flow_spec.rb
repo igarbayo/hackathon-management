@@ -1,10 +1,9 @@
 require "rails_helper"
 
-# RF-API-012, RNF-SEC-015, RNF-API-004: flujo completo authorization_code +
-# PKCE, y los casos explícitos que pide RNF-API-004 (PKCE incorrecto,
-# redirect_uri distinto, resource ajeno, código reutilizado, refresh
-# reutilizado).
-RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
+# RF-API-012, RNF-SEC-015, RNF-API-004: full authorization_code + PKCE flow, and
+# the explicit cases RNF-API-004 asks for (wrong PKCE, different redirect_uri,
+# another resource, reused code, reused refresh token).
+RSpec.describe "Full OAuth 2.1 flow", type: :request do
   def pkce_pair
     verifier = SecureRandom.urlsafe_base64(32)
     challenge = Base64.urlsafe_encode64(Digest::SHA256.digest(verifier), padding: false)
@@ -47,14 +46,14 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
     post "/oauth/authorize/decision", params: body, headers: csrf_headers, as: :json
   end
 
-  it "GET /oauth/authorize sin sesión manda antes a /login con next hacia el consentimiento" do
+  it "GET /oauth/authorize with no session first sends to /login with next pointing to the consent" do
     get "/oauth/authorize", params: authorize_params(pkce_pair)
 
     expect(response).to have_http_status(:found)
     expect(response.headers["Location"]).to include("/login?next=")
   end
 
-  it "GET /oauth/authorize con sesión manda directo al consentimiento" do
+  it "GET /oauth/authorize with a session goes straight to the consent" do
     sign_in_as(membership.user)
 
     get "/oauth/authorize", params: authorize_params(pkce_pair)
@@ -62,19 +61,19 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
     expect(response.headers["Location"]).to include("/oauth/consent?request_id=")
   end
 
-  it "client_id desconocido: error directo, nunca redirige (no es un redirect_uri de confianza)" do
-    get "/oauth/authorize", params: authorize_params(pkce_pair).merge(client_id: "no-existe")
+  it "unknown client_id: direct error, never redirects (it is not a trusted redirect_uri)" do
+    get "/oauth/authorize", params: authorize_params(pkce_pair).merge(client_id: "does-not-exist")
 
     expect(response).to have_http_status(:bad_request)
   end
 
-  it "redirect_uri no registrado: error directo" do
-    get "/oauth/authorize", params: authorize_params(pkce_pair).merge(redirect_uri: "https://otro.example.com/cb")
+  it "unregistered redirect_uri: direct error" do
+    get "/oauth/authorize", params: authorize_params(pkce_pair).merge(redirect_uri: "https://other.example.com/cb")
 
     expect(response).to have_http_status(:bad_request)
   end
 
-  it "resource ajeno: redirige con error=invalid_target, ya con redirect_uri validado" do
+  it "another resource: redirects with error=invalid_target, with redirect_uri already validated" do
     get "/oauth/authorize", params: authorize_params(pkce_pair).merge(resource: "https://malicioso.example.com")
 
     expect(response).to have_http_status(:found)
@@ -82,7 +81,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
     expect(response.headers["Location"]).to include("error=invalid_target")
   end
 
-  it "GET /oauth/consent_info devuelve el nombre del cliente y los scopes pedidos" do
+  it "GET /oauth/consent_info returns the client name and the requested scopes" do
     sign_in_as(membership.user)
     get "/oauth/authorize", params: authorize_params(pkce_pair)
     request_id = request_id_from_redirect
@@ -94,8 +93,8 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
     expect(json_response["redirect_uri"]).to eq(client.redirect_uris.first)
   end
 
-  describe "de principio a fin" do
-    it "aprobar el consentimiento y canjear el código da un token válido para ese resource" do
+  describe "end to end" do
+    it "approving the consent and exchanging the code gives a valid token for that resource" do
       verifier, challenge = pkce_pair
       sign_in_as(membership.user)
       get "/oauth/authorize", params: authorize_params([ verifier, challenge ])
@@ -123,7 +122,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(resolved.team).to eq(membership.team)
     end
 
-    it "rechazar el consentimiento da un redirect_url con error=access_denied" do
+    it "denying the consent gives a redirect_url with error=access_denied" do
       verifier, challenge = pkce_pair
       sign_in_as(membership.user)
       get "/oauth/authorize", params: authorize_params([ verifier, challenge ])
@@ -134,7 +133,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(json_response["redirect_url"]).to include("error=access_denied")
     end
 
-    it "no se puede pedir más scope del que se autorizó en /authorize" do
+    it "cannot ask for more scope than was authorized in /authorize" do
       verifier, challenge = pkce_pair
       sign_in_as(membership.user)
       get "/oauth/authorize", params: authorize_params([ verifier, challenge ]).merge(scope: "read")
@@ -145,7 +144,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(json_response["redirect_url"]).to include("error=invalid_scope")
     end
 
-    it "exige sesión y CSRF para decidir" do
+    it "requires a session and CSRF to decide" do
       sign_in_as(membership.user)
       get "/oauth/authorize", params: authorize_params(pkce_pair)
       request_id = request_id_from_redirect
@@ -156,7 +155,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
     end
   end
 
-  describe "RNF-API-004: casos explícitos" do
+  describe "RNF-API-004: explicit cases" do
     def issue_code(verifier_pair)
       sign_in_as(membership.user)
       get "/oauth/authorize", params: authorize_params(verifier_pair)
@@ -167,33 +166,33 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       query_param(json_response["redirect_url"], "code")
     end
 
-    it "PKCE incorrecto: code_verifier que no coincide con el challenge" do
+    it "wrong PKCE: a code_verifier that does not match the challenge" do
       verifier, challenge = pkce_pair
       code = issue_code([ verifier, challenge ])
 
       post "/oauth/token", params: {
         grant_type: "authorization_code", code: code, redirect_uri: client.redirect_uris.first,
-        client_id: client.client_id, code_verifier: "otro-verifier-que-no-es"
+        client_id: client.client_id, code_verifier: "another-verifier-that-does-not-match"
       }, as: :json
 
       expect(response).to have_http_status(:bad_request)
       expect(json_response["error"]).to eq("invalid_grant")
     end
 
-    it "redirect_uri distinto al de /authorize" do
+    it "redirect_uri different from the one in /authorize" do
       verifier, challenge = pkce_pair
-      client.update!(redirect_uris: client.redirect_uris + [ "https://claude.ai/otro" ])
+      client.update!(redirect_uris: client.redirect_uris + [ "https://claude.ai/other" ])
       code = issue_code([ verifier, challenge ])
 
       post "/oauth/token", params: {
-        grant_type: "authorization_code", code: code, redirect_uri: "https://claude.ai/otro",
+        grant_type: "authorization_code", code: code, redirect_uri: "https://claude.ai/other",
         client_id: client.client_id, code_verifier: verifier
       }, as: :json
 
       expect(response).to have_http_status(:bad_request)
     end
 
-    it "código reutilizado" do
+    it "reused code" do
       verifier, challenge = pkce_pair
       code = issue_code([ verifier, challenge ])
       body = { grant_type: "authorization_code", code: code, redirect_uri: client.redirect_uris.first, client_id: client.client_id, code_verifier: verifier }
@@ -205,7 +204,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(response).to have_http_status(:bad_request)
     end
 
-    it "resource ajeno: un token para /api/v1/mcp no vale para la API REST" do
+    it "another resource: a token for /api/v1/mcp does not work on the REST API" do
       verifier, challenge = pkce_pair
       code = issue_code([ verifier, challenge ])
       post "/oauth/token", params: {
@@ -221,7 +220,7 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(resolved_for_mcp).to be_present
     end
 
-    it "refresh token reutilizado: revoca toda la conexión, incluido el nuevo" do
+    it "reused refresh token: revokes the whole connection, including the new one" do
       verifier, challenge = pkce_pair
       code = issue_code([ verifier, challenge ])
       post "/oauth/token", params: {
@@ -234,16 +233,16 @@ RSpec.describe "Flujo OAuth 2.1 completo", type: :request do
       expect(response).to have_http_status(:ok)
       second_access = json_response["access_token"]
 
-      # Reusar el refresh token ya rotado: se detecta el robo.
+      # Reusing the already rotated refresh token: the theft is detected.
       post "/oauth/token", params: { grant_type: "refresh_token", refresh_token: first_refresh, client_id: client.client_id }, as: :json
       expect(response).to have_http_status(:bad_request)
 
-      # Y revoca también el token que había salido de la rotación legítima.
+      # And it also revokes the token that came out of the legitimate rotation.
       expect(Tokens::Resolve.call(second_access, expected_resource: resource)).to be_nil
     end
   end
 
-  it "POST /oauth/revoke invalida el token" do
+  it "POST /oauth/revoke invalidates the token" do
     verifier, challenge = pkce_pair
     sign_in_as(membership.user)
     get "/oauth/authorize", params: {

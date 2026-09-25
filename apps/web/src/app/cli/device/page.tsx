@@ -14,9 +14,9 @@ import { useApproveDevice, useDenyDevice } from "@/hooks/use-claude-code";
 import { ApiError } from "@/lib/api-client";
 
 const PRIVACY_LEVELS = [
-  { value: "metadata", label: "Metadata (recomendado)", description: "Tipo de evento, horas, rama, ficheros editados, nº de herramientas y longitud del prompt. Nunca el texto." },
-  { value: "summaries", label: "Metadata + resúmenes", description: "Lo de metadata más un resumen del turno que tú mismo apruebas antes de enviarse." },
-  { value: "off", label: "Desactivado", description: "No se envía nada, aunque quede conectado." },
+  { value: "metadata", label: "Metadata (recommended)", description: "Event type, times, branch, edited files, number of tools and prompt length. Never the text." },
+  { value: "summaries", label: "Metadata + summaries", description: "Metadata plus a summary of the turn that you approve yourself before it is sent." },
+  { value: "off", label: "Off", description: "Nothing is sent, even though it stays connected." },
 ];
 
 function DeviceApprovalContent() {
@@ -45,7 +45,7 @@ function DeviceApprovalContent() {
   if (me.memberships.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <p className="text-muted-foreground text-base">Todavía no tienes ningún equipo. Únete a uno antes de conectar el CLI.</p>
+        <p className="text-muted-foreground text-base">You are not in any team yet. Join one before you connect the CLI.</p>
       </div>
     );
   }
@@ -55,13 +55,13 @@ function DeviceApprovalContent() {
       <div className="flex min-h-[60vh] items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardHeader>
-            <CardTitle>{done === "approved" ? "Dispositivo aprobado" : "Solicitud rechazada"}</CardTitle>
+            <CardTitle>{done === "approved" ? "Device approved" : "Request denied"}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-base">
               {done === "approved"
-                ? "Ya puedes volver a la terminal: hackboard debería continuar solo."
-                : "El CLI recibirá el rechazo la próxima vez que compruebe el estado."}
+                ? "You can go back to the terminal: hackboard should carry on by itself."
+                : "The CLI will get the denial the next time it checks the status."}
             </p>
           </CardContent>
         </Card>
@@ -76,7 +76,7 @@ function DeviceApprovalContent() {
       await approve.mutateAsync({ user_code: userCode, privacy_level: privacyLevel });
       setDone("approved");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido aprobar");
+      setError(err instanceof ApiError ? err.message : "Could not approve");
     }
   }
 
@@ -86,7 +86,7 @@ function DeviceApprovalContent() {
       await deny.mutateAsync({ user_code: userCode });
       setDone("denied");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido rechazar");
+      setError(err instanceof ApiError ? err.message : "Could not deny");
     }
   }
 
@@ -94,13 +94,13 @@ function DeviceApprovalContent() {
     <div className="flex min-h-[60vh] items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Conectar Claude Code</CardTitle>
-          <CardDescription>Un CLI está pidiendo acceso con este código. Solo tú decides qué se envía.</CardDescription>
+          <CardTitle>Connect Claude Code</CardTitle>
+          <CardDescription>A CLI is asking for access with this code. Only you decide what is sent.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleApprove} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="user-code">Código</Label>
+              <Label htmlFor="user-code">Code</Label>
               <Input
                 id="user-code"
                 required
@@ -112,7 +112,7 @@ function DeviceApprovalContent() {
 
             {me.memberships.length > 1 && (
               <div className="flex flex-col gap-1.5">
-                <Label>Equipo</Label>
+                <Label>Team</Label>
                 <Select value={teamId} onValueChange={(v) => setSelectedTeamId(v ?? undefined)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -129,7 +129,7 @@ function DeviceApprovalContent() {
             )}
 
             <div className="flex flex-col gap-2">
-              <Label>Qué se envía</Label>
+              <Label>What is sent</Label>
               <RadioGroup value={privacyLevel} onValueChange={(v) => v && setPrivacyLevel(v)}>
                 {PRIVACY_LEVELS.map((level) => (
                   <label
@@ -150,10 +150,10 @@ function DeviceApprovalContent() {
 
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={handleDeny} loading={deny.isPending}>
-                Rechazar
+                Deny
               </Button>
               <Button type="submit" className="flex-1" loading={approve.isPending} disabled={!teamId}>
-                Aprobar
+                Approve
               </Button>
             </div>
           </form>

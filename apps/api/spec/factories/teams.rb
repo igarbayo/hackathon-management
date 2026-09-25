@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :team do
-    sequence(:name) { |n| "Equipo #{n}" }
+    sequence(:name) { |n| "Team #{n}" }
 
     hackathon { build(:hackathon) }
 

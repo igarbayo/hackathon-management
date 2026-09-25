@@ -1,4 +1,4 @@
-# Ficheros de un PR, aparte del evento (máx. 50) (07-integracion-github.md).
+# Files of a PR, separate from the event (max. 50) (07-integracion-github.md).
 module Github
   class FetchPullRequestFilesJob
     include Sidekiq::Job

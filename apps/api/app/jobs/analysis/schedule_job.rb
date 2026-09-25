@@ -1,7 +1,7 @@
-# Cron cada minuto (06-analisis-ia.md#disparo): busca equipos cuyo último
-# análisis tiene más de settings.analysis_interval_min minutos, dentro de la
-# ventana del hackathon (starts_at − 12h a ends_at + 1h). El propio RunJob
-# se salta la llamada a la IA si el contexto no cambió (input_hash igual).
+# Cron every minute (06-analisis-ia.md#disparo): finds teams whose last analysis
+# is older than settings.analysis_interval_min minutes, inside the hackathon
+# window (starts_at − 12h to ends_at + 1h). RunJob itself skips the AI call if
+# the context did not change (same input_hash).
 module Analysis
   class ScheduleJob
     include Sidekiq::Job

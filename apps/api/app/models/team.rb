@@ -43,8 +43,9 @@ class Team
     deleted_at.present?
   end
 
-  # RF-TEAM-009: borrado lógico. Revoca todos los tokens del equipo (12-acceso-
-  # programatico.md#tipos-de-token); el borrado físico lo hace el RetentionJob.
+  # RF-TEAM-009: soft delete. It revokes all the team's tokens
+  # (12-acceso-programatico.md#tipos-de-token); RetentionJob does the physical
+  # deletion.
   def soft_delete!
     update!(deleted_at: Time.current)
     access_tokens.where(revoked_at: nil).update_all(revoked_at: Time.current, revoke_reason: "team_deleted")
@@ -74,7 +75,7 @@ class Team
     result["objective_seq"]
   end
 
-  # El owner puede regenerarlo (RF-TEAM-005); el anterior deja de servir.
+  # The owner can regenerate it (RF-TEAM-005); the previous one stops working.
   def regenerate_code!
     update!(code: generate_unique_code)
   end

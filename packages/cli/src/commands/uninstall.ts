@@ -5,8 +5,8 @@ import { clearQueue } from "../queue";
 import { revokeMyLink } from "../api-client";
 import { readSettingsFile, removeHooksFromSettings, settingsPathFor, writeSettingsFile } from "../settings-merge";
 
-// RF-CC-023: deja los ficheros de settings exactamente como estaban, salvo
-// cambios de terceros hechos después (solo se quitan las entradas propias).
+// RF-CC-023: leaves the settings files exactly as they were, except for
+// third-party changes made afterwards (only our own entries are removed).
 export async function runUninstall(argv: string[]): Promise<void> {
   const purge = argv.includes("--purge");
   const creds = readCredentials();
@@ -22,17 +22,17 @@ export async function runUninstall(argv: string[]): Promise<void> {
     try {
       await revokeMyLink(creds.token, purge);
     } catch {
-      console.error("No se ha podido revocar el token en el servidor; se borra igualmente en local.");
+      console.error("Could not revoke the token on the server; deleting it locally anyway.");
     }
 
     try {
       execFileSync("claude", ["mcp", "remove", "hackboard"], { stdio: "ignore" });
     } catch {
-      // no había MCP registrado, o `claude` no está en el PATH
+      // no MCP server was registered, or `claude` is not in the PATH
     }
   }
 
   clearCredentials();
   clearQueue();
-  console.log(`Hackboard desinstalado.${purge ? " Tus eventos también se han borrado del servidor." : ""}`);
+  console.log(`Hackboard uninstalled.${purge ? " Your events have also been deleted from the server." : ""}`);
 }

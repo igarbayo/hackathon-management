@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class UpdateObjective
       def self.tool_name = "update_objective"
-      def self.description = "Edita un objetivo (no lo borra)."
+      def self.description = "Edits an objective (it does not delete it)."
       def self.scope = "objectives:write"
       def self.read_only? = false
 

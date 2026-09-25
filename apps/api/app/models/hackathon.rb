@@ -21,12 +21,12 @@ class Hackathon
   def timezone_is_valid_iana
     return if timezone.blank?
 
-    errors.add(:timezone, "tiene que ser un identificador IANA válido") unless TZInfo::Timezone.all_identifiers.include?(timezone)
+    errors.add(:timezone, "must be a valid IANA identifier") unless TZInfo::Timezone.all_identifiers.include?(timezone)
   end
 
   def ends_after_starts
     return if starts_at.blank? || ends_at.blank?
 
-    errors.add(:ends_at, "tiene que ser posterior a starts_at") if ends_at <= starts_at
+    errors.add(:ends_at, "must be after starts_at") if ends_at <= starts_at
   end
 end

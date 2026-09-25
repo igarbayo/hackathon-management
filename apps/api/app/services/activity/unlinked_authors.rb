@@ -1,6 +1,6 @@
-# Autores de eventos de GitHub sin usuario (RF-ACT-018), agrupados por login
-# o, si el evento no lo trae, por email. Es la única respuesta de la API que
-# expone emails de autores, y solo a miembros del equipo (ADR-0018).
+# Authors of GitHub events with no user (RF-ACT-018), grouped by login or, if
+# the event has none, by email. It is the only API response that exposes author
+# emails, and only to team members (ADR-0018).
 module Activity
   class UnlinkedAuthors
     SCAN_LIMIT = 5_000

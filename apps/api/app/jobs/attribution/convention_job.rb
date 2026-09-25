@@ -1,5 +1,5 @@
-# Aplica las capas 1 y 2 (05-atribucion.md) a un evento recién creado.
-# Idempotente: si el evento ya tiene attribution, no hace nada.
+# Applies layers 1 and 2 (05-atribucion.md) to a newly created event.
+# Idempotent: if the event already has an attribution, it does nothing.
 module Attribution
   class ConventionJob
     include Sidekiq::Job

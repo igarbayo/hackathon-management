@@ -5,19 +5,19 @@ import { readConfigCache } from "../config-cache";
 import { getRemote } from "../git";
 import { ingestBatch } from "../api-client";
 
-// `hackboard test`: envía un evento system_test y muestra el resultado
+// `hackboard test`: sends a system_test event and shows the result
 // (08-integracion-claude-code.md#comandos).
 export async function runTest(): Promise<void> {
   const creds = readCredentials();
   if (!creds) {
-    console.error("No conectado. Ejecuta `hackboard init`.");
+    console.error("Not connected. Run `hackboard init`.");
     process.exitCode = 1;
     return;
   }
 
   const remote = getRemote(process.cwd()) ?? readConfigCache()?.repos[0];
   if (!remote) {
-    console.error("No hay ningún repo vinculado para probar. Vincula uno desde los ajustes del equipo.");
+    console.error("There is no linked repo to test with. Link one from the team settings.");
     process.exitCode = 1;
     return;
   }
@@ -34,7 +34,7 @@ export async function runTest(): Promise<void> {
   const result = await ingestBatch(creds.token, CLI_VERSION, [event]);
 
   if (!result.ok) {
-    console.error(result.revoked ? "El token ha sido revocado. Ejecuta `hackboard init` de nuevo." : "No se ha podido contactar con el servidor.");
+    console.error(result.revoked ? "The token has been revoked. Run `hackboard init` again." : "Could not reach the server.");
     process.exitCode = 1;
     return;
   }
@@ -45,5 +45,5 @@ export async function runTest(): Promise<void> {
     return;
   }
 
-  console.log("Prueba enviada correctamente. Revisa el feed de actividad de tu equipo.");
+  console.log("Test sent. Check your team's activity feed.");
 }

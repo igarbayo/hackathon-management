@@ -14,7 +14,7 @@ class ActivityEvent
 
   MAX_FILES = 50
 
-  # RF-ATR-001…003: kinds sobre los que corre la atribución automática.
+  # RF-ATR-001…003: kinds that automatic attribution runs on.
   ATTRIBUTABLE_KINDS = %w[commit pr_opened pr_merged pr_closed pr_reopened cc_turn progress_report].freeze
 
   field :source, type: String
@@ -37,9 +37,9 @@ class ActivityEvent
   field :session_ref, type: String
   field :via, type: Hash
 
-  # Capa 3 (05-atribucion.md#capa-3): cuándo se intentó sugerir con IA y
-  # salió con confidence < 0.5. No se reintenta hasta que llegue un evento
-  # nuevo en el mismo grupo (actor, rama, sesión).
+  # Layer 3 (05-atribucion.md#capa-3): when an AI suggestion was tried and came
+  # back with confidence < 0.5. It is not retried until a new event arrives in
+  # the same group (actor, branch, session).
   field :ai_suggestion_attempted_at, type: Time
 
   embeds_one :attribution, class_name: "EventAttribution"
@@ -55,8 +55,8 @@ class ActivityEvent
   validate :files_within_limit
 
   after_create :enqueue_attribution, if: -> { ATTRIBUTABLE_KINDS.include?(kind) && attribution.blank? }
-  # activity.created (12-acceso-programatico.md#webhooks-salientes): nunca
-  # para claude_code/mcp, que son opt-in por persona (09-privacidad-seguridad.md#principios).
+  # activity.created (12-acceso-programatico.md#webhooks-salientes): never for
+  # claude_code/mcp, which are opt-in per person (09-privacidad-seguridad.md#principios).
   after_create :enqueue_activity_webhook, if: -> { %w[github system].include?(source) }
 
   index({ team_id: 1, dedupe_key: 1 }, { unique: true })
@@ -73,13 +73,13 @@ class ActivityEvent
 
   def kind_matches_source
     allowed = KINDS_BY_SOURCE[source]
-    return if allowed.nil? # ya se marca el error de source por separado
+    return if allowed.nil? # the source error is already added separately
 
-    errors.add(:kind, "no es válido para el source #{source}") unless allowed.include?(kind)
+    errors.add(:kind, "is not valid for the source #{source}") unless allowed.include?(kind)
   end
 
   def files_within_limit
-    errors.add(:files, "no puede tener más de #{MAX_FILES} elementos") if files.size > MAX_FILES
+    errors.add(:files, "cannot have more than #{MAX_FILES} items") if files.size > MAX_FILES
   end
 
   def enqueue_attribution

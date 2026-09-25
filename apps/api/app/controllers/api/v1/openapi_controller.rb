@@ -1,4 +1,4 @@
-# GET /api/v1/openapi.json (RF-API-007). Pública, sin auth.
+# GET /api/v1/openapi.json (RF-API-007). Public, no auth.
 module Api
   module V1
     class OpenapiController < ApplicationController

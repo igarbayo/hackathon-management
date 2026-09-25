@@ -19,7 +19,7 @@ RSpec.describe Github::LinkRepository do
       .to_return(status: 201, body: { token: "ghs_x" }.to_json, headers: { "Content-Type" => "application/json" })
   end
 
-  it "vincula al instante si alguna instalación del equipo ya tiene acceso" do
+  it "links right away if any of the team's installations already has access" do
     membership = create(:membership)
     team = membership.team
     team.update!(github_installation_ids: [ 42 ])
@@ -33,7 +33,7 @@ RSpec.describe Github::LinkRepository do
     expect(result.repository.full_name).to eq("org/repo")
   end
 
-  it "devuelve needs_install si ninguna instalación tiene acceso" do
+  it "returns needs_install if no installation has access" do
     membership = create(:membership)
     team = membership.team
     team.update!(github_installation_ids: [ 42 ])

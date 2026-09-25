@@ -1,21 +1,21 @@
 ---
 name: f0-style
-description: "Sistema de diseño F0 de Factorial portado a apps/web (tokens f1-*, tipografía, radios, sombras, variantes de Button/Card/Tag, reglas de escritura y patrones CRUD). Trigger: al tocar cualquier componente, página o clase de Tailwind en apps/web."
+description: "Factorial's F0 design system ported to apps/web (f1-* tokens, typography, radii, shadows, Button/Card/Tag variants, writing rules and CRUD patterns). Trigger: when touching any component, page or Tailwind class in apps/web."
 metadata:
   type: project
 ---
 
-# Estilo F0 (Factorial) en apps/web
+# F0 (Factorial) style in apps/web
 
-`apps/web` sigue el sistema de diseño **F0** de Factorial (`github.com/factorialco/f0`), portado como tokens propios — no se instala `@factorialco/f0-react` (ver [ADR-0013](../../../specs/decisiones.md#adr-0013) y [specs/13-sistema-diseno.md](../../../specs/13-sistema-diseno.md)). Esta skill es la referencia rápida; para cualquier propiedad de componente que no esté aquí, **no la inventes** — mira el código fuente real en `https://github.com/factorialco/f0/tree/main/packages/react/src` o pregunta al MCP de Storybook (`https://f0.factorial.dev/mcp`, herramienta `get-documentation`).
+`apps/web` follows Factorial's **F0** design system (`github.com/factorialco/f0`), ported as our own tokens — `@factorialco/f0-react` is not installed (see [ADR-0013](../../../specs/decisiones.md#adr-0013) and [specs/13-sistema-diseno.md](../../../specs/13-sistema-diseno.md)). This skill is the quick reference; for any component property that is not here, **do not invent it** — look at the real source code in `https://github.com/factorialco/f0/tree/main/packages/react/src` or ask the Storybook MCP (`https://f0.factorial.dev/mcp`, `get-documentation` tool).
 
-## Regla de oro
+## Golden rule
 
-Nunca uses un color de la paleta Tailwind en crudo (`bg-emerald-500`, `text-red-600`, `border-amber-400`…) ni un hex en `className`. Siempre un token `f1-*` semántico (o su alias shadcn: `background`, `foreground`, `border`, `primary`, `destructive`…, que ya apuntan a F0 vía `@theme inline` en `globals.css`).
+Never use a raw Tailwind palette color (`bg-emerald-500`, `text-red-600`, `border-amber-400`…) or a hex value in `className`. Always a semantic `f1-*` token (or its shadcn alias: `background`, `foreground`, `border`, `primary`, `destructive`…, which already point to F0 through `@theme inline` in `globals.css`).
 
-## Colores (`f1-*`)
+## Colors (`f1-*`)
 
-Fuente real: `packages/core/src/tokens/colors.ts` de F0.
+Real source: F0's `packages/core/src/tokens/colors.ts`.
 
 **Foreground:** `f1-foreground`, `-secondary`, `-tertiary`, `-inverse(-secondary)`, `-disabled`, `-accent`, `-critical`, `-info`, `-warning`, `-positive`, `-selected`.
 
@@ -25,15 +25,15 @@ Fuente real: `packages/core/src/tokens/colors.ts` de F0.
 
 **Icon:** `f1-icon`, `-secondary`, `-inverse`, `-bold`, `-critical(-bold)`, `-accent`, `-info`, `-warning`, `-positive`, `-promote`, `-selected(-hover)`, `-mood-*`.
 
-**Special:** `f1-special-ring` (foco, viridian), `f1-special-page` (fondo de la app, detrás del panel), `f1-special-highlight`.
+**Special:** `f1-special-ring` (focus, viridian), `f1-special-page` (app background, behind the panel), `f1-special-highlight`.
 
-Paleta base (HSL, light mode): accent=morado de marca `266 41% 39%` (#5E3A8C de los logos; la única desviación de F0, que usa radical `348 80% 50%` — RNF-UI-005, ADR-0015), selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Los neutros son azul-marino translúcido (`--neutral-100: 218 48% 10%`) en claro; en oscuro son grises tipo Discord (paneles `228 6% 20%`, página `225 6% 13%`), la segunda desviación de F0 (RNF-UI-006).
+Base palette (HSL, light mode): accent=brand purple `266 41% 39%` (#5E3A8C from the logos; the only deviation from F0, which uses radical `348 80% 50%` — RNF-UI-005, ADR-0015), selected/ring=viridian `184 92% 35%`, critical=red `5 100% 65%`, positive=grass `160 84% 39%`, info=malibu `216 90% 65%`, warning=orange `25 95% 53%`, promote=yellow `38 92% 54%`. Neutrals are translucent navy blue (`--neutral-100: 218 48% 10%`) in light mode; in dark mode they are Discord-like grays (panels `228 6% 20%`, page `225 6% 13%`), the second deviation from F0 (RNF-UI-006).
 
-## Tipografía
+## Typography
 
-Inter 400/500/600 vía `next/font/google`, base 14px.
+Inter 400/500/600 through `next/font/google`, 14px base.
 
-| Clase | Tamaño/interlineado | Letter-spacing |
+| Class | Size/line height | Letter spacing |
 |---|---|---|
 | `text-xs` | .625/.75rem | – |
 | `text-sm` | .75/1rem | – |
@@ -44,79 +44,79 @@ Inter 400/500/600 vía `next/font/google`, base 14px.
 | `text-3xl` | 1.625/2rem | -0.01em |
 | `text-4xl` | 2.25/2.5rem | -0.02em |
 
-## Radios y alturas interactivas
+## Radii and interactive heights
 
-- Escala: `2xs` .25rem, `xs` .375rem, `sm` .5rem, `DEFAULT` .625rem, `md` .75rem, `lg` .875rem, `xl` 1rem, `2xl` 1.25rem, `3xl` 1.5rem, `full`.
-- Elementos interactivos (botón, input, segmented control): `sm` → `rounded-sm` (24px alto), `md`/default → `rounded` (32px alto), `lg` → `rounded-md` (40px alto).
-- Un contenedor que envuelve elementos interactivos (fondo de un segmented control, de un button group) sube un escalón: interior `sm` → contenedor `rounded` (DEFAULT), interior `md` → contenedor `rounded-md`, interior `lg` → contenedor `rounded-lg`.
-- Todos los bordes son de 1px sólido.
+- Scale: `2xs` .25rem, `xs` .375rem, `sm` .5rem, `DEFAULT` .625rem, `md` .75rem, `lg` .875rem, `xl` 1rem, `2xl` 1.25rem, `3xl` 1.5rem, `full`.
+- Interactive elements (button, input, segmented control): `sm` → `rounded-sm` (24px high), `md`/default → `rounded` (32px high), `lg` → `rounded-md` (40px high).
+- A container that wraps interactive elements (the background of a segmented control or a button group) goes up one step: inner `sm` → container `rounded` (DEFAULT), inner `md` → container `rounded-md`, inner `lg` → container `rounded-lg`.
+- All borders are 1px solid.
 
-## Sombras
+## Shadows
 
 `shadow` (DEFAULT) `0 2px 20px hsl(var(--shadow)/.04)`, `shadow-md` `0 4px 20px /.08`, `shadow-lg` `0 8px 30px /.12`, `shadow-xl` `0 12px 56px /.16`.
 
-## Espaciado
+## Spacing
 
-Escala de 4px. Entre elementos: `sm` .25rem, `md` .5rem, `lg` .75rem, `xl` 1rem. Padding de página: 24px (`p-6`). Ancho máximo de contenido: 712px.
+4px scale. Between elements: `sm` .25rem, `md` .5rem, `lg` .75rem, `xl` 1rem. Page padding: 24px (`p-6`). Max content width: 712px.
 
-## Foco (accesibilidad)
+## Focus (accessibility)
 
-Equivalente a `focusRing()` de F0:
+Equivalent to F0's `focusRing()`:
 ```
 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-f1-special-ring focus-visible:ring-offset-1
 ```
-Aplícalo a todo elemento interactivo custom (no lo necesitas en elementos que ya heredan el foco de un primitivo shadcn/Base UI existente). Ver también la skill `a11y`.
+Apply it to every custom interactive element (you do not need it on elements that already inherit focus from an existing shadcn/Base UI primitive). See also the `a11y` skill.
 
 ## Button (→ F0Button)
 
-Fuente real: `packages/react/src/ui/Action/variants.ts` de F0.
+Real source: F0's `packages/react/src/ui/Action/variants.ts`.
 
-- **Variantes:** `default` (fondo `f1-background-accent-bold`, texto inverso — es el primario, acento morado de marca), `outline` (fondo `f1-background-inverse-secondary` + anillo `f1-border`), `neutral` (fondo `f1-background-secondary`), `critical` (fondo `f1-background-secondary`, texto `f1-foreground-critical`, hover sólido `f1-background-critical-bold`), `ghost` (transparente), `promote` (fondo `f1-background-promote`), `outlinePromote`, `link`.
-- **Tamaños:** `sm` 24px + `rounded-sm`, `md` (default) 32px + `rounded`, `lg` 40px + `rounded-md`.
-- Solo un botón `default` por sección. El primario va a la derecha cuando se empareja con "Cancelar". `critical` es solo para acciones irreversibles y siempre con confirmación.
-- Escritura: sentence case, 1-3 palabras, verbo imperativo, nombra el objeto en lo destructivo ("Eliminar objetivo").
+- **Variants:** `default` (`f1-background-accent-bold` background, inverse text — it is the primary, brand purple accent), `outline` (`f1-background-inverse-secondary` background + `f1-border` ring), `neutral` (`f1-background-secondary` background), `critical` (`f1-background-secondary` background, `f1-foreground-critical` text, solid `f1-background-critical-bold` on hover), `ghost` (transparent), `promote` (`f1-background-promote` background), `outlinePromote`, `link`.
+- **Sizes:** `sm` 24px + `rounded-sm`, `md` (default) 32px + `rounded`, `lg` 40px + `rounded-md`.
+- Only one `default` button per section. The primary goes on the right when paired with "Cancel". `critical` is only for irreversible actions and always with confirmation.
+- Writing: plain English (RNF-UI-013), sentence case, 1-3 words, imperative verb, name the object in destructive actions ("Delete objective").
 
 ## Card (→ F0Card)
 
-Fuente real: `packages/react/src/components/F0Card/CardInternal.tsx`.
+Real source: `packages/react/src/components/F0Card/CardInternal.tsx`.
 
-- Base: `bg-f1-background shadow-none` con `border` (usa `border-f1-border`, o `border-f1-border-secondary` con la variante "subtle").
-- Interactiva (con link/onClick): `hover:border-f1-border-hover hover:shadow-md focus-within:border-f1-border-hover focus-within:shadow-md`.
-- Seleccionada: `border-f1-border-selected bg-f1-background-selected-secondary`.
-- Título: `text-lg font-semibold text-f1-foreground` (compacta: `text-base`). Descripción: `text-base text-f1-foreground-secondary`.
+- Base: `bg-f1-background shadow-none` with `border` (use `border-f1-border`, or `border-f1-border-secondary` with the "subtle" variant).
+- Interactive (with link/onClick): `hover:border-f1-border-hover hover:shadow-md focus-within:border-f1-border-hover focus-within:shadow-md`.
+- Selected: `border-f1-border-selected bg-f1-background-selected-secondary`.
+- Title: `text-lg font-semibold text-f1-foreground` (compact: `text-base`). Description: `text-base text-f1-foreground-secondary`.
 
 ## Tag (→ F0TagStatus / F0TagRaw / BaseTag)
 
-Fuente real: `packages/react/src/components/tags/F0TagStatus/F0TagStatus.tsx` y `tags/internal/BaseTag/index.tsx`.
+Real source: `packages/react/src/components/tags/F0TagStatus/F0TagStatus.tsx` and `tags/internal/BaseTag/index.tsx`.
 
-- Forma: `rounded-full` (o `rounded-sm` para `shape="square"`), `py-0.5 px-2`, `text-sm` (size `sm`) o `text-base` (size `md`, poco común en tags).
-- Variantes de estado con su color de fondo/texto/icono a juego:
-  - `neutral`: `bg-f1-background-secondary text-f1-foreground-secondary`, icono `text-f1-icon`
-  - `info`: `bg-f1-background-info text-f1-foreground-info`, icono `text-f1-icon-info`
-  - `positive`: `bg-f1-background-positive text-f1-foreground-positive`, icono `text-f1-icon-positive`
-  - `warning`: `bg-f1-background-warning text-f1-foreground-warning`, icono `text-f1-icon-warning`
-  - `critical`: `bg-f1-background-critical text-f1-foreground-critical`, icono `text-f1-icon-critical`
-- Sin icono, se muestra un punto (`aspect-square w-2 rounded-full`) del color del icono correspondiente — esto es F0TagDot.
+- Shape: `rounded-full` (or `rounded-sm` for `shape="square"`), `py-0.5 px-2`, `text-sm` (size `sm`) or `text-base` (size `md`, rare in tags).
+- Status variants with matching background/text/icon color:
+  - `neutral`: `bg-f1-background-secondary text-f1-foreground-secondary`, icon `text-f1-icon`
+  - `info`: `bg-f1-background-info text-f1-foreground-info`, icon `text-f1-icon-info`
+  - `positive`: `bg-f1-background-positive text-f1-foreground-positive`, icon `text-f1-icon-positive`
+  - `warning`: `bg-f1-background-warning text-f1-foreground-warning`, icon `text-f1-icon-warning`
+  - `critical`: `bg-f1-background-critical text-f1-foreground-critical`, icon `text-f1-icon-critical`
+- With no icon, a dot (`aspect-square w-2 rounded-full`) in the matching icon color is shown — this is F0TagDot.
 
 ## Sidebar
 
-Fuente real: `packages/react/src/patterns/Navigation/Sidebar/{Sidebar.tsx,Menu/index.tsx}`.
+Real source: `packages/react/src/patterns/Navigation/Sidebar/{Sidebar.tsx,Menu/index.tsx}`.
 
-- El panel flota sobre el fondo `f1-special-page`: `shadow-lg ring-1 ring-f1-border-secondary`, `rounded-xl` (12px), separado 8px de los bordes de la ventana, fondo `f1-background/60` con blur.
-- Item de menú: `rounded py-1.5 pl-1.5 pr-2`, icono 16px (`size="md"` de F0Icon). Activo: `bg-f1-background-secondary text-f1-foreground` + icono `text-f1-icon-bold`. Inactivo con hover: `hover:bg-f1-background-secondary` + icono `text-f1-icon`.
+- The panel floats over the `f1-special-page` background: `shadow-lg ring-1 ring-f1-border-secondary`, `rounded-xl` (12px), 8px from the window edges, `f1-background/60` background with blur.
+- Menu item: `rounded py-1.5 pl-1.5 pr-2`, 16px icon (F0Icon `size="md"`). Active: `bg-f1-background-secondary text-f1-foreground` + `text-f1-icon-bold` icon. Inactive on hover: `hover:bg-f1-background-secondary` + `text-f1-icon` icon.
 
-## Patrones CRUD (10 principios de F0)
+## CRUD patterns (F0's 10 principles)
 
-Fuente: `packages/react/src/experimental/CrudPatterns/__stories__/{principles,quick-reference}.mdx`.
+Source: `packages/react/src/experimental/CrudPatterns/__stories__/{principles,quick-reference}.mdx`.
 
-- **Crear vive en la colección, nunca en un ítem** (acción en la cabecera de página/lista, no dentro del detalle).
-- **Editar es el espejo de crear** (mismo formulario/contenedor).
-- **Lo destructivo se oculta por defecto** — va en un menú de desbordamiento (`DropdownMenu`), no como botón suelto.
-- **"¿Seguro?" no es una confirmación** — pide algo específico (escribir el nombre, elegir un motivo), no un simple sí/no genérico.
-- **El estado asíncrono vive en la acción que lo dispara** (`loading` en el propio botón), no en un overlay global.
-- Elegir contenedor: edición trivial → inline; overlay centrado → por defecto; panel lateral → cuando hace falta contexto; página → recursos profundos; wizard → flujos con ramas.
-- Nunca `window.prompt`/`window.confirm`/`alert()` del navegador — siempre un `Dialog`/`AlertDialog` propio.
+- **Create lives on the collection, never on an item** (an action in the page/list header, not inside the detail).
+- **Edit mirrors create** (same form/container).
+- **Destructive actions are hidden by default** — they go in an overflow menu (`DropdownMenu`), not as a standalone button.
+- **"Are you sure?" is not a confirmation** — ask for something specific (type the name, pick a reason), not a generic yes/no.
+- **Async state lives in the action that triggers it** (`loading` on the button itself), not in a global overlay.
+- Choosing a container: trivial edit → inline; centered overlay → default; side panel → when context is needed; page → deep resources; wizard → flows with branches.
+- Never the browser's `window.prompt`/`window.confirm`/`alert()` — always our own `Dialog`/`AlertDialog`.
 
-## Lo que NO hacemos (fuera de alcance, ver ADR-0013)
+## What we do NOT do (out of scope, see ADR-0013)
 
-No hay `F0Provider`, ni los componentes reales de F0 (`ApplicationFrame`, `OneDataCollection`, `F0Avatar`…), ni su i18n ni sus animaciones con `motion`. Esto es una réplica visual sobre shadcn/Base UI, no la librería real.
+There is no `F0Provider`, none of the real F0 components (`ApplicationFrame`, `OneDataCollection`, `F0Avatar`…), nor its i18n or its `motion` animations. This is a visual replica on top of shadcn/Base UI, not the real library.

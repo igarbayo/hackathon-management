@@ -1,5 +1,5 @@
-# Posvalidación de la salida de la IA (06-analisis-ia.md#esquema-de-salida).
-# No se confía en que el modelo respete las claves ni la cobertura completa.
+# Post-validation of the AI output (06-analisis-ia.md#esquema-de-salida). We do
+# not trust the model to respect the keys or the full coverage.
 module Analysis
   class PostValidate
     def self.call(data:, team:)
@@ -41,7 +41,7 @@ module Analysis
       by_key = Array(data["coverage"]).each_with_object({}) do |entry, acc|
         key = entry["objective_key"]
         next unless objective_keys.include?(key)
-        next if acc.key?(key) # descarta duplicados, se queda con el primero
+        next if acc.key?(key) # drop duplicates, keep the first one
 
         acc[key] = {
           "objective_key" => key,
@@ -52,7 +52,7 @@ module Analysis
       end
 
       objective_keys.map do |key|
-        by_key[key] || { "objective_key" => key, "status" => "uncovered", "feature_keys" => [], "rationale" => "no evaluado" }
+        by_key[key] || { "objective_key" => key, "status" => "uncovered", "feature_keys" => [], "rationale" => "not evaluated" }
       end
     end
 

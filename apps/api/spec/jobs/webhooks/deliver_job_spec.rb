@@ -5,7 +5,7 @@ RSpec.describe Webhooks::DeliverJob do
     allow(Resolv).to receive(:getaddresses).and_return([ "93.184.216.34" ])
   end
 
-  it "envía la firma correcta y marca la entrega como succeeded en un 2xx" do
+  it "sends the right signature and marks the delivery as succeeded on a 2xx" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook", secret: "s3cr3t")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
 
@@ -20,7 +20,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(delivery.attempts).to eq(1)
   end
 
-  it "firma con HMAC-SHA256 sobre timestamp.cuerpo" do
+  it "signs with HMAC-SHA256 over timestamp.body" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook", secret: "s3cr3t")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
 
@@ -34,7 +34,7 @@ RSpec.describe Webhooks::DeliverJob do
     described_class.new.perform(delivery.id.to_s)
   end
 
-  it "resetea consecutive_failures a 0 tras un éxito" do
+  it "resets consecutive_failures to 0 after a success" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook", consecutive_failures: 5)
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
     stub_request(:post, "https://example.com/hook").to_return(status: 200)
@@ -44,7 +44,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(webhook.reload.consecutive_failures).to eq(0)
   end
 
-  it "reintenta si la respuesta no es 2xx, y programa el siguiente intento" do
+  it "retries if the response is not 2xx, and schedules the next attempt" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
     stub_request(:post, "https://example.com/hook").to_return(status: 500)
@@ -58,7 +58,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(Webhooks::DeliverJob.jobs.size).to eq(1)
   end
 
-  it "no reintenta pasadas 24h desde la creación de la entrega" do
+  it "does not retry once 24h have passed since the delivery was created" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
     delivery.set(created_at: 25.hours.ago)
@@ -69,7 +69,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(Webhooks::DeliverJob.jobs).to be_empty
   end
 
-  it "pausa el webhook a los 50 fallos seguidos" do
+  it "pauses the webhook after 50 failures in a row" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook", consecutive_failures: 49)
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
     stub_request(:post, "https://example.com/hook").to_return(status: 500)
@@ -79,7 +79,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(webhook.reload.active).to be false
   end
 
-  it "bloquea el envío por SSRF y no lo reintenta" do
+  it "blocks the send for SSRF and does not retry it" do
     allow(Resolv).to receive(:getaddresses).and_return([ "10.0.0.5" ])
     webhook = create(:outbound_webhook, url: "https://internal.example.com/hook")
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
@@ -90,7 +90,7 @@ RSpec.describe Webhooks::DeliverJob do
     expect(Webhooks::DeliverJob.jobs).to be_empty
   end
 
-  it "no hace nada si el webhook ya está pausado" do
+  it "does nothing if the webhook is already paused" do
     webhook = create(:outbound_webhook, url: "https://example.com/hook", active: false)
     delivery = create(:outbound_delivery, team: webhook.team, outbound_webhook: webhook, payload: { "event" => "ping", "id" => "d1" })
 

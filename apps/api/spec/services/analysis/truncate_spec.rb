@@ -18,12 +18,12 @@ RSpec.describe Analysis::Truncate do
     }
   end
 
-  it "no toca el contexto si ya cabe en el presupuesto" do
+  it "does not touch the context if it already fits the budget" do
     context = big_context
     expect(described_class.call(context)).to eq(context)
   end
 
-  it "quita primero los títulos de actividad si no cabe" do
+  it "removes activity titles first if it does not fit" do
     huge_titles = Array.new(200) { "x" * 190 }
     context = big_context(feature_titles: huge_titles)
 
@@ -33,7 +33,7 @@ RSpec.describe Analysis::Truncate do
     expect(result["features"].first["activity"]["total"]["titles"]).to be_empty
   end
 
-  it "si con eso no basta, quita las rutas de ficheros" do
+  it "if that is not enough, removes the file paths" do
     huge_files = Array.new(200) { "path/" + ("x" * 190) }
     context = big_context(feature_files: huge_files)
 
@@ -42,7 +42,7 @@ RSpec.describe Analysis::Truncate do
     expect(result["features"].first["activity"]["total"]["files"]).to be_empty
   end
 
-  it "como último recurso, recorta las descripciones de las features" do
+  it "as a last resort, cuts the feature descriptions" do
     context = big_context(feature_description: "d" * 40_000)
 
     result = described_class.call(context)

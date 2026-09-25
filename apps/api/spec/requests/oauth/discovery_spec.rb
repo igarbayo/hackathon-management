@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Metadatos OAuth 2.1", type: :request do
+RSpec.describe "OAuth 2.1 metadata", type: :request do
   around do |example|
     original = ENV["API_URL"]
     ENV["API_URL"] = "https://api.hackboard.test"

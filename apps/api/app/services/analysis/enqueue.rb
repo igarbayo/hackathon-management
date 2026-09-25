@@ -1,5 +1,5 @@
-# Crea el AiAnalysis en estado queued (para poder devolver su id al
-# instante, RF-AI-004) y encola el job que lo ejecuta.
+# Creates the AiAnalysis in the queued status (so its id can be returned right
+# away, RF-AI-004) and queues the job that runs it.
 module Analysis
   class Enqueue
     def self.call(team:, trigger:, requested_by: nil)

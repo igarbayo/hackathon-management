@@ -5,7 +5,7 @@ RSpec.describe Ingest::ProcessBatchJob do
   let(:membership) { create(:membership, team: team, display_name: "Ada") }
   let(:repository) { create(:repository, team: team, remote_urls: [ "github.com/hackboard/repo" ]) }
 
-  it "crea un ActivityEvent cc_turn con actor, ficheros y stats" do
+  it "creates a cc_turn ActivityEvent with actor, files and stats" do
     repository
     event = {
       "client_event_id" => "e1",
@@ -29,7 +29,7 @@ RSpec.describe Ingest::ProcessBatchJob do
     expect(created.stats["tool_uses"]).to eq(3)
   end
 
-  it "no duplica si ya existe un evento con el mismo dedupe_key" do
+  it "does not duplicate if an event with the same dedupe_key already exists" do
     create(:activity_event, team: team, source: "claude_code", kind: "cc_turn", dedupe_key: "cc:e1")
     event = {
       "client_event_id" => "e1", "kind" => "cc_turn", "occurred_at" => Time.current.iso8601,
@@ -40,20 +40,20 @@ RSpec.describe Ingest::ProcessBatchJob do
       .not_to change(ActivityEvent, :count)
   end
 
-  it "solo guarda el summary si el nivel del miembro es summaries" do
+  it "only stores the summary if the member's level is summaries" do
     membership.update!(claude_code_attributes: { token_digest: "d", token_prefix: "hb_mt_ab12", privacy_level: "summaries" })
     event = {
       "client_event_id" => "e2", "kind" => "cc_turn", "occurred_at" => Time.current.iso8601,
       "session_ref" => "s1", "repo" => { "remote" => "github.com/hackboard/repo" },
-      "data" => { "summary" => "Implementé el login" }
+      "data" => { "summary" => "Implemented the login" }
     }
 
     described_class.new.perform(team.id.to_s, membership.id.to_s, [ event ])
 
-    expect(ActivityEvent.where(dedupe_key: "cc:e2").first.summary).to eq("Implementé el login")
+    expect(ActivityEvent.where(dedupe_key: "cc:e2").first.summary).to eq("Implemented the login")
   end
 
-  it "recorta los ficheros a MAX_FILES para no chocar con la validación del modelo" do
+  it "cuts the files to MAX_FILES so it does not clash with the model validation" do
     files = Array.new(60) { |i| { "path" => "f#{i}.rb", "tool" => "Edit" } }
     event = {
       "client_event_id" => "e3", "kind" => "cc_turn", "occurred_at" => Time.current.iso8601,

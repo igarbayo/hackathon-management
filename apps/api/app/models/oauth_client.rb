@@ -1,5 +1,5 @@
-# No lleva team_id: un cliente OAuth (p. ej. claude.ai) sirve para cualquier
-# equipo. Excepción, junto con User y Session, a la regla multi-tenant
+# It has no team_id: an OAuth client (e.g. claude.ai) works for any team. An
+# exception, together with User and Session, to the multi-tenant rule
 # (02-modelo-datos.md#oauthclient).
 class OAuthClient
   include Mongoid::Document

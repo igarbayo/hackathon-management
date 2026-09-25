@@ -1,6 +1,6 @@
 # 06 · Análisis con IA (Gemini)
 
-> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-23
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-25
 
 ## Proveedor
 
@@ -75,7 +75,7 @@ Límite total: ~30.000 caracteres. Si se supera, se recorta en este orden: títu
   - "`covered` = hay features `done` o con actividad sustancial que lo satisfacen. `partial` = hay trabajo pero incompleto o solo `idea`. `uncovered` = nada relevante."
   - "Usa solo claves (`O-n`, `F-n`) que aparezcan en el contexto."
   - "Ten en cuenta el tiempo restante: con menos de 6 h, prioriza recortar alcance antes que añadir."
-  - "Responde en el idioma del equipo." (Español por defecto. [ABIERTO] Idioma por equipo.)
+  - "Answer in English, even if the team's data is in another language." Inglés por defecto desde `coverage_v2` (y `attribution_v2` para el `reason` de la atribución), igual que la interfaz (RNF-UI-013). Las plantillas están escritas en inglés. [ABIERTO] Idioma por equipo.
 
 ### Esquema de salida
 

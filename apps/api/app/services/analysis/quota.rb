@@ -1,5 +1,5 @@
-# Cuotas por plan (06-analisis-ia.md#cuotas). El tope de tokens diario queda
-# [ABIERTO] en la spec (a calibrar en F4): no se implementa aquí.
+# Quotas per plan (06-analisis-ia.md#cuotas). The daily token cap is still
+# [ABIERTO] in the spec (to be tuned in F4): it is not implemented here.
 module Analysis
   class Quota
     SCHEDULED_INTERVAL_MIN = { "free" => 60, "pro" => 15 }.freeze
@@ -10,7 +10,7 @@ module Analysis
 
       def initialize(retry_after)
         @retry_after = retry_after
-        super("cuota de análisis manuales superada")
+        super("manual analysis quota exceeded")
       end
     end
 
@@ -22,7 +22,7 @@ module Analysis
       MANUAL_DAILY_LIMIT.fetch(team.plan, MANUAL_DAILY_LIMIT["free"])
     end
 
-    # @raise [ExceededError] si ya se agotó la cuota manual de hoy.
+    # @raise [ExceededError] if today's manual quota is already used up.
     def self.check_manual!(team)
       today_start = Time.current.beginning_of_day
       count = AiAnalysis.where(team_id: team.id, trigger: "manual", :created_at.gte => today_start).count

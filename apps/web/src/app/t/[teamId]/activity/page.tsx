@@ -17,20 +17,20 @@ import { AttributionChip } from "./attribution-chip";
 import { canSelectEvent, SelectionBar, UnlinkedAuthorsPanel, type Viewer } from "./author-claims";
 import type { ActivityEvent } from "@/types/activity";
 
-// `items` hace que el trigger muestre la etiqueta y no el valor crudo.
+// `items` makes the trigger show the label and not the raw value.
 const FILTERS = [
-  { value: "all", label: "Todos" },
-  { value: "none", label: "Sin atribuir" },
-  { value: "suggested", label: "Sugeridas" },
-  { value: "confirmed", label: "Confirmadas" },
-  { value: "unlinked", label: "Autores sin vincular" },
+  { value: "all", label: "All" },
+  { value: "none", label: "Unattributed" },
+  { value: "suggested", label: "Suggested" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "unlinked", label: "Unlinked authors" },
 ];
 
 const SOURCE_ICON = { github: GitCommitIcon, claude_code: MessageSquareIcon, mcp: RadioIcon, system: Settings2Icon } as const;
 
-// RF-ACT-010/011/012: feed cronológico con scroll infinito, filtro por
-// attribution_status y chip de atribución con acciones. RF-ACT-018: filtro de
-// autores sin vincular y selección de eventos de GitHub para "Son míos".
+// RF-ACT-010/011/012: chronological feed with infinite scroll, a filter by
+// attribution_status and an attribution chip with actions. RF-ACT-018: filter
+// for unlinked authors and selection of GitHub events for "These are mine".
 export default function ActivityPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
   const [attributionStatus, setAttributionStatus] = useState<string>("all");
@@ -65,7 +65,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
     <div className="flex flex-col gap-6">
       <PageHeader
         icon={ActivityIcon}
-        title="Actividad"
+        title="Activity"
         actions={
           <Select
             items={FILTERS}
@@ -112,8 +112,8 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
       {!isLoading && !isError && events.length === 0 && (
         <EmptyState
           icon={ActivityIcon}
-          title="Todavía no hay actividad que mostrar"
-          description="El feed se llena en cuanto conectéis GitHub o Claude Code, o se registren cambios en el tablero."
+          title="No activity to show yet"
+          description="The feed fills up as soon as you connect GitHub or Claude Code, or someone changes the board."
         />
       )}
 
@@ -137,7 +137,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
 
       {hasNextPage && (
         <Button variant="outline" onClick={() => fetchNextPage()} loading={isFetchingNextPage}>
-          Cargar más
+          Load more
         </Button>
       )}
     </div>
@@ -167,25 +167,25 @@ function EventRow({
 
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 text-base">
-      {/* Hueco fijo para que las filas no seleccionables queden alineadas. */}
+      {/* Fixed slot so rows that cannot be selected stay aligned. */}
       <span className="flex size-4 shrink-0 items-center">
         {selectable && (
           <Checkbox
             checked={selected}
             onCheckedChange={(value) => onSelectedChange(value === true)}
-            aria-label={`Seleccionar: ${event.title ?? event.kind}`}
+            aria-label={`Select: ${event.title ?? event.kind}`}
           />
         )}
       </span>
       <Icon className="size-4 shrink-0 text-f1-icon" />
       <span className="flex-1 truncate">
-        <span className="font-medium text-f1-foreground">{event.actor.display ?? "Alguien"}</span>
+        <span className="font-medium text-f1-foreground">{event.actor.display ?? "Someone"}</span>
         {event.actor.mapped_by === "manual" && (
           <span
             className="text-sm text-f1-foreground-tertiary"
-            title={event.actor.author_name ? `Autor en git: ${event.actor.author_name}` : undefined}
+            title={event.actor.author_name ? `Git author: ${event.actor.author_name}` : undefined}
           >
-            {" "}· asignado a mano
+            {" "}· assigned by hand
           </span>
         )}{" "}
         {event.title}

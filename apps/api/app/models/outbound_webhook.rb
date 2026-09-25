@@ -17,7 +17,7 @@ class OutboundWebhook
 
   attr_writer :secret
 
-  validates :url, presence: true, format: { with: %r{\Ahttps://}, message: "tiene que ser HTTPS" }
+  validates :url, presence: true, format: { with: %r{\Ahttps://}, message: "must be HTTPS" }
   validates :events, presence: true
   validate :secret_present, on: :create
   validate :team_does_not_exceed_max, on: :create
@@ -38,13 +38,13 @@ class OutboundWebhook
   end
 
   def secret_present
-    errors.add(:base, "hace falta un secreto de firma") if secret_ciphertext.blank?
+    errors.add(:base, "a signing secret is required") if secret_ciphertext.blank?
   end
 
   def team_does_not_exceed_max
     return if team_id.blank?
 
-    errors.add(:base, "ya hay #{MAX_PER_TEAM} webhooks configurados en este equipo") if OutboundWebhook.where(team_id: team_id).count >= MAX_PER_TEAM
+    errors.add(:base, "there are already #{MAX_PER_TEAM} webhooks set up in this team") if OutboundWebhook.where(team_id: team_id).count >= MAX_PER_TEAM
   end
 
   def pause_after_too_many_failures

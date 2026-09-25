@@ -1,15 +1,16 @@
-# RF-GH-020 paso 4: GitHub redirige aquí tras instalar la App. No depende de
-# la sesión web: el state firmado ya lleva team_id y user_id.
+# RF-GH-020 step 4: GitHub redirects here after installing the App. It does not
+# depend on the web session: the signed state already carries team_id and
+# user_id.
 module Api
   module V1
     class GithubSetupController < Api::V1::BaseController
       def show
         claims = Github::InstallState.verify(params[:state])
         team = Team.active.where(id: claims["team_id"]).first
-        raise ApiError::NotFound.new(message: "equipo no encontrado") unless team
+        raise ApiError::NotFound.new(message: "team not found") unless team
 
         membership = Membership.where(team_id: team.id, user_id: claims["user_id"]).first
-        raise ApiError::Forbidden.new(message: "no eres miembro de este equipo") unless membership
+        raise ApiError::Forbidden.new(message: "you are not a member of this team") unless membership
 
         installation_id = params[:installation_id].to_i
         team.add_to_set(github_installation_ids: installation_id)

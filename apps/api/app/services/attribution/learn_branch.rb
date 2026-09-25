@@ -1,7 +1,7 @@
-# "Aprendizaje" (05-atribucion.md#capa-2): cuando un humano confirma o asigna
-# a mano un evento cuya rama no es la por defecto, esa rama se añade a
-# branch_names de la feature, para que los siguientes eventos de esa rama
-# caigan en la capa 2 sin intervención humana.
+# "Learning" (05-atribucion.md#capa-2): when a human confirms or assigns by hand
+# an event whose branch is not the default one, that branch is added to the
+# feature's branch_names, so the next events on that branch fall into layer 2
+# with no human help.
 module Attribution
   class LearnBranch
     def self.call(feature:, event:)

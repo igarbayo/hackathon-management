@@ -3,9 +3,9 @@
  * SPDX-FileCopyrightText: 2026 Ignacio Garbayo
  * SPDX-License-Identifier: MIT AND AGPL-3.0-or-later
  *
- * Los tokens del bloque F0 vienen de @factorialco/f0-core@2.7.0 (Factorial, MIT
- * License según su package.json): texto completo en LICENSES/MIT.txt. El resto
- * del fichero es AGPL-3.0-or-later.
+ * The tokens in the F0 block come from @factorialco/f0-core@2.7.0 (Factorial, MIT
+ * License according to its package.json): full text in LICENSES/MIT.txt. The rest
+ * of the file is AGPL-3.0-or-later.
  */
 
 @import "tailwindcss";
@@ -15,15 +15,15 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Tokens del sistema de diseño F0 de Factorial, portados literalmente desde
- * @factorialco/f0-core@2.7.0 (packages/core/src/tokens/*.ts y base.css).
- * No se instala el paquete (ADR-0013, specs/13-sistema-diseno.md): React
- * 18.3.1 exacto y Tailwind 3 chocan con este stack (Next 16 / React 19 /
- * Tailwind v4). Cualquier ajuste a este bloque debe seguir citando la fuente
- * real de F0 — nunca inventar un token o un valor.
+ * Tokens from Factorial's F0 design system, ported literally from
+ * @factorialco/f0-core@2.7.0 (packages/core/src/tokens/*.ts and base.css).
+ * The package is not installed (ADR-0013, specs/13-sistema-diseno.md): its
+ * exact React 18.3.1 and Tailwind 3 clash with this stack (Next 16 / React 19 /
+ * Tailwind v4). Any change to this block must keep citing the real F0
+ * source — never invent a token or a value.
  */
 @theme inline {
-  /* Tipografía — packages/core/src/tokens/typography.ts */
+  /* Typography — packages/core/src/tokens/typography.ts */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
@@ -51,7 +51,7 @@
   --text-4xl--line-height: 2.5rem;
   --text-4xl--letter-spacing: -0.02em;
 
-  /* Radios — packages/core/src/tokens/borderRadius.ts */
+  /* Radii — packages/core/src/tokens/borderRadius.ts */
   --radius-2xs: 0.25rem;
   --radius-xs: 0.375rem;
   --radius-sm: 0.5rem;
@@ -62,13 +62,13 @@
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.5rem;
 
-  /* Sombras — packages/core/src/tokens/shadows.ts */
+  /* Shadows — packages/core/src/tokens/shadows.ts */
   --shadow: 0 2px 20px 0 hsl(var(--shadow-color) / 0.04);
   --shadow-md: 0 4px 20px 0 hsl(var(--shadow-color) / 0.08);
   --shadow-lg: 0 8px 30px 0 hsl(var(--shadow-color) / 0.12);
   --shadow-xl: 0 12px 56px 0 hsl(var(--shadow-color) / 0.16);
 
-  /* Espaciado entre elementos — packages/core/src/tokens/spacing.ts (betweenSpacing) */
+  /* Spacing between elements — packages/core/src/tokens/spacing.ts (betweenSpacing) */
   --spacing-gap-sm: 0.25rem;
   --spacing-gap-md: 0.5rem;
   --spacing-gap-lg: 0.75rem;
@@ -76,8 +76,8 @@
   --spacing-page: 1.5rem; /* 24px */
   --spacing-content-max: 44.5rem; /* 712px */
 
-  /* Colores — packages/core/src/tokens/colors.ts (f1Colors), flanqueado por
-     el mapeo semántico shadcn → F0 de specs/13-sistema-diseno.md */
+  /* Colors — packages/core/src/tokens/colors.ts (f1Colors), next to the
+     semantic shadcn → F0 mapping from specs/13-sistema-diseno.md */
   --color-f1-foreground: hsl(var(--neutral-100));
   --color-f1-foreground-secondary: hsl(var(--neutral-50));
   --color-f1-foreground-tertiary: hsl(var(--neutral-40));
@@ -161,7 +161,7 @@
   --color-f1-special-page: hsl(var(--page));
   --color-f1-special-highlight: hsl(var(--accent-50));
 
-  /* Categóricos de gráficos — packages/core/base.css */
+  /* Chart categorical colors — packages/core/base.css */
   --color-chart-1: hsl(var(--chart-categorical-1));
   --color-chart-2: hsl(var(--chart-categorical-2));
   --color-chart-3: hsl(var(--chart-categorical-3));
@@ -171,8 +171,8 @@
   --color-chart-7: hsl(var(--chart-categorical-7));
   --color-chart-8: hsl(var(--chart-categorical-8));
 
-  /* Alias shadcn → F0 (specs/13-sistema-diseno.md), para que los primitivos
-     base-nova existentes sigan funcionando sin renombrar cada clase */
+  /* shadcn → F0 aliases (specs/13-sistema-diseno.md), so the existing
+     base-nova primitives keep working without renaming every class */
   --color-background: var(--color-f1-background);
   --color-foreground: var(--color-f1-foreground);
   --color-card: var(--color-f1-background);
@@ -205,9 +205,9 @@
 }
 
 /*
- * Paleta base — packages/core/src/tokens/colors.ts (baseColors), tal cual
- * la usa base.css de f0-core. Triples HSL sin la función hsl() envolvente,
- * para poder componer alfa por token (hsl(var(--x) / 0.1)).
+ * Base palette — packages/core/src/tokens/colors.ts (baseColors), as
+ * f0-core's base.css uses it. HSL triples without the wrapping hsl()
+ * function, so alpha can be composed per token (hsl(var(--x) / 0.1)).
  */
 :root {
   --mood-super-negative: 348 80% 50%;
@@ -247,8 +247,8 @@
   --white-90: 0 0% 100% / 0.9;
   --white-100: 0 0% 100%;
 
-  /* Acento de marca: el morado de los logos (#5E3A8C, public/logo-*.svg),
-     en lugar del radical de F0 (ver specs/13-sistema-diseno.md, RNF-UI-005) */
+  /* Brand accent: the purple from the logos (#5E3A8C, public/logo-*.svg),
+     instead of F0's radical (see specs/13-sistema-diseno.md, RNF-UI-005) */
   --accent-50: 266 41% 39%;
   --accent-60: 266 41% 32%;
   --accent-70: 266 42% 26%;
@@ -279,7 +279,7 @@
 
   --ring: var(--selected-50);
   --page: var(--white-100);
-  --shadow-color: 218 48% 10%; /* renombrado desde `--shadow` de F0: Tailwind ya usa ese nombre para el box-shadow por defecto */
+  --shadow-color: 218 48% 10%; /* renamed from F0's `--shadow`: Tailwind already uses that name for the default box-shadow */
 
   --chart-categorical-1: 184 92% 35%;
   --chart-categorical-2: 216 90% 65%;
@@ -291,13 +291,13 @@
   --chart-categorical-8: 25 46% 53%;
 }
 
-/* Expresado en las dos formas, como en base.css de F0, por si el `.dark`
-   aterriza en un ancestro distinto de `:root` */
+/* Written both ways, as in F0's base.css, in case `.dark` lands on an
+   ancestor other than `:root` */
 .dark:root,
 :root .dark {
-  /* Neutros grises en vez del azul marino de F0 (RNF-UI-006), con los tonos
-     del modo oscuro de Discord: #313338 los paneles y #1e1f22 el fondo de
-     página que queda entre ellos. */
+  /* Gray neutrals instead of F0's navy blue (RNF-UI-006), with Discord's
+     dark mode tones: #313338 for panels and #1e1f22 for the page
+     background between them. */
   --neutral-0: 228 6% 20%;
   --neutral-2: 0 0% 100% / 0.02;
   --neutral-3: 0 0% 100% / 0.03;
@@ -361,14 +361,14 @@
   }
 }
 
-/* focusRing() de F0 — packages/react/src/lib/utils.ts */
+/* F0's focusRing() — packages/react/src/lib/utils.ts */
 @utility focus-ring {
   @apply outline-none focus-visible:ring-1 focus-visible:ring-f1-special-ring focus-visible:ring-offset-1;
 }
 
-/* Aviso de "no se ha entendido la fecha" del DatePicker (components/ui/date-picker.tsx,
-   ver specs/13-sistema-diseno.md#selector-de-fecha) — del `<style>` en línea
-   del componente original, pasado a una utilidad de Tailwind. */
+/* DatePicker "could not understand the date" cue (components/ui/date-picker.tsx,
+   see specs/13-sistema-diseno.md#selector-de-fecha) — taken from the inline
+   `<style>` of the original component and turned into a Tailwind utility. */
 @keyframes date-picker-shake {
   0%,
   100% {

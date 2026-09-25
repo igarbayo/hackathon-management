@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Membership } from "@/types/api";
 
-// RF-UX-002: selector de equipo solo si el usuario tiene más de uno.
+// RF-UX-002: team selector, only if the user has more than one team.
 export function TeamSelector({
   memberships,
   currentTeamId,
@@ -20,8 +20,8 @@ export function TeamSelector({
     return <p className="truncate text-base font-semibold text-f1-foreground">{memberships[0]?.team_name}</p>;
   }
 
-  // Base UI pinta el `value` tal cual en SelectValue salvo que Root reciba
-  // `items`; sin esto el trigger mostraba el id del equipo en vez del nombre.
+  // Base UI draws the raw `value` in SelectValue unless Root gets `items`;
+  // without this the trigger showed the team id instead of its name.
   const items = memberships.map((membership) => ({
     value: membership.team_id,
     label: membership.team_name ?? membership.team_id,
@@ -35,7 +35,7 @@ export function TeamSelector({
 
   return (
     <Select items={items} value={currentTeamId} onValueChange={handleChange}>
-      <SelectTrigger className="w-full border-none bg-transparent px-0 font-semibold hover:bg-transparent" aria-label="Seleccionar equipo">
+      <SelectTrigger className="w-full border-none bg-transparent px-0 font-semibold hover:bg-transparent" aria-label="Select team">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

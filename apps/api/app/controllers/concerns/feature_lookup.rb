@@ -6,7 +6,7 @@ module FeatureLookup
       Feature.where(team_id: current_team.id, id: key).first
     end
 
-    raise ApiError::NotFound.new(message: "feature no encontrada") unless feature
+    raise ApiError::NotFound.new(message: "feature not found") unless feature
 
     feature
   end

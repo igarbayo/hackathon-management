@@ -12,7 +12,7 @@ RSpec.describe "Repositories", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/repositories" do
-    it "lista solo los repos activos del equipo" do
+    it "lists only the team's active repos" do
       membership = create(:membership)
       active = create(:repository, team: membership.team, active: true)
       create(:repository, team: membership.team, active: false)
@@ -25,7 +25,7 @@ RSpec.describe "Repositories", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/repositories" do
-    it "409 repo_already_linked si el repo ya está activo en otro equipo" do
+    it "409 repo_already_linked if the repo is already active in another team" do
       create(:repository, full_name: "org/repo", active: true)
       membership = create(:membership)
       sign_in_as(membership.user)
@@ -36,7 +36,7 @@ RSpec.describe "Repositories", type: :request do
       expect(json_response["error"]["details"]["code"]).to eq("repo_already_linked")
     end
 
-    it "vincula el repo si alguna instalación del equipo tiene acceso" do
+    it "links the repo if any of the team's installations has access" do
       membership = create(:membership)
       team = membership.team
       team.update!(github_installation_ids: [ 42 ])
@@ -54,7 +54,7 @@ RSpec.describe "Repositories", type: :request do
   end
 
   describe "POST /api/v1/teams/:team_id/repositories/:id/resync" do
-    it "relanza la importación del histórico" do
+    it "runs the history import again" do
       membership = create(:membership)
       repository = create(:repository, team: membership.team)
       sign_in_as(membership.user)
@@ -68,7 +68,7 @@ RSpec.describe "Repositories", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:team_id/repositories/:id" do
-    it "desactiva el repo sin borrar sus eventos" do
+    it "deactivates the repo without deleting its events" do
       membership = create(:membership)
       repository = create(:repository, team: membership.team)
       event = create(:activity_event, :github_commit, team: membership.team, repository: repository)

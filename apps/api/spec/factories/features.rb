@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :feature do
     team
-    title { "Login con GitHub" }
+    title { "Login with GitHub" }
     status { "idea" }
   end
 end

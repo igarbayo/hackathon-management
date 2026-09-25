@@ -3,26 +3,26 @@ import userEvent from "@testing-library/user-event";
 import { PasswordInput } from "@/components/auth/password-input";
 
 describe("PasswordInput", () => {
-  it("empieza oculta y el ojo alterna entre mostrarla y ocultarla", async () => {
+  it("starts hidden and the eye toggles between showing and hiding it", async () => {
     const user = userEvent.setup();
     render(
       <>
-        <label htmlFor="password">Contraseña</label>
+        <label htmlFor="password">Password</label>
         <PasswordInput id="password" defaultValue="supersecret123" />
       </>,
     );
 
-    const input = screen.getByLabelText("Contraseña", { exact: true });
+    const input = screen.getByLabelText("Password", { exact: true });
     expect(input).toHaveAttribute("type", "password");
 
-    await user.click(screen.getByRole("button", { name: "Mostrar contraseña" }));
+    await user.click(screen.getByRole("button", { name: "Show password" }));
     expect(input).toHaveAttribute("type", "text");
 
-    await user.click(screen.getByRole("button", { name: "Ocultar contraseña" }));
+    await user.click(screen.getByRole("button", { name: "Hide password" }));
     expect(input).toHaveAttribute("type", "password");
   });
 
-  it("el ojo no envía el formulario", async () => {
+  it("the eye does not submit the form", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
     render(
@@ -31,7 +31,7 @@ describe("PasswordInput", () => {
       </form>,
     );
 
-    await user.click(screen.getByRole("button", { name: "Mostrar contraseña" }));
+    await user.click(screen.getByRole("button", { name: "Show password" }));
     expect(onSubmit).not.toHaveBeenCalled();
   });
 });

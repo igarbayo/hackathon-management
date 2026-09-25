@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { suggestedBranchName } from "@/lib/branch-name";
 
 describe("suggestedBranchName", () => {
-  it("pasa el título a kebab-case en minúsculas" , () => {
-    expect(suggestedBranchName("F-12", "Login con GitHub")).toBe("f-12-login-con-github");
+  it("turns the title into lowercase kebab-case", () => {
+    expect(suggestedBranchName("F-12", "Login with GitHub")).toBe("f-12-login-with-github");
   });
 
-  it("quita acentos y símbolos" , () => {
-    expect(suggestedBranchName("F-3", "Análisis básico: ¿por qué?")).toBe("f-3-analisis-basico-por-que");
+  it("removes accents and symbols", () => {
+    expect(suggestedBranchName("F-3", "Café résumé: why?")).toBe("f-3-cafe-resume-why");
   });
 });

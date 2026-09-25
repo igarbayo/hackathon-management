@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "POST /oauth/register (RFC 7591)", type: :request do
-  it "registra un cliente dinámico sin secreto" do
+  it "registers a dynamic client with no secret" do
     post "/oauth/register", params: { redirect_uris: [ "https://claude.ai/oauth/callback" ], client_name: "claude.ai" }, as: :json
 
     expect(response).to have_http_status(:created)
@@ -10,19 +10,19 @@ RSpec.describe "POST /oauth/register (RFC 7591)", type: :request do
     expect(json_response).not_to have_key("client_secret")
   end
 
-  it "rechaza un redirect_uri que no sea https ni loopback" do
-    post "/oauth/register", params: { redirect_uris: [ "http://evil.example.com/cb" ], client_name: "malo" }, as: :json
+  it "rejects a redirect_uri that is neither https nor loopback" do
+    post "/oauth/register", params: { redirect_uris: [ "http://evil.example.com/cb" ], client_name: "bad" }, as: :json
 
     expect(response).to have_http_status(:bad_request)
   end
 
-  it "acepta http://127.0.0.1 con cualquier puerto para apps nativas" do
-    post "/oauth/register", params: { redirect_uris: [ "http://127.0.0.1:51823/cb" ], client_name: "app nativa" }, as: :json
+  it "accepts http://127.0.0.1 with any port for native apps" do
+    post "/oauth/register", params: { redirect_uris: [ "http://127.0.0.1:51823/cb" ], client_name: "native app" }, as: :json
 
     expect(response).to have_http_status(:created)
   end
 
-  it "aplica el rate limit de 10 registros por hora e IP" do
+  it "applies the rate limit of 10 registrations per hour per IP" do
     10.times { |i| post "/oauth/register", params: { redirect_uris: [ "https://a.example.com/cb" ], client_name: "c#{i}" }, as: :json }
 
     post "/oauth/register", params: { redirect_uris: [ "https://a.example.com/cb" ], client_name: "c11" }, as: :json

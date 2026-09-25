@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Analyses", type: :request do
   describe "POST /api/v1/teams/:team_id/analyses" do
-    it "encola un análisis manual y devuelve su id" do
+    it "queues a manual analysis and returns its id" do
       membership = create(:membership)
       membership.user.update!(gemini_api_key: "test-key")
       sign_in_as(membership.user)
@@ -14,7 +14,7 @@ RSpec.describe "Analyses", type: :request do
       expect(AiAnalysis.where(id: json_response["id"]).first).to be_present
     end
 
-    it "responde 422 si no tengo una clave de Gemini configurada" do
+    it "returns 422 if I have no Gemini key set up" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -24,7 +24,7 @@ RSpec.describe "Analyses", type: :request do
       expect(json_response["error"]["code"]).to eq("missing_gemini_api_key")
     end
 
-    it "responde 429 al superar la cuota manual diaria del plan" do
+    it "returns 429 when going over the plan's daily manual quota" do
       membership = create(:membership)
       membership.user.update!(gemini_api_key: "test-key")
       5.times { create(:ai_analysis, team: membership.team, trigger: "manual") }
@@ -38,7 +38,7 @@ RSpec.describe "Analyses", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/analyses" do
-    it "no incluye el result completo en el historial" do
+    it "does not include the full result in the history" do
       membership = create(:membership)
       create(:ai_analysis, team: membership.team, status: "succeeded", result: { "summary" => "x" })
       sign_in_as(membership.user)
@@ -50,9 +50,9 @@ RSpec.describe "Analyses", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/analyses/latest" do
-    it "devuelve el último succeeded con las alertas deterministas calculadas ahora" do
+    it "returns the latest succeeded one with the deterministic alerts worked out now" do
       membership = create(:membership)
-      old = create(:ai_analysis, team: membership.team, status: "succeeded", result: { "summary" => "antiguo" }, created_at: 1.hour.ago)
+      old = create(:ai_analysis, team: membership.team, status: "succeeded", result: { "summary" => "older" }, created_at: 1.hour.ago)
       create(:ai_analysis, team: membership.team, status: "failed", created_at: 5.minutes.ago)
       sign_in_as(membership.user)
 
@@ -63,7 +63,7 @@ RSpec.describe "Analyses", type: :request do
       expect(json_response["deterministic_alerts"]).to be_an(Array)
     end
 
-    it "devuelve analysis nil si nunca hubo uno succeeded" do
+    it "returns analysis nil if there was never a succeeded one" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -75,7 +75,7 @@ RSpec.describe "Analyses", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/analyses/:id" do
-    it "aísla por equipo" do
+    it "isolates by team" do
       other_team_analysis = create(:ai_analysis)
       membership = create(:membership)
       sign_in_as(membership.user)

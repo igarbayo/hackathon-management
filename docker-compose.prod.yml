@@ -1,5 +1,5 @@
-# Los logs llevan IPs (09-privacidad-seguridad, registros técnicos): se rotan
-# para que no se acumulen sin límite, como promete /privacy.
+# The logs contain IPs (09-privacidad-seguridad, technical logs): they are
+# rotated so they do not pile up forever, as /privacy promises.
 x-logging: &logging
   driver: json-file
   options:

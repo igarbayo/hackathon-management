@@ -16,7 +16,7 @@ El caso de uso central es **vibecodear sin perder de vista el tablero**: el agen
 
 1. **Todo acceso tiene un responsable.** Un token pertenece a una persona y a un equipo, y lo que hace un agente o una app con él aparece como hecho por esa persona, con la marca del canal (API o MCP). La única excepción son los tokens de integración, que crea un owner y cuyo actor es la propia integración. No hay accesos anónimos.
 2. **Nunca más que el miembro.** Los permisos de un token son la intersección de sus *scopes* con lo que el rol del miembro permite. Un token no puede hacer nada que su dueño no pueda hacer desde la web.
-3. **Solo lectura por defecto.** El preset por defecto al crear un token es `observar`. Escribir exige elegirlo de forma explícita.
+3. **Solo lectura por defecto.** El preset por defecto al crear un token es `observe`. Escribir exige elegirlo de forma explícita.
 4. **Sin operaciones destructivas ni de administración.** Borrar, gestionar miembros, repos, tokens o la cuenta solo se hace desde la web con sesión ([tabla de exclusiones](#qué-no-se-puede-hacer-con-un-token)).
 5. **Todo cambio es trazable.** Cada escritura hecha con un token deja rastro en el feed con el canal y el prefijo del token ([RF-API-006](#trazabilidad)).
 6. **La IA interna no cambia.** El principio "la IA propone y el humano decide" ([00](00-vision.md#principios-de-producto)) se refiere a Gemini dentro de Hackboard. Un agente externo que escribe con un token actúa **como su dueño**, que lo ha autorizado de forma explícita.
@@ -57,9 +57,9 @@ Todos los scopes de escritura incluyen `read`.
 
 | Preset | Scopes | Uso típico |
 |--------|--------|------------|
-| `observar` **(por defecto)** | `read` | Ver qué está pasando mientras vibecodeas, dashboards, bots de Slack |
-| `agente` | `read`, `features:write`, `arguments:write`, `progress:write` | Un agente que se asigna features, las mueve y documenta lo que hace |
-| `completo` | Todos salvo `ingest` | Integraciones que sincronizan el tablero con otra herramienta |
+| `observe` **(por defecto)** | `read` | Ver qué está pasando mientras vibecodeas, dashboards, bots de Slack |
+| `agent` | `read`, `features:write`, `arguments:write`, `progress:write` | Un agente que se asigna features, las mueve y documenta lo que hace |
+| `full` | Todos salvo `ingest` | Integraciones que sincronizan el tablero con otra herramienta |
 | personalizado | Los que se marquen | — |
 
 ### Ciclo de vida — `RF-API-001`, `RF-API-003` [F2] Aceptado
@@ -171,7 +171,7 @@ Cada una exige su scope. Todas llevan `readOnlyHint: false` y `destructiveHint: 
 
 ### Reglas del servidor MCP — `RF-MCP-004` [F5] Aceptado
 
-- `tools/list` **solo devuelve las herramientas que el token puede usar**. Un token `observar` no ve ninguna de escritura.
+- `tools/list` **solo devuelve las herramientas que el token puede usar**. Un token `observe` no ve ninguna de escritura.
 - Las salidas están acotadas: máximo 50 elementos por lista, textos largos recortados con indicación de que hay más, y claves `F-n`/`O-n` en lugar de ids internos siempre que se pueda.
 - Los errores de dominio vuelven como resultado de herramienta con `isError: true` y un mensaje accionable ("F-99 no existe. Usa `list_features`."), no como error de protocolo.
 - Las descripciones de las herramientas indican al agente:
@@ -248,7 +248,7 @@ Cuando falta el token o no es válido, la API y el MCP responden `401` con `WWW-
 - `redirect_uri` tiene que coincidir **exactamente** con uno de los registrados. Solo HTTPS, o `http://127.0.0.1`/`localhost` con cualquier puerto para apps nativas.
 - **Audiencia:** el parámetro `resource` (RFC 8707) es obligatorio y tiene que ser `API_URL/api/v1` o `API_URL/api/v1/mcp`. El token solo vale para ese recurso.
 - **Un token OAuth = un miembro en un equipo.** Si el usuario pertenece a varios equipos, elige uno en el consentimiento. Para dar acceso a otro equipo hay que autorizar otra vez.
-- **Scopes:** los que pida el cliente, que el usuario puede reducir en el consentimiento. Si el cliente no pide ninguno, se propone el preset `observar`. `ingest` nunca se concede por OAuth.
+- **Scopes:** los que pida el cliente, que el usuario puede reducir en el consentimiento. Si el cliente no pide ninguno, se propone el preset `observe`. `ingest` nunca se concede por OAuth.
 - **Vida de los tokens:** access token `hb_oat_` de 1 h. Refresh token `hb_ort_` de 30 días, **rotado en cada uso**. Si se reutiliza un refresh token ya usado, se revoca toda la conexión (detección de robo). La conexión caduca a los 90 días como máximo y hay que volver a autorizarla.
 - La conexión se revoca, con todos sus tokens, cuando el usuario la quita en "Apps conectadas" (RF-API-021), cuando un owner la revoca, y en los mismos casos que un PAT (salir del equipo, borrar la cuenta, borrar el equipo).
 - Los cambios hechos con OAuth llevan `via.client` = nombre del cliente registrado, marcado como "no verificado" si viene de registro dinámico.
@@ -257,7 +257,7 @@ Cuando falta el token o no es válido, la API y el MCP responden `401` con `WWW-
 ### claude.ai como connector — `RF-MCP-020` [F6] Aceptado
 
 - En claude.ai (Settings → Connectors → *Add custom connector*) se pega la URL `https://<api>/api/v1/mcp`. claude.ai descubre los metadatos, se registra como cliente y abre la pantalla de consentimiento de Hackboard.
-- El usuario entra con Google, GitHub o contraseña, elige el equipo y el preset (`observar` por defecto, o `agente`) y aprueba. Desde ese momento puede preguntar a Claude en el chat "¿cómo va el equipo?", "¿qué me toca?", o pedirle que cree o mueva features, según el preset.
+- El usuario entra con Google, GitHub o contraseña, elige el equipo y el preset (`observe` por defecto, o `agent`) y aprueba. Desde ese momento puede preguntar a Claude en el chat "¿cómo va el equipo?", "¿qué me toca?", o pedirle que cree o mueva features, según el preset.
 - **No se leen conversaciones de claude.ai.** Lo único que llega a Hackboard son las llamadas a herramientas que hace Claude. Lo que Claude escribe con `report_progress` se guarda como cualquier otro `progress_report` (≤ 500 caracteres).
 - Lo mismo sirve para cualquier otro cliente MCP remoto que implemente la especificación de autorización de MCP.
 - La web muestra la URL lista para copiar y los pasos (RF-MCP-011).

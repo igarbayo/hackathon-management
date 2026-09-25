@@ -1,5 +1,5 @@
-# /teams/:team_id/integrations (RF-API-011). Solo owners, solo sesión: los
-# crean, revocan y rotan. El actor es la integración, no una persona.
+# /teams/:team_id/integrations (RF-API-011). Owners only, session only: they
+# create, revoke and rotate them. The actor is the integration, not a person.
 module Api
   module V1
     class IntegrationsController < Api::V1::BaseController
@@ -37,7 +37,7 @@ module Api
 
       def find_integration
         token = AccessToken.where(team_id: current_team.id, kind: "integration", id: params[:id], revoked_at: nil).first
-        raise ApiError::NotFound.new(message: "integración no encontrada") unless token
+        raise ApiError::NotFound.new(message: "integration not found") unless token
 
         token
       end

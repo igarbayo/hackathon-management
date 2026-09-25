@@ -2,12 +2,11 @@ import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { ensureConfigDir, paths } from "./paths";
 import { log } from "./log";
 
-// Tope de 5000 eventos en la cola local (08-integracion-claude-code.md#envío-flush).
-// Cada `hackboard hook` es un proceso nuevo que llama a enqueue() una sola
-// vez, así que el coste real por hook es una lectura de la cola (para
-// comprobar el tope) más un append: para un fichero de unos pocos miles de
-// líneas, del orden de milisegundos, bien dentro del presupuesto de
-// RNF-CC-001. No hace falta optimizar más para ese patrón de uso.
+// Cap of 5000 events in the local queue (08-integracion-claude-code.md#envío-flush).
+// Each `hackboard hook` is a new process that calls enqueue() only once, so the real
+// cost per hook is one read of the queue (to check the cap) plus an append: for a
+// file of a few thousand lines, on the order of milliseconds, well inside the
+// RNF-CC-001 budget. There is no need to optimize further for that usage pattern.
 export const MAX_QUEUE_EVENTS = 5000;
 
 export interface QueuedEvent {
@@ -37,7 +36,7 @@ export function readQueueEvents(): QueuedEvent[] {
     try {
       events.push(JSON.parse(line) as QueuedEvent);
     } catch {
-      // línea corrupta: se descarta en silencio, no puede romper el flush
+      // corrupt line: dropped silently, it cannot break the flush
     }
   }
   return events;
@@ -65,5 +64,5 @@ function trimIfNeeded(): void {
   const dropped = lines.length - MAX_QUEUE_EVENTS;
   const kept = lines.slice(dropped);
   writeFileSync(paths.queue(), `${kept.join("\n")}\n`);
-  log(`cola llena: se han descartado ${dropped} eventos antiguos`);
+  log(`queue full: dropped ${dropped} old events`);
 }

@@ -21,7 +21,7 @@ RSpec.describe Ingest::ProcessBatch do
 
   before { create(:repository, team: team, remote_urls: [ "github.com/hackboard/repo" ]) }
 
-  it "acepta un evento válido de un repo vinculado y encola el job" do
+  it "accepts a valid event from a linked repo and queues the job" do
     result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ event ])
 
     expect(result.accepted).to eq(1)
@@ -30,14 +30,14 @@ RSpec.describe Ingest::ProcessBatch do
     expect(Ingest::ProcessBatchJob.jobs.size).to eq(1)
   end
 
-  it "rechaza con repo_not_linked si el remote no está vinculado" do
-    result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ event("repo" => { "remote" => "github.com/otro/repo" }) ])
+  it "rejects with repo_not_linked if the remote is not linked" do
+    result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ event("repo" => { "remote" => "github.com/other/repo" }) ])
 
     expect(result.accepted).to eq(0)
     expect(result.rejected.first[:reason]).to eq("repo_not_linked")
   end
 
-  it "rechaza con invalid_schema si falta un campo obligatorio" do
+  it "rejects with invalid_schema if a required field is missing" do
     bad = event.except("session_ref")
 
     result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ bad ])
@@ -45,7 +45,7 @@ RSpec.describe Ingest::ProcessBatch do
     expect(result.rejected.first[:reason]).to eq("invalid_schema")
   end
 
-  it "rechaza con privacy_off si el nivel del miembro es off" do
+  it "rejects with privacy_off if the member's level is off" do
     membership.claude_code.update!(privacy_level: "off")
 
     result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ event ])
@@ -53,7 +53,7 @@ RSpec.describe Ingest::ProcessBatch do
     expect(result.rejected.first[:reason]).to eq("privacy_off")
   end
 
-  it "rechaza con paused si el enlace está pausado" do
+  it "rejects with paused if the link is paused" do
     membership.claude_code.update!(paused: true)
 
     result = described_class.call(team: team, membership: membership, cli_version: "0.3.1", events: [ event ])
@@ -61,7 +61,7 @@ RSpec.describe Ingest::ProcessBatch do
     expect(result.rejected.first[:reason]).to eq("paused")
   end
 
-  it "cuenta como duplicado un client_event_id ya procesado" do
+  it "counts an already processed client_event_id as a duplicate" do
     e = event
     create(:activity_event, team: team, source: "claude_code", kind: "cc_turn", dedupe_key: "cc:#{e['client_event_id']}")
 

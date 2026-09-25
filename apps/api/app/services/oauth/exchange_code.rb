@@ -1,6 +1,5 @@
 # POST /oauth/token, grant_type=authorization_code (RF-API-012, RNF-SEC-015):
-# PKCE S256 obligatorio, redirect_uri y client_id exactos, código de un
-# solo uso y 60s.
+# PKCE S256 required, exact redirect_uri and client_id, single-use 60s code.
 module OAuth
   class ExchangeCode
     class InvalidGrant < StandardError; end
@@ -9,12 +8,12 @@ module OAuth
       raise InvalidGrant, "code_verifier obligatorio" if code_verifier.blank?
 
       grant = OAuthGrant.where(code_digest: Digest::SHA256.hexdigest(code.to_s)).first
-      raise InvalidGrant, "código inválido" unless grant
-      raise InvalidGrant, "código ya usado" if grant.used?
-      raise InvalidGrant, "código caducado" if grant.expired?
-      raise InvalidGrant, "redirect_uri no coincide" unless grant.redirect_uri == redirect_uri
-      raise InvalidGrant, "client_id no coincide" unless grant.oauth_client.client_id == client_id
-      raise InvalidGrant, "code_verifier no coincide" unless pkce_matches?(grant.code_challenge, code_verifier)
+      raise InvalidGrant, "invalid code" unless grant
+      raise InvalidGrant, "code already used" if grant.used?
+      raise InvalidGrant, "code expired" if grant.expired?
+      raise InvalidGrant, "redirect_uri does not match" unless grant.redirect_uri == redirect_uri
+      raise InvalidGrant, "client_id does not match" unless grant.oauth_client.client_id == client_id
+      raise InvalidGrant, "code_verifier does not match" unless pkce_matches?(grant.code_challenge, code_verifier)
 
       grant.update!(used_at: Time.current)
       mint(grant)

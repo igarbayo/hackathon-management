@@ -1,10 +1,10 @@
 require "rails_helper"
 
 RSpec.describe Integration::Create do
-  it "crea un token hb_it_ sin membership, con el equipo como dueño" do
+  it "creates an hb_it_ token with no membership, with the team as the owner" do
     owner = create(:membership, :owner)
 
-    result = described_class.call(team: owner.team, created_by: owner.user, name: "Bot de Slack", scopes: [ "features:write" ])
+    result = described_class.call(team: owner.team, created_by: owner.user, name: "Slack bot", scopes: [ "features:write" ])
 
     expect(result.raw_token).to start_with("hb_it_")
     expect(result.record.kind).to eq("integration")
@@ -13,14 +13,14 @@ RSpec.describe Integration::Create do
     expect(result.record.scopes).to include("read", "features:write")
   end
 
-  it "nunca concede progress:write (validación del modelo)" do
+  it "never grants progress:write (model validation)" do
     owner = create(:membership, :owner)
 
     expect { described_class.call(team: owner.team, created_by: owner.user, name: "Bot", scopes: [ "progress:write" ]) }
       .to raise_error(Mongoid::Errors::Validations)
   end
 
-  it "máximo 10 activos por equipo (validación del modelo)" do
+  it "at most 10 active per team (model validation)" do
     owner = create(:membership, :owner)
     10.times { |i| create(:access_token, :integration, team: owner.team, name: "Bot #{i}") }
 

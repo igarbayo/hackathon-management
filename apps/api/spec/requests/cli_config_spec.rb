@@ -1,13 +1,13 @@
 require "rails_helper"
 
 RSpec.describe "GET /api/v1/cli/config", type: :request do
-  it "401 sin token" do
+  it "401 without a token" do
     get "/api/v1/cli/config"
 
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "devuelve los repos activos del equipo y las exclusiones por defecto" do
+  it "returns the team's active repos and the default exclusions" do
     membership = create(:membership)
     membership.update!(claude_code_attributes: { token_digest: Digest::SHA256.hexdigest("hb_mt_x"), token_prefix: "hb_mt_x", privacy_level: "metadata" })
     create(:repository, team: membership.team, remote_urls: [ "github.com/org/a" ])
@@ -20,7 +20,7 @@ RSpec.describe "GET /api/v1/cli/config", type: :request do
     expect(json_response["exclude_globs"]).to include(".env*")
   end
 
-  it "sigue funcionando si el enlace está pausado (hace falta para poder reanudar)" do
+  it "keeps working if the link is paused (needed to be able to resume)" do
     membership = create(:membership)
     membership.update!(claude_code_attributes: { token_digest: Digest::SHA256.hexdigest("hb_mt_x"), token_prefix: "hb_mt_x", privacy_level: "metadata", paused: true })
 

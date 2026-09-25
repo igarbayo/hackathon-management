@@ -34,7 +34,7 @@ export interface ActivityEvent {
   via: { channel: string; client?: string } | null;
 }
 
-// RF-ACT-018: autor de eventos de GitHub sin usuario en el equipo.
+// RF-ACT-018: author of GitHub events with no user in the team.
 export interface UnlinkedAuthor {
   github_login: string | null;
   email: string | null;

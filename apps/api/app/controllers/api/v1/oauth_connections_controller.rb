@@ -1,7 +1,7 @@
-# /me/oauth_connections (RF-API-021). "Apps conectadas": ve y revoca sus
-# propias conexiones OAuth, sin importar en qué equipo se autorizaron.
-# Excepción de RNF-SEC-001 igual que Membership en MeController#destroy: es
-# una vista centrada en la persona, no en un equipo.
+# /me/oauth_connections (RF-API-021). "Connected apps": see and revoke your own
+# OAuth connections, whatever team they were authorized in. Exception to
+# RNF-SEC-001, like Membership in MeController#destroy: it is a view centered on
+# the person, not on a team.
 module Api
   module V1
     class OAuthConnectionsController < Api::V1::BaseController
@@ -16,7 +16,7 @@ module Api
 
       def destroy
         tokens = AccessToken.where(kind: "oauth", user_id: current_user.id, refresh_family_id: params[:id], revoked_at: nil)
-        raise ApiError::NotFound.new(message: "conexión no encontrada") unless tokens.exists?
+        raise ApiError::NotFound.new(message: "connection not found") unless tokens.exists?
 
         tokens.each { |token| token.update!(revoked_at: Time.current, revoke_reason: "manual") }
         head :no_content

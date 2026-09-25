@@ -25,7 +25,7 @@ import { useCreateMilestone } from "@/hooks/use-milestones";
 import { useTimeline } from "@/hooks/use-milestones";
 import type { TimelineItem } from "@/types/api";
 
-// RF-DL-013: vista de lista agrupada por Vencidas / Próximas 6h / Más adelante.
+// RF-DL-013: list view grouped into Overdue / Next 6 h / Later.
 export function groupTimeline(items: TimelineItem[], now = new Date()) {
   const sixHours = new Date(now.getTime() + 6 * 60 * 60 * 1000);
 
@@ -67,19 +67,19 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger render={<Button />}>
-              <PlusIcon className="size-4" /> Nuevo milestone
+              <PlusIcon className="size-4" /> New milestone
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Nuevo milestone</DialogTitle>
+                <DialogTitle>New milestone</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreate} className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="m-title">Título</Label>
+                  <Label htmlFor="m-title">Title</Label>
                   <Input id="m-title" value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="m-kind">Tipo</Label>
+                  <Label htmlFor="m-kind">Type</Label>
                   <Select value={kind} onValueChange={(value) => value && setKind(value)}>
                     <SelectTrigger id="m-kind" className="w-full">
                       <SelectValue />
@@ -87,19 +87,19 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
                     <SelectContent>
                       <SelectItem value="checkpoint">Checkpoint</SelectItem>
                       <SelectItem value="demo">Demo</SelectItem>
-                      <SelectItem value="submission">Entrega</SelectItem>
-                      <SelectItem value="custom">Otro</SelectItem>
+                      <SelectItem value="submission">Submission</SelectItem>
+                      <SelectItem value="custom">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="m-due">Fecha</Label>
+                  <Label htmlFor="m-due">Date</Label>
                   <DatePicker id="m-due" value={dueAt} onChange={setDueAt} />
                 </div>
                 <DialogFooter>
-                  <DialogClose render={<Button type="button" variant="ghost" />}>Cancelar</DialogClose>
+                  <DialogClose render={<Button type="button" variant="ghost" />}>Cancel</DialogClose>
                   <Button type="submit" loading={createMilestone.isPending}>
-                    Añadir milestone
+                    Add milestone
                   </Button>
                 </DialogFooter>
               </form>
@@ -111,15 +111,15 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
       {(items ?? []).length === 0 ? (
         <EmptyState
           icon={CalendarClockIcon}
-          title="No hay milestones ni deadlines todavía"
-          actionLabel="Nuevo milestone"
+          title="No milestones or deadlines yet"
+          actionLabel="New milestone"
           onAction={() => setOpen(true)}
         />
       ) : (
         <div className="flex flex-col gap-4">
-          <Group title="Vencidas" items={overdue} tone="critical" />
-          <Group title="Próximas 6 h" items={soon} tone="warning" />
-          <Group title="Más adelante" items={later} tone="neutral" />
+          <Group title="Overdue" items={overdue} tone="critical" />
+          <Group title="Next 6 h" items={soon} tone="warning" />
+          <Group title="Later" items={later} tone="neutral" />
         </div>
       )}
     </div>
@@ -146,7 +146,7 @@ function Group({ title, items, tone }: { title: string; items: TimelineItem[]; t
               {item.type === "milestone" ? item.kind : item.key}
             </Badge>
             <span className="flex-1 text-base">{item.title}</span>
-            <span className={`text-sm ${dueClass}`}>{new Date(item.due_at).toLocaleString("es-ES")}</span>
+            <span className={`text-sm ${dueClass}`}>{new Date(item.due_at).toLocaleString("en-US")}</span>
           </div>
         ))}
       </Card>

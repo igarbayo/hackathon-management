@@ -1,8 +1,9 @@
-# Entrega de un webhook saliente (12-acceso-programatico.md#webhooks-salientes).
-# Retry propio (no el de Sidekiq) para poder limitar el reintento a 24h en
-# total y contar fallos por entrega, no por intento HTTP. El cuerpo vive en
-# delivery.payload, no en los argumentos del job, para poder reintentar o
-# reenviar sin volver a serializar nada.
+# Delivery of an outgoing webhook
+# (12-acceso-programatico.md#webhooks-salientes). Its own retry (not Sidekiq's)
+# so retries can be limited to 24h in total and failures counted per delivery,
+# not per HTTP attempt. The body lives in delivery.payload, not in the job
+# arguments, so it can be retried or redelivered without serializing anything
+# again.
 module Webhooks
   class DeliverJob
     include Sidekiq::Job
@@ -42,9 +43,9 @@ module Webhooks
 
     def http_post(uri, webhook, body, timestamp)
       started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      # Faraday con el adaptador net_http por defecto no sigue redirecciones
-      # salvo que se añada su middleware explícitamente, que es justo lo que
-      # pide la spec (sin seguir redirecciones).
+      # Faraday with the default net_http adapter does not follow redirects
+      # unless its middleware is added explicitly, which is exactly what the
+      # spec asks for (no following redirects).
       connection = Faraday.new(url: "#{uri.scheme}://#{uri.host}:#{uri.port}") do |f|
         f.options.open_timeout = TIMEOUT_SECONDS
         f.options.timeout = TIMEOUT_SECONDS

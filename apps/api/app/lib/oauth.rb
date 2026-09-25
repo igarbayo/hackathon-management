@@ -1,5 +1,5 @@
-# Servidor de autorización OAuth 2.1 (12-acceso-programatico.md#oauth-21,
-# ADR-0011). Los scopes son los mismos que los de un PAT (02-modelo-datos.md#accesstoken).
+# OAuth 2.1 authorization server (12-acceso-programatico.md#oauth-21, ADR-0011). The
+# scopes are the same as a PAT's (02-modelo-datos.md#accesstoken).
 module OAuth
   SCOPES = %w[
     read features:write objectives:write arguments:write milestones:write

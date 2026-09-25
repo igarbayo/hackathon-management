@@ -25,7 +25,7 @@ function event(overrides: Partial<ActivityEvent> & { actor?: ActivityEvent["acto
     sha: null,
     pr_number: null,
     url: null,
-    title: "Arregla el login",
+    title: "Fix the login",
     summary: null,
     stats: {},
     mentioned_feature_keys: [],
@@ -44,17 +44,17 @@ describe("canSelectEvent", () => {
   const member = { membershipId: "m-ana", isOwner: false };
   const owner = { membershipId: "m-owner", isOwner: true };
 
-  it("un miembro puede seleccionar eventos de GitHub sin usuario o suyos, no los de otro", () => {
+  it("a member can select GitHub events with no user or their own, not someone else's", () => {
     expect(canSelectEvent(event(), member)).toBe(true);
     expect(canSelectEvent(event({ actor: { user_id: "u2", membership_id: "m-ana" } }), member)).toBe(true);
     expect(canSelectEvent(event({ actor: { user_id: "u1", membership_id: "m-owner" } }), member)).toBe(false);
   });
 
-  it("un owner puede seleccionar cualquier evento de GitHub", () => {
+  it("an owner can select any GitHub event", () => {
     expect(canSelectEvent(event({ actor: { user_id: "u2", membership_id: "m-ana" } }), owner)).toBe(true);
   });
 
-  it("nunca se seleccionan eventos que no son de GitHub", () => {
+  it("events that are not from GitHub are never selectable", () => {
     expect(canSelectEvent(event({ source: "claude_code" }), owner)).toBe(false);
   });
 });
@@ -65,7 +65,7 @@ describe("SelectionBar", () => {
     unclaimMutate.mockClear();
   });
 
-  it("'Son míos' asigna los eventos elegidos con los futuros incluidos por defecto", async () => {
+  it("'These are mine' assigns the chosen events, with future ones included by default", async () => {
     const user = userEvent.setup();
     render(
       <SelectionBar
@@ -79,18 +79,18 @@ describe("SelectionBar", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox", { name: "Asignarme también los futuros de estos autores" })).toBeChecked();
-    expect(screen.queryByRole("combobox", { name: "Asignar a un miembro" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "No son míos" })).not.toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Also assign me future ones from these authors" })).toBeChecked();
+    expect(screen.queryByRole("combobox", { name: "Assign to a member" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Not mine" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Son míos" }));
+    await user.click(screen.getByRole("button", { name: "These are mine" }));
     expect(claimMutate).toHaveBeenCalledWith(
       { eventIds: ["e1"], membershipId: undefined, includeFuture: true },
       expect.anything(),
     );
   });
 
-  it("un owner ve 'Asignar a…' y 'No son míos' sobre eventos con usuario", () => {
+  it("an owner sees 'Assign to…' and 'Not mine' on events with a user", () => {
     render(
       <SelectionBar
         teamId="t1"
@@ -103,8 +103,8 @@ describe("SelectionBar", () => {
       />,
     );
 
-    expect(screen.getByRole("combobox", { name: "Asignar a un miembro" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "No son míos" })).toBeInTheDocument();
-    expect(screen.getByRole("checkbox", { name: "Asignar también los futuros de estos autores" })).toBeChecked();
+    expect(screen.getByRole("combobox", { name: "Assign to a member" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Not mine" })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Also assign future ones from these authors" })).toBeChecked();
   });
 });

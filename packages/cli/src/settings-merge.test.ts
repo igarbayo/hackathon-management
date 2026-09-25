@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mergeHooksIntoSettings, removeHooksFromSettings } from "./settings-merge";
 
 describe("mergeHooksIntoSettings", () => {
-  it("añade los 5 hooks propios sin tocar ajustes existentes que no son hooks", () => {
+  it("adds our 5 hooks without touching existing settings that are not hooks", () => {
     const result = mergeHooksIntoSettings({ someOtherSetting: true });
 
     expect(result.someOtherSetting).toBe(true);
@@ -10,10 +10,10 @@ describe("mergeHooksIntoSettings", () => {
     expect(Object.keys(hooks).sort()).toEqual(["PostToolUse", "SessionEnd", "SessionStart", "Stop", "UserPromptSubmit"].sort());
   });
 
-  it("conserva hooks de terceros ya presentes en el mismo evento", () => {
+  it("keeps third-party hooks already present on the same event", () => {
     const existing = {
       hooks: {
-        Stop: [{ hooks: [{ type: "command", command: "otra-herramienta --flag" }] }],
+        Stop: [{ hooks: [{ type: "command", command: "other-tool --flag" }] }],
       },
     };
 
@@ -23,7 +23,7 @@ describe("mergeHooksIntoSettings", () => {
     expect(stopHooks).toHaveLength(2);
   });
 
-  it("es idempotente: aplicarlo dos veces no duplica la entrada propia", () => {
+  it("is idempotent: applying it twice does not duplicate our entry", () => {
     const once = mergeHooksIntoSettings({});
     const twice = mergeHooksIntoSettings(once);
 
@@ -31,7 +31,7 @@ describe("mergeHooksIntoSettings", () => {
     expect(stopHooks).toHaveLength(1);
   });
 
-  it("el PostToolUse propio lleva el matcher de edición", () => {
+  it("our PostToolUse entry has the edit matcher", () => {
     const result = mergeHooksIntoSettings({});
     const postToolUse = (result.hooks as Record<string, { matcher?: string }[]>).PostToolUse;
 
@@ -40,9 +40,9 @@ describe("mergeHooksIntoSettings", () => {
 });
 
 describe("removeHooksFromSettings", () => {
-  it("quita solo las entradas propias y deja las de terceros", () => {
+  it("removes only our entries and leaves third-party ones", () => {
     const existing = mergeHooksIntoSettings({
-      hooks: { Stop: [{ hooks: [{ type: "command", command: "otra-herramienta --flag" }] }] },
+      hooks: { Stop: [{ hooks: [{ type: "command", command: "other-tool --flag" }] }] },
     });
 
     const result = removeHooksFromSettings(existing);
@@ -51,7 +51,7 @@ describe("removeHooksFromSettings", () => {
     expect(stopHooks).toHaveLength(1);
   });
 
-  it("borra la clave hooks entera si no queda nada de terceros", () => {
+  it("deletes the whole hooks key if no third-party entries are left", () => {
     const existing = mergeHooksIntoSettings({});
 
     const result = removeHooksFromSettings(existing);
@@ -59,7 +59,7 @@ describe("removeHooksFromSettings", () => {
     expect(result.hooks).toBeUndefined();
   });
 
-  it("deja el resto de ajustes exactamente como estaban (RF-CC-023)", () => {
+  it("leaves the other settings exactly as they were (RF-CC-023)", () => {
     const existing = mergeHooksIntoSettings({ theme: "dark" });
 
     const result = removeHooksFromSettings(existing);

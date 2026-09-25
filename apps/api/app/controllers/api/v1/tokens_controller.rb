@@ -1,7 +1,7 @@
-# /teams/:team_id/tokens (RF-API-001). Solo sesión web: un PAT no puede
-# crear ni gestionar otros tokens. Cualquier miembro crea PATs para sí
-# mismo; un owner ve y revoca los de los demás, pero no los crea ni ve el
-# valor (nadie lo ve dos veces, RNF-SEC-002).
+# /teams/:team_id/tokens (RF-API-001). Web session only: a PAT cannot create or
+# manage other tokens. Any member creates PATs for themselves; an owner sees and
+# revokes other people's, but does not create them or see their value (nobody
+# sees it twice, RNF-SEC-002).
 module Api
   module V1
     class TokensController < Api::V1::BaseController
@@ -30,10 +30,10 @@ module Api
 
       def destroy
         token = AccessToken.where(team_id: current_team.id, kind: "pat", id: params[:id], revoked_at: nil).first
-        raise ApiError::NotFound.new(message: "token no encontrado") unless token
+        raise ApiError::NotFound.new(message: "token not found") unless token
 
         unless token.membership_id == current_membership.id || current_membership.owner?
-          raise ApiError::Forbidden.new(message: "solo el dueño del token o un owner pueden revocarlo")
+          raise ApiError::Forbidden.new(message: "only the token owner or an owner can revoke it")
         end
 
         token.update!(revoked_at: Time.current, revoked_by_id: current_user.id, revoke_reason: "manual")

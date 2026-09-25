@@ -29,13 +29,13 @@ module Api
       def create
         Analysis::Quota.check_manual!(current_team)
 
-        # current_user es nil con un token de integración (actúa como la
-        # integración, no como una persona): RunJob cae entonces a la clave
-        # del owner del equipo, igual que un análisis programado.
+        # current_user is nil with an integration token (it acts as the
+        # integration, not as a person): RunJob then falls back to the team
+        # owner's key, like a scheduled analysis.
         if current_user && current_user.gemini_api_key.blank?
           raise ApiError.new(
             status: :unprocessable_entity, code: "missing_gemini_api_key",
-            message: "Configura tu clave de Gemini en tu perfil (Ajustes) para poder analizar."
+            message: "Set up your Gemini key in your profile (Settings) to run an analysis."
           )
         end
 
@@ -51,7 +51,7 @@ module Api
 
       def find_analysis
         AiAnalysis.where(team_id: current_team.id, id: params[:id]).first.tap do |analysis|
-          raise ApiError::NotFound.new(message: "análisis no encontrado") unless analysis
+          raise ApiError::NotFound.new(message: "analysis not found") unless analysis
         end
       end
     end

@@ -1,5 +1,6 @@
-# "Pegar repo y listo" (RF-GH-020). Si alguna instalación del equipo ya
-# tiene acceso, vincula al instante; si no, hay que instalar la App.
+# "Paste a repo and done" (RF-GH-020). If any of the team's installations
+# already has access, it links right away; if not, the App needs to be
+# installed.
 module Github
   class LinkRepository
     Result = Struct.new(:linked, :repository, :install_url, keyword_init: true)

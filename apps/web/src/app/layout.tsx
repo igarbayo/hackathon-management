@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { BRAND_COLOR, BRAND_COLOR_DARK, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
-// F0 usa Inter en los pesos 400/500/600 (packages/core/src/tokens/typography.ts).
+// F0 uses Inter at weights 400/500/600 (packages/core/src/tokens/typography.ts).
 const inter = Inter({
   variable: "--font-inter",
   weight: ["400", "500", "600"],
@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// RF-UX-040: metadata base del sitio. Los iconos (favicon.ico, icon.svg,
-// apple-icon.png) y la imagen OG (opengraph-image.tsx) salen de las
-// convenciones de ficheros de app/, así que no se repiten aquí.
+// RF-UX-040: base site metadata. The icons (favicon.ico, icon.svg,
+// apple-icon.png) and the OG image (opengraph-image.tsx) come from the
+// app/ file conventions, so they are not repeated here.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -29,14 +29,14 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   keywords: [
     "hackathon",
-    "gestión de equipos",
+    "team management",
     "kanban",
-    "objetivos",
+    "objectives",
     "deadlines",
     "GitHub",
     "Claude Code",
     "MCP",
-    "análisis con IA",
+    "AI analysis",
   ],
   authors: [{ name: "Ignacio Garbayo" }],
   creator: "Ignacio Garbayo",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    locale: "es_ES",
+    locale: "en_US",
     url: "/",
     siteName: SITE_NAME,
     title: `${SITE_NAME} · ${SITE_TAGLINE}`,
@@ -70,8 +70,8 @@ export const viewport: Viewport = {
   ],
 };
 
-// RF-UX-042: datos estructurados (schema.org) de la organización, el sitio y
-// la aplicación, en todas las páginas.
+// RF-UX-042: structured data (schema.org) for the organization, the site and
+// the app, on every page.
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -88,7 +88,7 @@ const jsonLd = {
       url: SITE_URL,
       name: SITE_NAME,
       description: SITE_DESCRIPTION,
-      inLanguage: "es",
+      inLanguage: "en",
       publisher: { "@id": `${SITE_URL}/#organization` },
     },
     {
@@ -100,16 +100,16 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       applicationSubCategory: "Project management",
       operatingSystem: "Web",
-      inLanguage: "es",
+      inLanguage: "en",
       image: `${SITE_URL}/opengraph-image`,
       offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
       featureList: [
-        "Objetivos del reto y cobertura por features",
-        "Kanban de features con pros y contras votados",
-        "Milestones y cuenta atrás de deadlines",
-        "Feed de actividad de GitHub y Claude Code",
-        "Análisis de cobertura con IA (Gemini)",
-        "API REST, servidor MCP y OAuth 2.1",
+        "Challenge objectives and feature coverage",
+        "Feature kanban with voted pros and cons",
+        "Milestones and deadline countdown",
+        "Activity feed from GitHub and Claude Code",
+        "AI coverage analysis (Gemini)",
+        "REST API, MCP server and OAuth 2.1",
       ],
       publisher: { "@id": `${SITE_URL}/#organization` },
     },
@@ -119,11 +119,11 @@ const jsonLd = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="es"
+      lang="en"
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
-      // next-themes cambia `class` y `style` en el cliente antes del primer
-      // pintado; sin esto, React avisa de un mismatch de hidratación en cada
-      // carga aunque el resultado final sea correcto.
+      // next-themes changes `class` and `style` on the client before the first
+      // paint; without this, React warns about a hydration mismatch on every
+      // load even though the final result is correct.
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

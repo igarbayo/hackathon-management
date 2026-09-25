@@ -11,9 +11,9 @@ import {
 import { Button } from "@/components/ui/button"
 
 /**
- * Calcado de F0Alert (packages/react/src/components/F0Alert/F0Alert.tsx):
- * fondo de tono suave, icono, título y descripción, con acción y cierre
- * opcionales. Ver specs/13-sistema-diseno.md.
+ * Copied from F0Alert (packages/react/src/components/F0Alert/F0Alert.tsx):
+ * soft tone background, icon, title and description, with optional action
+ * and close. See specs/13-sistema-diseno.md.
  */
 const variantClasses = {
   neutral: {

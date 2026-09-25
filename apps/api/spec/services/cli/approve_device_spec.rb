@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Cli::ApproveDevice do
-  it "aprueba un código pendiente y le asigna equipo, membership y nivel" do
+  it "approves a pending code and gives it team, membership and level" do
     membership = create(:membership)
     record = create(:device_authorization)
 
@@ -13,7 +13,7 @@ RSpec.describe Cli::ApproveDevice do
     expect(result.privacy_level).to eq("summaries")
   end
 
-  it "acepta el user_code con guion (como se muestra en pantalla)" do
+  it "accepts the user_code with a hyphen (as shown on screen)" do
     membership = create(:membership)
     record = create(:device_authorization)
 
@@ -22,14 +22,14 @@ RSpec.describe Cli::ApproveDevice do
     expect(result.status).to eq("approved")
   end
 
-  it "404 si el user_code no existe" do
+  it "404 if the user_code does not exist" do
     membership = create(:membership)
 
     expect { described_class.call(team: membership.team, membership: membership, user_code: "ZZZZ-ZZZZ", privacy_level: "metadata") }
       .to raise_error(ApiError::NotFound)
   end
 
-  it "400 si ya no está pending" do
+  it "400 if it is no longer pending" do
     membership = create(:membership)
     record = create(:device_authorization, status: "denied")
 
@@ -37,7 +37,7 @@ RSpec.describe Cli::ApproveDevice do
       .to raise_error(ApiError::BadRequest)
   end
 
-  it "400 si ha caducado" do
+  it "400 if it has expired" do
     membership = create(:membership)
     record = create(:device_authorization, expires_at: 1.minute.ago)
 
@@ -45,7 +45,7 @@ RSpec.describe Cli::ApproveDevice do
       .to raise_error(ApiError::BadRequest)
   end
 
-  it "409 si el código ya trae un equipo distinto (vino con --team en otro)" do
+  it "409 if the code already has a different team (it came with --team for another one)" do
     other_team = create(:team)
     membership = create(:membership)
     record = create(:device_authorization, team: other_team)
@@ -54,7 +54,7 @@ RSpec.describe Cli::ApproveDevice do
       .to raise_error(ApiError::Conflict)
   end
 
-  it "400 si el nivel de privacidad no es válido" do
+  it "400 if the privacy level is not valid" do
     membership = create(:membership)
     record = create(:device_authorization)
 

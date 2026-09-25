@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class ListFeatures
       def self.tool_name = "list_features"
-      def self.description = "Lista features del equipo, opcionalmente filtradas por estado, objetivo, texto o solo las asignadas a quien llama."
+      def self.description = "Lists the team's features, optionally filtered by status, objective, text or only those assigned to the caller."
       def self.scope = nil
       def self.read_only? = true
 
@@ -30,7 +30,7 @@ module Mcp
         end
 
         if args["mine"]
-          raise Mcp::ToolError, "\"mine\" no está disponible para un token de integración." unless membership
+          raise Mcp::ToolError, "\"mine\" is not available for an integration token." unless membership
 
           scope = scope.where(assignee_ids: membership.id)
         end

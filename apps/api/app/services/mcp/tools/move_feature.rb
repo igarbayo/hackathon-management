@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class MoveFeature
       def self.tool_name = "move_feature"
-      def self.description = "Cambia el estado de una feature. Va al final de la columna destino."
+      def self.description = "Changes the status of a feature. It goes to the end of the target column."
       def self.scope = "features:write"
       def self.read_only? = false
 

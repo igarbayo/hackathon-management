@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 
-// RF-UX-043: solo las páginas públicas son indexables. El área de equipo,
-// onboarding, el consentimiento OAuth y la aprobación del CLI son privadas.
+// RF-UX-043: only public pages can be indexed. The team area, onboarding,
+// OAuth consent and CLI approval are private.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {

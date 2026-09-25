@@ -19,7 +19,7 @@ import type { Me } from "@/types/api";
 
 const noopSubscribe = () => () => {};
 
-// Igual que ThemeToggle: evita el mismatch de hidratación con el tema.
+// Same as ThemeToggle: avoids the hydration mismatch with the theme.
 function useMounted() {
   return useSyncExternalStore(
     noopSubscribe,
@@ -38,8 +38,8 @@ function initials(name: string) {
 }
 
 /**
- * Pie del sidebar F0: avatar (foto de Google/GitHub o iniciales) y nombre del usuario, con un menú que agrupa
- * el tema (antes un botón suelto en la cabecera) y cerrar sesión.
+ * F0 sidebar footer: the user's avatar (Google/GitHub photo or initials) and name, with a menu that groups
+ * the theme (it used to be a separate button in the header) and log out.
  */
 export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; iconOnly?: boolean }) {
   const { theme, setTheme } = useTheme();
@@ -58,9 +58,9 @@ export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; ic
       <DropdownMenu>
         <DropdownMenuTrigger
           className="flex w-full items-center gap-2 rounded p-1.5 text-left hover:bg-f1-background-secondary-hover focus-ring"
-          aria-label="Menú de usuario"
+          aria-label="User menu"
         >
-          {/* RF-AUTH-011: foto de Google/GitHub; si no hay o no carga, iniciales. */}
+          {/* RF-AUTH-011: Google/GitHub photo; if there is none or it fails to load, initials. */}
           <Avatar className="size-7">
             {me.avatar_url && (
               <AvatarImage src={me.avatar_url} alt="" referrerPolicy="no-referrer" />
@@ -79,18 +79,18 @@ export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; ic
         <DropdownMenuContent align="start" side="top" className="w-56">
           <DropdownMenuRadioGroup value={mounted ? theme : undefined} onValueChange={setTheme}>
             <DropdownMenuRadioItem value="light" closeOnClick>
-              <SunIcon className="size-4" /> Claro
+              <SunIcon className="size-4" /> Light
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="dark" closeOnClick>
-              <MoonIcon className="size-4" /> Oscuro
+              <MoonIcon className="size-4" /> Dark
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="system" closeOnClick>
-              <MonitorIcon className="size-4" /> Sistema
+              <MonitorIcon className="size-4" /> System
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleLogOut}>
-            <LogOutIcon className="size-4" /> Cerrar sesión
+            <LogOutIcon className="size-4" /> Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

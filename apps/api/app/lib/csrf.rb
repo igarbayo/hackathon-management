@@ -1,8 +1,8 @@
-# CSRF de doble envío sin el session store de Rails (03-api.md#convenciones-generales).
-# GET /api/v1/csrf planta una semilla httpOnly (hb_csrf_seed) y devuelve un token
-# derivado de ella. Las peticiones que cambian estado tienen que repetir ese token
-# en la cabecera X-CSRF-Token; el servidor lo recalcula a partir de la semilla de
-# la cookie y lo compara.
+# Double-submit CSRF without the Rails session store
+# (03-api.md#convenciones-generales). GET /api/v1/csrf sets an httpOnly seed
+# (hb_csrf_seed) and returns a token derived from it. Requests that change state must
+# repeat that token in the X-CSRF-Token header; the server works it out again from the
+# cookie seed and compares them.
 module Csrf
   SEED_COOKIE = :hb_csrf_seed
 

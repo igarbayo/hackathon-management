@@ -1,6 +1,6 @@
-// Exclusiones por defecto (08-integracion-claude-code.md#qué-recoge-cada-hook):
-// no se envía ni la ruta. Sin dependencias externas: los patrones que usa el
-// producto son simples (basename o **/algo/**), así que basta un glob mínimo.
+// Default exclusions (08-integracion-claude-code.md#qué-recoge-cada-hook): not
+// even the path is sent. No external dependencies: the patterns the product
+// uses are simple (basename or **/something/**), so a minimal glob is enough.
 export const DEFAULT_EXCLUDE_GLOBS = [".env*", "**/secrets/**", "**/*.pem", "**/*.key", "**/credentials*"];
 
 function globToRegExp(glob: string): RegExp {
@@ -24,8 +24,8 @@ function globToRegExp(glob: string): RegExp {
   return new RegExp(`^${pattern}$`);
 }
 
-// Un patrón sin "/" compara solo el nombre de fichero, en cualquier carpeta
-// (como .gitignore); uno con "/" compara la ruta relativa completa.
+// A pattern without "/" only compares the file name, in any folder (like
+// .gitignore); one with "/" compares the full relative path.
 export function isExcluded(relativePath: string, globs: string[]): boolean {
   const posixPath = relativePath.split("\\").join("/");
   const base = posixPath.split("/").pop() ?? posixPath;

@@ -1,6 +1,6 @@
-# Crea los ActivityEvent ya validados por Ingest::ProcessBatch (RF-CC-004).
-# Tras crearse, la atribución (capas 1-3) corre sola vía
-# ActivityEvent#enqueue_attribution para los kinds de ATTRIBUTABLE_KINDS.
+# Creates the ActivityEvents already validated by Ingest::ProcessBatch
+# (RF-CC-004). Once created, attribution (layers 1-3) runs by itself through
+# ActivityEvent#enqueue_attribution for the kinds in ATTRIBUTABLE_KINDS.
 module Ingest
   class ProcessBatchJob
     include Sidekiq::Job
@@ -54,16 +54,16 @@ module Ingest
 
     def title_for(event)
       case event["kind"]
-      when "cc_session_start" then "Sesión de Claude Code iniciada"
-      when "cc_session_end" then "Sesión de Claude Code finalizada"
-      when "cc_turn" then "Turno de Claude Code"
-      when "system_test" then "Prueba de conexión de Claude Code"
+      when "cc_session_start" then "Claude Code session started"
+      when "cc_session_end" then "Claude Code session ended"
+      when "cc_turn" then "Claude Code turn"
+      when "system_test" then "Claude Code connection test"
       end
     end
 
-    # El resumen del turno (summaries, RF-CC-… opción A) solo se persiste si
-    # el nivel del miembro lo permite, aunque el evento ya haya pasado por
-    # Ingest::ProcessBatch con ese mismo nivel: es la segunda barrera.
+    # The turn summary (summaries, RF-CC-… option A) is only stored if the
+    # member's level allows it, even though the event already went through
+    # Ingest::ProcessBatch with that same level: it is the second barrier.
     def summary_for(membership, data)
       return nil unless membership.claude_code&.privacy_level == "summaries"
 

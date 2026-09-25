@@ -1,5 +1,5 @@
-# 07-integracion-github.md#normalización-por-evento: pide los ficheros y las
-# stats del commit aparte (máx. 50 ficheros). Nunca guarda el patch.
+# 07-integracion-github.md#normalización-por-evento: fetches the commit's files
+# and stats separately (max. 50 files). It never stores the patch.
 module Github
   class FetchCommitStatsJob
     include Sidekiq::Job

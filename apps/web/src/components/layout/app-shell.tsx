@@ -12,11 +12,11 @@ import { SidebarFooter } from "./sidebar-footer";
 import { SidebarNav } from "./sidebar-nav";
 import { TeamSelector } from "./team-selector";
 
-// Calcado de ApplicationFrame/Sidebar de F0: la página vive sobre un fondo
-// f1-special-page, y tanto el sidebar como el contenido son paneles
-// flotantes (borde, radio y sombra), separados por un margen de 8px.
-// RF-UX-001: sidebar completo a partir de 1024px, solo iconos entre 768 y
-// 1023px, y drawer por debajo de 768px.
+// Copied from F0's ApplicationFrame/Sidebar: the page sits on an
+// f1-special-page background, and both the sidebar and the content are
+// floating panels (border, radius and shadow), 8px apart.
+// RF-UX-001: full sidebar from 1024px, icons only between 768 and 1023px,
+// and a drawer below 768px.
 export function AppShell({ teamId, children }: { teamId: string; children: React.ReactNode }) {
   const { data: me } = useMe();
   const { data: team } = useTeam(teamId);
@@ -37,7 +37,7 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
         <aside className="hidden w-14 shrink-0 flex-col items-center rounded-xl border border-f1-border-secondary bg-f1-background shadow-lg md:flex lg:hidden">
           <Link
             href={`/t/${teamId}/home`}
-            aria-label="Hackboard, ir a inicio"
+            aria-label="Hackboard, go to home"
             className="focus-ring mt-3 rounded-full"
           >
             <LogoIcon className="size-8" />
@@ -52,12 +52,12 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
           <header className="flex items-center gap-3 rounded-xl border border-f1-border-secondary bg-f1-background px-3 py-2.5 shadow-sm lg:hidden">
             <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
               <SheetTrigger
-                render={<Button variant="ghost" size="icon" aria-label="Abrir menú" />}
+                render={<Button variant="ghost" size="icon" aria-label="Open menu" />}
               >
                 <MenuIcon />
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
-                <SheetTitle className="sr-only">Menú</SheetTitle>
+                <SheetTitle className="sr-only">Menu</SheetTitle>
                 <div className="flex h-full flex-col">
                   <SidebarHeader
                     teamId={teamId}
@@ -101,7 +101,7 @@ function SidebarHeader({
       <Link
         href={`/t/${teamId}/home`}
         onClick={onNavigate}
-        aria-label="Hackboard, ir a inicio"
+        aria-label="Hackboard, go to home"
         className="focus-ring mb-2 self-start rounded-sm"
       >
         <LogoHorizontal className="h-7" />

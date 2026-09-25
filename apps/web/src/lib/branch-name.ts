@@ -1,4 +1,4 @@
-// RF-FEAT-018: nombre de rama sugerido f-12-titulo-en-kebab.
+// RF-FEAT-018: suggested branch name f-12-title-in-kebab-case.
 export function suggestedBranchName(key: string, title: string): string {
   const kebabTitle = title
     .normalize("NFD")

@@ -36,7 +36,7 @@ export function useDecideAttribution(teamId: string) {
   });
 }
 
-// RF-ACT-018: autores sin vincular y "Son míos" / "No son míos".
+// RF-ACT-018: unlinked authors and "These are mine" / "Not mine".
 export function useUnlinkedAuthors(teamId: string, enabled: boolean) {
   return useQuery({
     queryKey: [...activityKey(teamId), "unlinked-authors"],

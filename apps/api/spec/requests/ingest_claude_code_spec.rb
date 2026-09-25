@@ -9,13 +9,13 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
     create(:repository, team: membership.team, remote_urls: [ "github.com/hackboard/repo" ])
   end
 
-  it "401 sin Authorization" do
+  it "401 without Authorization" do
     post "/api/v1/ingest/claude_code", params: { cli_version: "0.1.0", events: [] }, as: :json
 
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "acepta un lote válido sin exigir CSRF (autenticado por token, no por cookie)" do
+  it "accepts a valid batch without requiring CSRF (authenticated by token, not by cookie)" do
     body = {
       cli_version: "0.3.1",
       events: [
@@ -32,7 +32,7 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
     expect(json_response["accepted"]).to eq(1)
   end
 
-  it "actor siempre es el dueño del token, sin excepciones" do
+  it "the actor is always the token owner, no exceptions" do
     body = {
       cli_version: "0.3.1",
       events: [ { client_event_id: "e2", kind: "system_test", occurred_at: Time.current.iso8601, session_ref: "s1", repo: { remote: "github.com/hackboard/repo" }, data: {} } ]
@@ -45,7 +45,7 @@ RSpec.describe "POST /api/v1/ingest/claude_code", type: :request do
     expect(created.actor["membership_id"]).to eq(membership.id.to_s)
   end
 
-  it "aplica rate limit de 120 peticiones por minuto por token (RNF-SEC-005)" do
+  it "applies a rate limit of 120 requests per minute per token (RNF-SEC-005)" do
     body = { cli_version: "0.3.1", events: [] }
 
     120.times do

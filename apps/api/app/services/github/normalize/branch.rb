@@ -13,7 +13,7 @@ module Github
           team_id: team.id, source: "github", kind: kind, dedupe_key: dedupe_key,
           occurred_at: Time.current, repository_id: repository.id, branch: branch,
           actor: Github::MapAuthor.call(team: team, login: payload.dig("sender", "login"), email: nil, display_name: nil),
-          title: "#{kind == 'branch_created' ? 'Rama creada' : 'Rama borrada'}: #{branch}"
+          title: "#{kind == 'branch_created' ? 'Branch created' : 'Branch deleted'}: #{branch}"
         )
       end
     end

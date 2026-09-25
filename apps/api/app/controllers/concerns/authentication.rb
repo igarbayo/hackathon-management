@@ -1,11 +1,11 @@
-# Sesión web con cookie opaca (ADR-0008). Los canales con Bearer token
-# (PAT, OAuth, integración, token de miembro) se añaden en specs/12 y 08
-# sin tocar esta autenticación de sesión.
+# Web session with an opaque cookie (ADR-0008). The Bearer token channels (PAT,
+# OAuth, integration, member token) are added in specs/12 and 08 without
+# touching this session authentication.
 module Authentication
   extend ActiveSupport::Concern
 
   SESSION_COOKIE = :hb_session
-  SESSION_TOKEN_PREFIX = "hb_s_" # RNF-SEC-002: prefijo distintivo para escaneo de secretos
+  SESSION_TOKEN_PREFIX = "hb_s_" # RNF-SEC-002: distinctive prefix for secret scanning
 
   included do
     helper_method :current_user, :current_session if respond_to?(:helper_method)

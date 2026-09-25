@@ -1,4 +1,4 @@
-# Falsos positivos: clave de Gemini de prueba ("AIzaSyTest123") en specs, ya
-# sustituida por un valor de baja entropía. Estas huellas quedan en el historial.
+# False positives: a test Gemini key ("AIzaSyTest123") in specs, since replaced
+# by a low-entropy value. These fingerprints stay in the history.
 c57dcb4aed9445425e432bd413bc373be4b809a8:apps/api/spec/models/user_spec.rb:generic-api-key:56
 c57dcb4aed9445425e432bd413bc373be4b809a8:apps/api/spec/models/user_spec.rb:generic-api-key:74

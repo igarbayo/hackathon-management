@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { publicPageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = publicPageMetadata({
-  title: "Entrar",
-  description: "Entra en Hackboard con Google, GitHub o tu email para ver el tablero de tu equipo de hackathon.",
+  title: "Log in",
+  description: "Log in to Hackboard with Google, GitHub or your email to see your hackathon team's board.",
   path: "/login",
 });
 

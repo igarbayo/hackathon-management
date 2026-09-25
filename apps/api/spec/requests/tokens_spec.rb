@@ -1,23 +1,23 @@
 require "rails_helper"
 
-RSpec.describe "Tokens de acceso personal", type: :request do
+RSpec.describe "Personal access tokens", type: :request do
   describe "POST /api/v1/teams/:team_id/tokens" do
-    it "crea un PAT para el propio miembro y devuelve el valor en claro una sola vez" do
+    it "creates a PAT for the member themselves and returns the plain value only once" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
-      post "/api/v1/teams/#{membership.team.id}/tokens", params: { name: "Mi CLI", preset: "observar" }, headers: csrf_headers, as: :json
+      post "/api/v1/teams/#{membership.team.id}/tokens", params: { name: "Mi CLI", preset: "observe" }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:created)
       expect(json_response["token"]).to start_with("hb_pat_")
       expect(json_response["scopes"]).to eq([ "read" ])
     end
 
-    it "exige sesión: un PAT no puede crear otro PAT" do
+    it "requires a session: a PAT cannot create another PAT" do
       membership = create(:membership)
-      result = Pat::Create.call(membership: membership, name: "Existente", preset: "completo")
+      result = Pat::Create.call(membership: membership, name: "Existing", preset: "full")
 
-      post "/api/v1/teams/#{membership.team.id}/tokens", params: { name: "Nuevo" },
+      post "/api/v1/teams/#{membership.team.id}/tokens", params: { name: "New" },
                                                           headers: { "Authorization" => "Bearer #{result.raw_token}" }, as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -26,34 +26,34 @@ RSpec.describe "Tokens de acceso personal", type: :request do
   end
 
   describe "GET /api/v1/teams/:team_id/tokens" do
-    it "un miembro normal solo ve los suyos" do
+    it "a regular member only sees their own" do
       membership = create(:membership)
       other = create(:membership, team: membership.team)
-      create(:access_token, team: membership.team, membership: membership, name: "Mío")
-      create(:access_token, team: membership.team, membership: other, name: "De otro")
+      create(:access_token, team: membership.team, membership: membership, name: "Mine")
+      create(:access_token, team: membership.team, membership: other, name: "Someone else's")
       sign_in_as(membership.user)
 
       get "/api/v1/teams/#{membership.team.id}/tokens"
 
-      expect(json_response["data"].map { |t| t["name"] }).to eq([ "Mío" ])
+      expect(json_response["data"].map { |t| t["name"] }).to eq([ "Mine" ])
     end
 
-    it "un owner ve los de todos, pero nunca el valor" do
+    it "an owner sees everyone's, but never the value" do
       owner = create(:membership, :owner)
       member = create(:membership, team: owner.team)
-      create(:access_token, team: owner.team, membership: member, name: "De un miembro")
+      create(:access_token, team: owner.team, membership: member, name: "From a member")
       sign_in_as(owner.user)
 
       get "/api/v1/teams/#{owner.team.id}/tokens"
 
-      expect(json_response["data"].map { |t| t["name"] }).to include("De un miembro")
+      expect(json_response["data"].map { |t| t["name"] }).to include("From a member")
       expect(json_response["data"].first).not_to have_key("token")
       expect(json_response["data"].first).not_to have_key("token_digest")
     end
   end
 
   describe "DELETE /api/v1/teams/:team_id/tokens/:id" do
-    it "el dueño puede revocar el suyo" do
+    it "the owner of a token can revoke it" do
       membership = create(:membership)
       token = create(:access_token, team: membership.team, membership: membership)
       sign_in_as(membership.user)
@@ -64,7 +64,7 @@ RSpec.describe "Tokens de acceso personal", type: :request do
       expect(token.reload.revoked_at).to be_present
     end
 
-    it "un owner puede revocar el de otro miembro" do
+    it "an owner can revoke another member's" do
       owner = create(:membership, :owner)
       member = create(:membership, team: owner.team)
       token = create(:access_token, team: owner.team, membership: member)
@@ -75,7 +75,7 @@ RSpec.describe "Tokens de acceso personal", type: :request do
       expect(response).to have_http_status(:no_content)
     end
 
-    it "un miembro normal no puede revocar el de otro" do
+    it "a regular member cannot revoke someone else's" do
       membership = create(:membership)
       other = create(:membership, team: membership.team)
       token = create(:access_token, team: membership.team, membership: other)

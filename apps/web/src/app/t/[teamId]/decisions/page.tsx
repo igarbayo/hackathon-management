@@ -11,8 +11,8 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { PageHeader } from "@/components/f0/page-header";
 import { useFeatures, useUpdateFeature } from "@/hooks/use-features";
 
-// RF-PC-010/013: lista de features en idea (por defecto) o todas, con
-// score, participantes y acciones de decisión rápidas.
+// RF-PC-010/013: list of features in idea (by default) or all of them, with
+// score, participants and quick decision actions.
 export default function DecisionsPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
   const { data: features, isLoading, isError, refetch } = useFeatures(teamId);
@@ -28,17 +28,17 @@ export default function DecisionsPage({ params }: { params: Promise<{ teamId: st
     <div className="flex flex-col gap-6">
       <PageHeader
         icon={ScaleIcon}
-        title="Pros y contras"
+        title="Pros and cons"
         actions={
           <label className="flex items-center gap-2 text-sm text-f1-foreground-secondary">
             <Switch size="sm" checked={onlyIdea} onCheckedChange={setOnlyIdea} />
-            Solo &ldquo;idea&rdquo;
+            Only &ldquo;idea&rdquo;
           </label>
         }
       />
 
       {visible.length === 0 ? (
-        <EmptyState icon={ScaleIcon} title="No hay features que decidir" />
+        <EmptyState icon={ScaleIcon} title="No features to decide on" />
       ) : (
         <Card className="divide-y divide-f1-border-secondary py-0">
           {visible.map((feature) => {
@@ -53,7 +53,7 @@ export default function DecisionsPage({ params }: { params: Promise<{ teamId: st
                   {feature.title}
                 </Link>
                 <span className="text-sm text-f1-foreground-secondary">score {feature.score}</span>
-                <span className="text-sm text-f1-foreground-secondary">{participants} participantes</span>
+                <span className="text-sm text-f1-foreground-secondary">{participants} participants</span>
                 {feature.status === "idea" && (
                   <>
                     <Button
@@ -61,14 +61,14 @@ export default function DecisionsPage({ params }: { params: Promise<{ teamId: st
                       variant="outline"
                       onClick={() => updateFeature.mutate({ key: feature.key, status: "in_progress" })}
                     >
-                      Pasar a En curso
+                      Move to In progress
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => updateFeature.mutate({ key: feature.key, status: "discarded" })}
                     >
-                      Descartar
+                      Drop
                     </Button>
                   </>
                 )}

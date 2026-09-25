@@ -1,4 +1,4 @@
-# RNF-SEC-010 (specs/09-privacidad-seguridad.md): escaneo de secretos en CI.
+# RNF-SEC-010 (specs/09-privacidad-seguridad.md): secret scanning in CI.
 name: Security
 
 on:

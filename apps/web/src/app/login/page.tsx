@@ -30,7 +30,7 @@ function LoginContent() {
       const me = await logIn.mutateAsync({ email, password });
       router.push(next || (me.last_team_id ? `/t/${me.last_team_id}/home` : "/onboarding"));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido iniciar sesión");
+      setError(err instanceof ApiError ? err.message : "Could not log in");
     }
   }
 
@@ -40,14 +40,14 @@ function LoginContent() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            <h1>Entrar en Hackboard</h1>
+            <h1>Log in to Hackboard</h1>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <OAuthButtons />
           <div className="flex items-center gap-2">
             <Separator className="flex-1" />
-            <span className="text-muted-foreground text-sm">o con email</span>
+            <span className="text-muted-foreground text-sm">or with email</span>
             <Separator className="flex-1" />
           </div>
 
@@ -57,7 +57,7 @@ function LoginContent() {
               <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Password</Label>
               <PasswordInput
                 id="password"
                 required
@@ -67,21 +67,21 @@ function LoginContent() {
             </div>
             {error && <p className="text-destructive text-base">{error}</p>}
             <Button type="submit" loading={logIn.isPending}>
-              Entrar
+              Log in
             </Button>
           </form>
 
           <p className="text-muted-foreground text-center text-base">
-            ¿No tienes cuenta?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-foreground underline">
-              Regístrate
+              Sign up
             </Link>
           </p>
         </CardContent>
       </Card>
       <p className="text-muted-foreground text-sm">
         <Link href="/privacy" className="underline">
-          Política de privacidad
+          Privacy policy
         </Link>
       </p>
     </main>

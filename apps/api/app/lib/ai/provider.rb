@@ -1,6 +1,6 @@
-# Interfaz de proveedor de IA (ADR-0003, 06-analisis-ia.md#proveedor). La
-# implementación por defecto es Ai::Gemini; cualquier otra tiene que exponer
-# el mismo contrato para que el dominio no dependa de un proveedor concreto.
+# AI provider interface (ADR-0003, 06-analisis-ia.md#proveedor). The default
+# implementation is Ai::Gemini; any other must expose the same contract so the
+# domain does not depend on a specific provider.
 module Ai
   class Provider
     class GenerationError < StandardError; end

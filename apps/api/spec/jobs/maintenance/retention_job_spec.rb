@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Maintenance::RetentionJob do
-  describe "borrado de actividad y análisis (90 días tras el hackathon)" do
-    it "borra ActivityEvent y AiAnalysis de un equipo cuyo hackathon terminó hace más de 90 días" do
+  describe "deleting activity and analyses (90 days after the hackathon)" do
+    it "deletes ActivityEvent and AiAnalysis of a team whose hackathon ended more than 90 days ago" do
       team = create(:team)
       team.hackathon.update!(starts_at: 93.days.ago, ends_at: 91.days.ago)
       event = create(:activity_event, team: team)
@@ -14,7 +14,7 @@ RSpec.describe Maintenance::RetentionJob do
       expect(AiAnalysis.where(id: analysis.id).first).to be_nil
     end
 
-    it "no borra nada si el hackathon terminó hace menos de 90 días" do
+    it "deletes nothing if the hackathon ended less than 90 days ago" do
       team = create(:team)
       team.hackathon.update!(starts_at: 12.days.ago, ends_at: 10.days.ago)
       event = create(:activity_event, team: team)
@@ -24,7 +24,7 @@ RSpec.describe Maintenance::RetentionJob do
       expect(ActivityEvent.where(id: event.id).first).to be_present
     end
 
-    it "no borra nada si el owner marcó retain_data" do
+    it "deletes nothing if the owner set retain_data" do
       team = create(:team)
       team.hackathon.update!(starts_at: 93.days.ago, ends_at: 91.days.ago)
       team.update!(settings: team.settings.merge("retain_data" => true))
@@ -35,7 +35,7 @@ RSpec.describe Maintenance::RetentionJob do
       expect(ActivityEvent.where(id: event.id).first).to be_present
     end
 
-    it "no toca equipos ya borrados lógicamente (los gestiona el borrado físico)" do
+    it "does not touch teams already soft-deleted (physical deletion handles them)" do
       team = create(:team, deleted_at: 1.day.ago)
       team.hackathon.update!(starts_at: 93.days.ago, ends_at: 91.days.ago)
       event = create(:activity_event, team: team)
@@ -46,8 +46,8 @@ RSpec.describe Maintenance::RetentionJob do
     end
   end
 
-  describe "borrado físico de equipos (30 días tras el borrado lógico)" do
-    it "borra un equipo marcado como borrado hace más de 30 días" do
+  describe "physical deletion of teams (30 days after the soft delete)" do
+    it "deletes a team marked as deleted more than 30 days ago" do
       team = create(:team, deleted_at: 31.days.ago)
 
       described_class.new.perform
@@ -55,7 +55,7 @@ RSpec.describe Maintenance::RetentionJob do
       expect(Team.where(id: team.id).first).to be_nil
     end
 
-    it "no borra un equipo borrado hace menos de 30 días" do
+    it "does not delete a team deleted less than 30 days ago" do
       team = create(:team, deleted_at: 5.days.ago)
 
       described_class.new.perform

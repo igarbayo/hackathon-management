@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Cli::CreateDeviceAuthorization do
-  it "crea un DeviceAuthorization pendiente y devuelve el device_code en claro una sola vez" do
+  it "creates a pending DeviceAuthorization and returns the plain device_code only once" do
     result = described_class.call
 
     expect(result.device_code).to be_present
@@ -10,7 +10,7 @@ RSpec.describe Cli::CreateDeviceAuthorization do
     expect(result.record.device_code_digest).to eq(Digest::SHA256.hexdigest(result.device_code))
   end
 
-  it "resuelve el equipo si viene team_code" do
+  it "resolves the team if team_code comes in" do
     team = create(:team)
 
     result = described_class.call(team_code: team.code)
@@ -18,8 +18,8 @@ RSpec.describe Cli::CreateDeviceAuthorization do
     expect(result.record.team_id).to eq(team.id)
   end
 
-  it "deja team_id a nil si el team_code no existe" do
-    result = described_class.call(team_code: "NOEXISTE")
+  it "leaves team_id nil if the team_code does not exist" do
+    result = described_class.call(team_code: "NOTEXIST")
 
     expect(result.record.team_id).to be_nil
   end

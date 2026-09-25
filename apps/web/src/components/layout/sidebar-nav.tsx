@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { navItems } from "./nav-items";
 
-// Calcado del item de menú del Sidebar de F0 (Navigation/Sidebar/Menu):
-// rounded, 16px de icono, activo en bg-f1-background-secondary.
-// `onNavigate` lo usa el drawer móvil para cerrarse al elegir una opción.
+// Copied from the F0 Sidebar menu item (Navigation/Sidebar/Menu):
+// rounded, 16px icon, active on bg-f1-background-secondary.
+// The mobile drawer uses `onNavigate` to close when an option is picked.
 export function SidebarNav({
   teamId,
   iconOnly = false,

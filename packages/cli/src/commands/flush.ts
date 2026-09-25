@@ -9,8 +9,9 @@ import { log } from "../log";
 
 const BATCH_SIZE = 200;
 
-// Uso interno (RNF-CC-001): nunca lanza, nunca escribe en stdout. Lo invocan
-// los hooks Stop/SessionEnd como proceso detached, o el usuario a mano.
+// Internal use (RNF-CC-001): never throws, never writes to stdout. The
+// Stop/SessionEnd hooks run it as a detached process, or the user runs it by
+// hand.
 export async function runFlush(): Promise<void> {
   const creds = readCredentials();
   if (!creds || creds.connected === false) return;
@@ -31,7 +32,7 @@ async function maybeRefreshConfig(token: string): Promise<void> {
     const fresh = await fetchConfig(token);
     writeConfigCache({ ...fresh, fetched_at: new Date().toISOString() });
   } catch (error) {
-    log(`no se ha podido refrescar /cli/config: ${(error as Error).message}`);
+    log(`could not refresh /cli/config: ${(error as Error).message}`);
   }
 }
 
@@ -48,15 +49,15 @@ async function sendQueue(token: string): Promise<void> {
   if (!result.ok) {
     if (result.revoked) {
       markDisconnected();
-      log("token revocado (401): se marca como desconectado y se deja de encolar");
+      log("token revoked (401): marking as disconnected and no longer queuing");
       return;
     }
     recordFailure();
-    log("fallo al enviar el lote a /api/v1/ingest/claude_code, se reintentará con backoff");
+    log("failed to send the batch to /api/v1/ingest/claude_code, will retry with backoff");
     return;
   }
 
   recordSuccess();
   removeFromQueue(new Set(batch.map((event) => event.client_event_id)));
-  log(`lote enviado: ${result.accepted} aceptados, ${result.duplicates} duplicados, ${result.rejected.length} rechazados`);
+  log(`batch sent: ${result.accepted} accepted, ${result.duplicates} duplicates, ${result.rejected.length} rejected`);
 }

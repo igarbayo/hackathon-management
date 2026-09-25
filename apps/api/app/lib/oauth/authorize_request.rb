@@ -1,7 +1,7 @@
-# Petición de autorización pendiente entre GET /oauth/authorize y
-# POST /oauth/authorize/decision, firmada en vez de guardada en el servidor
-# (mismo patrón que Github::InstallState/OAuthLoginState: sin sesión de
-# servidor entre el redirect a la web y la decisión).
+# Pending authorization request between GET /oauth/authorize and POST
+# /oauth/authorize/decision, signed instead of stored on the server (same
+# pattern as Github::InstallState/OAuthLoginState: no server session between the
+# redirect to the web app and the decision).
 module OAuth
   module AuthorizeRequest
     TTL = 10.minutes
@@ -17,7 +17,7 @@ module OAuth
     def self.verify(request_id)
       verifier.verify(request_id)
     rescue ActiveSupport::MessageVerifier::InvalidSignature
-      raise ApiError::BadRequest.new(message: "request_id inválido o caducado")
+      raise ApiError::BadRequest.new(message: "invalid or expired request_id")
     end
   end
 end

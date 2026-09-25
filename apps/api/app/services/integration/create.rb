@@ -1,5 +1,5 @@
-# POST /teams/:team_id/integrations (RF-API-011). Solo lo crea un owner. El
-# actor es la integración, no una persona: sin membership.
+# POST /teams/:team_id/integrations (RF-API-011). Only an owner creates it. The
+# actor is the integration, not a person: no membership.
 module Integration
   class Create
     def self.call(team:, created_by:, name:, scopes:)
@@ -26,9 +26,9 @@ module Integration
     end
   end
 
-  # RF-API-023: "rotar" un token de integración cambia el secreto sin tocar
-  # nombre/scopes/histórico de uso, para automatizaciones que no quieren
-  # reconfigurar todo tras una fuga de credenciales.
+  # RF-API-023: "rotating" an integration token changes the secret without
+  # touching the name/scopes/usage history, for automations that do not want to
+  # reconfigure everything after a credential leak.
   class Rotate
     def self.call(token:)
       raw_token = "hb_it_#{SecureRandom.hex(24)}"

@@ -1,6 +1,7 @@
-# Capa 2 (RF-ATR-002): rama conocida. Si la rama del evento está en
-# branch_names de una única feature (y no es la rama por defecto), se
-# atribuye. Si hay más de una, no decide (pasa a la capa 3).
+# Layer 2 (RF-ATR-002): known branch. If the event's branch is in the
+# branch_names of a single feature (and it is not the default branch), it is
+# attributed. If there is more than one, it does not decide (it goes to layer
+# 3).
 module Attribution
   class ApplyBranch
     def self.call(event)

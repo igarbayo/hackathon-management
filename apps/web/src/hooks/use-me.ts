@@ -47,8 +47,8 @@ export function useLogOut() {
   });
 }
 
-// RF-AUTH-007: borra la cuenta y la sesión en el servidor; aquí solo se
-// vacía la caché para que nada del usuario quede en memoria.
+// RF-AUTH-007: deletes the account and the session on the server; here the
+// cache is only cleared so nothing about the user stays in memory.
 export function useDeleteMe() {
   const queryClient = useQueryClient();
   return useMutation({

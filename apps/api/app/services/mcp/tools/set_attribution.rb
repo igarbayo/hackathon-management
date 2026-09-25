@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class SetAttribution
       def self.tool_name = "set_attribution"
-      def self.description = "Confirma, rechaza o fija a mano la atribución de un evento del feed a una feature."
+      def self.description = "Confirms, rejects or sets by hand the attribution of a feed event to a feature."
       def self.scope = "attribution:write"
       def self.read_only? = false
 
@@ -21,7 +21,7 @@ module Mcp
 
       def self.call(team:, membership:, resolved_token:, args:)
         event = ActivityEvent.where(team_id: team.id, id: args["event_id"]).first
-        raise Mcp::ToolError, "Evento no encontrado. Usa list_activity para ver los ids." unless event
+        raise Mcp::ToolError, "Event not found. Use list_activity to see the ids." unless event
 
         feature = args["feature_key"].present? ? Mcp::FindFeature.call(team: team, key: args["feature_key"]) : nil
 

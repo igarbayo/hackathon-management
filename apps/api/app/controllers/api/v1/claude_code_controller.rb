@@ -1,7 +1,7 @@
-# PATCH/DELETE /teams/:team_id/me/claude_code (RF-CC-010, vía sesión —
-# la web no tiene el token de miembro a mano). Cada miembro solo puede tocar
-# su propio enlace, nunca el de otro. Mismo contrato que Cli::MeController,
-# que es la vía equivalente con Bearer para el CLI.
+# PATCH/DELETE /teams/:team_id/me/claude_code (RF-CC-010, through the session —
+# the web app does not have the member token at hand). Each member can only
+# change their own link, never someone else's. Same contract as
+# Cli::MeController, which is the equivalent Bearer route for the CLI.
 module Api
   module V1
     class ClaudeCodeController < Api::V1::BaseController

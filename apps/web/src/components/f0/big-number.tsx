@@ -9,7 +9,7 @@ const toneClasses = {
   critical: "text-f1-foreground-critical",
 } as const
 
-/** Calcado de F0BigNumber: cifra grande + etiqueta, para tarjetas de resumen. */
+/** Copied from F0BigNumber: big figure + label, for summary cards. */
 function BigNumber({
   value,
   label,

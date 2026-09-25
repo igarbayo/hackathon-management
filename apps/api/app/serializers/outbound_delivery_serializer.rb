@@ -1,4 +1,4 @@
-# Nunca expone el cuerpo de la respuesta (02-modelo-datos.md#outbounddelivery).
+# It never exposes the response body (02-modelo-datos.md#outbounddelivery).
 class OutboundDeliverySerializer
   def initialize(delivery)
     @delivery = delivery

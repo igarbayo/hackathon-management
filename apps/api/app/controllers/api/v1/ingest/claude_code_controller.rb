@@ -1,6 +1,6 @@
-# POST /api/v1/ingest/claude_code (RF-CC-004). Bearer hb_mt_: no hereda de
-# Api::V1::BaseController para no exigir CSRF (RNF-SEC-003 lo limita a
-# endpoints de sesión; el CLI no tiene cookie).
+# POST /api/v1/ingest/claude_code (RF-CC-004). Bearer hb_mt_: it does not
+# inherit from Api::V1::BaseController so it does not require CSRF (RNF-SEC-003
+# limits it to session endpoints; the CLI has no cookie).
 module Api
   module V1
     module Ingest
@@ -9,9 +9,9 @@ module Api
         before_action :authenticate_member_token!
         before_action :enforce_rate_limit!
 
-        # RNF-SEC-005 (03-api.md#contrato-de-ingesta): 120 peticiones por
-        # minuto por token. Los 200 eventos por petición ya los limita el
-        # esquema (maxItems).
+        # RNF-SEC-005 (03-api.md#contrato-de-ingesta): 120 requests per minute
+        # per token. The schema already limits each request to 200 events
+        # (maxItems).
         RATE_LIMIT = 120
         RATE_PERIOD = 1.minute
 

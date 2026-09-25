@@ -29,7 +29,7 @@ export default function SignupPage() {
       await signUp.mutateAsync({ name, email, password });
       router.push("/onboarding");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido crear la cuenta");
+      setError(err instanceof ApiError ? err.message : "Could not create the account");
     }
   }
 
@@ -39,20 +39,20 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            <h1>Crear cuenta en Hackboard</h1>
+            <h1>Create your Hackboard account</h1>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <OAuthButtons />
           <div className="flex items-center gap-2">
             <Separator className="flex-1" />
-            <span className="text-muted-foreground text-sm">o con email</span>
+            <span className="text-muted-foreground text-sm">or with email</span>
             <Separator className="flex-1" />
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name">Nombre</Label>
+              <Label htmlFor="name">Name</Label>
               <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -60,7 +60,7 @@ export default function SignupPage() {
               <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Password</Label>
               <PasswordInput
                 id="password"
                 required
@@ -69,26 +69,26 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <p className="text-muted-foreground text-sm">Entre 10 y 72 caracteres.</p>
+              <p className="text-muted-foreground text-sm">Between 10 and 72 characters.</p>
             </div>
             {error && <p className="text-destructive text-base">{error}</p>}
             <Button type="submit" loading={signUp.isPending}>
-              Crear cuenta
+              Sign up
             </Button>
           </form>
 
           <p className="text-muted-foreground text-sm">
-            Tienes que tener al menos 16 años. Al crear la cuenta trataré tus datos como explica la{" "}
+            You must be at least 16 years old. When you create the account, I will handle your data as explained in the{" "}
             <Link href="/privacy" className="text-foreground underline">
-              política de privacidad
+              privacy policy
             </Link>
             .
           </p>
 
           <p className="text-muted-foreground text-center text-base">
-            ¿Ya tienes cuenta?{" "}
+            Already have an account?{" "}
             <Link href="/login" className="text-foreground underline">
-              Entra
+              Log in
             </Link>
           </p>
         </CardContent>

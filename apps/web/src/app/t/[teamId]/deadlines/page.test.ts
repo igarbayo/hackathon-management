@@ -9,7 +9,7 @@ function item(overdue: boolean, dueAt: string): TimelineItem {
 describe("groupTimeline", () => {
   const now = new Date("2026-01-01T12:00:00Z");
 
-  it("agrupa vencidas, próximas 6h y más adelante" , () => {
+  it("groups overdue, next 6 h and later", () => {
     const items = [
       item(true, "2026-01-01T10:00:00Z"),
       item(false, "2026-01-01T15:00:00Z"),

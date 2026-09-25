@@ -8,7 +8,7 @@ RSpec.describe "GET /api/v1/github/setup", type: :request do
     ENV["APP_URL"] = original_app_url
   end
 
-  it "añade installation_id al equipo y redirige a la web" do
+  it "adds installation_id to the team and redirects to the web app" do
     membership = create(:membership)
     state = Github::InstallState.generate(team: membership.team, user: membership.user)
 
@@ -19,19 +19,19 @@ RSpec.describe "GET /api/v1/github/setup", type: :request do
     expect(membership.team.reload.github_installation_ids).to include(777)
   end
 
-  it "403 si el usuario del state no es miembro del equipo" do
+  it "403 if the state's user is not a team member" do
     team = create(:team)
     outsider = create(:user)
     state = Github::InstallState.generate(team: team, user: outsider)
-    # outsider nunca se une al equipo
+    # outsider never joins the team
 
     get "/api/v1/github/setup", params: { installation_id: "1", state: state }
 
     expect(response).to have_http_status(:forbidden)
   end
 
-  it "400 con un state inválido" do
-    get "/api/v1/github/setup", params: { installation_id: "1", state: "no-es-valido" }
+  it "400 with an invalid state" do
+    get "/api/v1/github/setup", params: { installation_id: "1", state: "not-valid" }
 
     expect(response).to have_http_status(:bad_request)
   end

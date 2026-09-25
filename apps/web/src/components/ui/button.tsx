@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2026 Ignacio Garbayo
 // SPDX-License-Identifier: MIT AND AGPL-3.0-or-later
 //
-// Generado con la CLI de shadcn/ui (https://github.com/shadcn-ui/ui), MIT License:
-// texto completo en LICENSES/MIT.txt. Los cambios propios son AGPL-3.0-or-later.
+// Generated with the shadcn/ui CLI (https://github.com/shadcn-ui/ui), MIT License:
+// full text in LICENSES/MIT.txt. Our own changes are AGPL-3.0-or-later.
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -11,11 +11,11 @@ import { cn } from "cn"
 import { Loader2Icon } from "lucide-react"
 
 /**
- * Calcado de F0Button (packages/react/src/ui/Action/variants.ts de F0):
- * colores y estados reales de cada variante, con los nombres de prop de
- * shadcn que ya usa el resto de la app (secondary → neutral, destructive →
- * critical, ver specs/13-sistema-diseno.md). Tamaños según la escala de
- * alturas de F0 (sm 24px, md/default 32px, lg 40px) y su mapeo de radios
+ * Copied from F0Button (packages/react/src/ui/Action/variants.ts in F0):
+ * the real colors and states of each variant, with the shadcn prop names
+ * the rest of the app already uses (secondary → neutral, destructive →
+ * critical, see specs/13-sistema-diseno.md). Sizes follow F0's height
+ * scale (sm 24px, md/default 32px, lg 40px) and its radius mapping
  * (sm→rounded-sm, md→rounded, lg→rounded-md).
  */
 const buttonVariants = cva(

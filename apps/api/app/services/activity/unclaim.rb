@@ -1,8 +1,7 @@
-# "No son míos" (RF-ACT-018, ADR-0018): deja eventos de GitHub sin usuario.
-# El miembro que los tenía queda en actor.unclaimed_by, para que la
-# asignación automática no se los vuelva a dar, y sus identidades salen de
-# sus git_identities. Un miembro solo sobre los suyos; un owner, sobre
-# cualquiera.
+# "Not mine" (RF-ACT-018, ADR-0018): leaves GitHub events with no user. The
+# member who had them is kept in actor.unclaimed_by, so automatic assignment
+# does not give them back, and their identities are removed from their
+# git_identities. A member only on their own events; an owner, on any.
 module Activity
   class Unclaim
     def self.call(team:, by:, events:)
@@ -15,7 +14,7 @@ module Activity
       @events = events
     end
 
-    # Devuelve [eventos desasignados, número de omitidos].
+    # Returns [unassigned events, number skipped].
     def call
       allowed = events.select { |event| event.source == "github" && event.actor["membership_id"].present? && (by.owner? || event.actor["membership_id"] == by.id.to_s) }
 

@@ -3,9 +3,9 @@ import { ensureConfigDir, paths } from "./paths";
 
 const MAX_LOG_BYTES = 1_000_000;
 
-// RNF-CC-001: los hooks nunca escriben en stdout ni rompen Claude Code, así
-// que cualquier error va aquí. Si ni siquiera esto funciona, se traga el
-// error: un hook no puede fallar por no poder loguear.
+// RNF-CC-001: hooks never write to stdout or break Claude Code, so any error
+// goes here. If even this fails, the error is swallowed: a hook cannot fail
+// because it cannot log.
 export function log(message: string): void {
   try {
     ensureConfigDir();

@@ -1,13 +1,12 @@
-# GET /api/v1/openapi.json (RF-API-007). Se genera a partir de las rutas
-# reales y de las declaraciones session_only/requires_scope de TeamScoping
-# (12-acceso-programatico.md#openapi--rf-api-007-f2-aceptado), en vez de
-# mantenerse a mano: no puede quedar desincronizado de lo que de verdad
-# exige cada endpoint, porque lee la misma fuente que los aplica en
-# tiempo de petición.
+# GET /api/v1/openapi.json (RF-API-007). It is generated from the real routes
+# and TeamScoping's session_only/requires_scope declarations
+# (12-acceso-programatico.md#openapi--rf-api-007-f2-aceptado), instead of being
+# kept by hand: it cannot drift from what each endpoint really requires, because
+# it reads the same source that enforces them at request time.
 #
-# Los pocos endpoints que no usan TeamScoping (login, device flow, MCP…)
-# no declaran scope por acción, así que su acceso se documenta a mano en
-# MANUAL_ACCESS: son rutas estables que cambian poco.
+# The few endpoints that do not use TeamScoping (login, device flow, MCP…) do
+# not declare a scope per action, so their access is documented by hand in
+# MANUAL_ACCESS: they are stable routes that rarely change.
 module Api
   class OpenapiDocument
     EXCLUDED_PREFIXES = %w[api/v1/auth/github api/v1/auth/google].freeze
@@ -45,7 +44,7 @@ module Api
     def generate
       {
         "openapi" => "3.1.0",
-        "info" => { "title" => "Hackboard API", "version" => "1.0.0", "description" => "Ver specs/03-api.md y specs/12-acceso-programatico.md." },
+        "info" => { "title" => "Hackboard API", "version" => "1.0.0", "description" => "See specs/03-api.md and specs/12-acceso-programatico.md." },
         "servers" => [ { "url" => "#{ENV.fetch('API_URL', '')}/api/v1" } ],
         "paths" => build_paths
       }
@@ -94,7 +93,7 @@ module Api
       key = "#{controller_name}##{action}"
       op = {
         "operationId" => key.tr("/", "_").tr("#", "_"),
-        "responses" => { "200" => { "description" => "OK" }, "404" => { "description" => "No encontrado o equipo ajeno (RNF-SEC-001)" } }
+        "responses" => { "200" => { "description" => "OK" }, "404" => { "description" => "Not found or another team's (RNF-SEC-001)" } }
       }
 
       if controller.respond_to?(:session_only_actions) && controller.session_only_actions.include?(action.to_sym)

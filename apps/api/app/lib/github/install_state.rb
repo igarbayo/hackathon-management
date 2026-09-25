@@ -1,6 +1,6 @@
-# state firmado del flujo de instalación/vinculación (RF-GH-020). Lleva
-# team_id, user_id y, si el usuario pegó un repo antes de instalar, su
-# full_name, para vincularlo solo al volver de la Setup URL.
+# Signed state of the install/link flow (RF-GH-020). It carries team_id, user_id
+# and, if the user pasted a repo before installing, its full_name, so it is
+# linked only when coming back from the Setup URL.
 module Github
   module InstallState
     TTL = 15.minutes
@@ -16,7 +16,7 @@ module Github
     def self.verify(state)
       verifier.verify(state)
     rescue ActiveSupport::MessageVerifier::InvalidSignature
-      raise ApiError::BadRequest.new(message: "state inválido o caducado")
+      raise ApiError::BadRequest.new(message: "invalid or expired state")
     end
   end
 end

@@ -1,17 +1,17 @@
 require "rails_helper"
 
-# RF-API-006: toda escritura hecha con un token deja rastro en el feed con
-# `via`. Las mismas escrituras hechas desde la web no lo llevan.
-RSpec.describe "Trazabilidad via (RF-API-006)", type: :request do
-  def token_for(membership, preset: "completo")
+# RF-API-006: every write made with a token leaves a trace in the feed with
+# `via`. The same writes made from the web app do not have it.
+RSpec.describe "via tracking (RF-API-006)", type: :request do
+  def token_for(membership, preset: "full")
     Pat::Create.call(membership: membership, name: "Agente", preset: preset).raw_token
   end
 
-  it "crear un objetivo con un token deja un evento system/api_change con via" do
+  it "creating an objective with a token leaves a system/api_change event with via" do
     membership = create(:membership)
     token = token_for(membership)
 
-    post "/api/v1/teams/#{membership.team.id}/objectives", params: { title: "Nuevo", priority: "must" }, headers: { "Authorization" => "Bearer #{token}" }, as: :json
+    post "/api/v1/teams/#{membership.team.id}/objectives", params: { title: "New", priority: "must" }, headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
     event = ActivityEvent.where(team_id: membership.team.id, kind: "api_change").first
     expect(event).to be_present
@@ -20,16 +20,16 @@ RSpec.describe "Trazabilidad via (RF-API-006)", type: :request do
     expect(event.payload["fields"]).to match_array(%w[title priority])
   end
 
-  it "crear el mismo objetivo desde la web (sesión) no deja ningún api_change" do
+  it "creating the same objective from the web app (session) leaves no api_change" do
     membership = create(:membership)
     sign_in_as(membership.user)
 
-    post "/api/v1/teams/#{membership.team.id}/objectives", params: { title: "Nuevo", priority: "must" }, headers: csrf_headers, as: :json
+    post "/api/v1/teams/#{membership.team.id}/objectives", params: { title: "New", priority: "must" }, headers: csrf_headers, as: :json
 
     expect(ActivityEvent.where(team_id: membership.team.id, kind: "api_change").count).to eq(0)
   end
 
-  it "cambiar el status de una feature con un token deja el evento feature_status_changed con via, no un api_change aparte" do
+  it "changing a feature's status with a token leaves the feature_status_changed event with via, not a separate api_change" do
     membership = create(:membership)
     feature = create(:feature, team: membership.team, status: "idea")
     token = token_for(membership)
@@ -42,12 +42,12 @@ RSpec.describe "Trazabilidad via (RF-API-006)", type: :request do
     expect(ActivityEvent.where(team_id: membership.team.id, kind: "api_change").count).to eq(0)
   end
 
-  it "editar el título y el status a la vez deja los dos eventos, cada uno con su via" do
+  it "editing the title and the status at once leaves both events, each with its via" do
     membership = create(:membership)
     feature = create(:feature, team: membership.team, status: "idea")
     token = token_for(membership)
 
-    patch "/api/v1/teams/#{membership.team.id}/features/#{feature.key}", params: { status: "in_progress", title: "Nuevo título" },
+    patch "/api/v1/teams/#{membership.team.id}/features/#{feature.key}", params: { status: "in_progress", title: "New title" },
                                                                           headers: { "Authorization" => "Bearer #{token}" }, as: :json
 
     expect(ActivityEvent.where(team_id: membership.team.id, kind: "feature_status_changed").count).to eq(1)
@@ -55,10 +55,10 @@ RSpec.describe "Trazabilidad via (RF-API-006)", type: :request do
     expect(api_change.payload["fields"]).to eq([ "title" ])
   end
 
-  it "votar un argumento con un token deja constancia" do
+  it "voting on an argument with a token leaves a trace" do
     membership = create(:membership)
     feature = create(:feature, team: membership.team)
-    argument = feature.arguments.create!(kind: "pro", text: "Buena idea", author_id: membership.user_id)
+    argument = feature.arguments.create!(kind: "pro", text: "Good idea", author_id: membership.user_id)
     token = token_for(membership)
 
     put "/api/v1/teams/#{membership.team.id}/features/#{feature.key}/arguments/#{argument.id}/vote",

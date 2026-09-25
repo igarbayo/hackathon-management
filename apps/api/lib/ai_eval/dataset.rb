@@ -1,22 +1,22 @@
-# Dataset de evaluación del prompt de cobertura (RNF-AI-002,
-# 06-analisis-ia.md#evaluación--rnf-ai-002-f4-aceptado). Cada caso trae el
-# `context` con la misma forma que genera Analysis::BuildContext y el
-# `expected["coverage"]` que un humano esperaría para ese caso.
+# Evaluation dataset for the coverage prompt (RNF-AI-002,
+# 06-analisis-ia.md#evaluación--rnf-ai-002-f4-aceptado). Each case has a
+# `context` with the same shape Analysis::BuildContext produces and the
+# `expected["coverage"]` a human would expect for that case.
 #
-# No usa la base de datos: son fixtures de texto plano, más simples de leer
-# y de ampliar que crear equipos/features reales para cada caso.
+# It does not use the database: they are plain text fixtures, simpler to read
+# and extend than creating real teams/features for each case.
 module AiEval
   DATASET = [
     {
-      "name" => "objetivo cubierto por una feature done con actividad",
+      "name" => "objective covered by a done feature with activity",
       "context" => {
-        "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => "Construir una app de gestión de hackathons." },
+        "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => "Build a hackathon management app." },
         "milestones" => [],
-        "objectives" => [ { "key" => "O-1", "title" => "Login con GitHub", "description" => "Los usuarios entran con su cuenta de GitHub.", "priority" => "must" } ],
+        "objectives" => [ { "key" => "O-1", "title" => "Login with GitHub", "description" => "Users log in with their GitHub account.", "priority" => "must" } ],
         "features" => [ {
-          "key" => "F-1", "title" => "OAuth con GitHub", "description" => "Implementa el flujo OAuth completo con GitHub.",
+          "key" => "F-1", "title" => "GitHub OAuth", "description" => "Implements the full OAuth flow with GitHub.",
           "status" => "done", "objective_keys" => [ "O-1" ], "assignee_count" => 1, "deadline" => nil, "score" => 8,
-          "activity" => { "last_6h" => { "event_count" => 3, "people" => [ "Ada" ] }, "total" => { "event_count" => 10, "last_activity_at" => "2026-09-22T11:00:00Z", "titles" => [ "Implementa callback de OAuth" ], "files" => [ "app/controllers/auth.rb" ] } }
+          "activity" => { "last_6h" => { "event_count" => 3, "people" => [ "Ada" ] }, "total" => { "event_count" => 10, "last_activity_at" => "2026-09-22T11:00:00Z", "titles" => [ "Implement the OAuth callback" ], "files" => [ "app/controllers/auth.rb" ] } }
         } ],
         "unattributed" => { "count" => 0, "titles" => [] },
         "deterministic_alerts" => []
@@ -24,11 +24,11 @@ module AiEval
       "expected" => { "coverage" => [ { "objective_key" => "O-1", "status" => "covered" } ] }
     },
     {
-      "name" => "objetivo sin ninguna feature vinculada",
+      "name" => "objective with no linked feature",
       "context" => {
         "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => nil },
         "milestones" => [],
-        "objectives" => [ { "key" => "O-1", "title" => "Notificaciones por email", "description" => "Avisar a los usuarios de cambios importantes.", "priority" => "should" } ],
+        "objectives" => [ { "key" => "O-1", "title" => "Email notifications", "description" => "Tell users about important changes.", "priority" => "should" } ],
         "features" => [],
         "unattributed" => { "count" => 0, "titles" => [] },
         "deterministic_alerts" => []
@@ -36,13 +36,13 @@ module AiEval
       "expected" => { "coverage" => [ { "objective_key" => "O-1", "status" => "uncovered" } ] }
     },
     {
-      "name" => "feature en idea, sin actividad: cobertura parcial o nula, nunca covered",
+      "name" => "feature in idea, no activity: partial or no coverage, never covered",
       "context" => {
         "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => nil },
         "milestones" => [],
-        "objectives" => [ { "key" => "O-1", "title" => "Exportar a PDF", "description" => "Poder descargar un informe en PDF.", "priority" => "could" } ],
+        "objectives" => [ { "key" => "O-1", "title" => "Export to PDF", "description" => "Download a report as a PDF.", "priority" => "could" } ],
         "features" => [ {
-          "key" => "F-1", "title" => "Exportación PDF", "description" => "Botón para exportar el informe.",
+          "key" => "F-1", "title" => "PDF export", "description" => "Button to export the report.",
           "status" => "idea", "objective_keys" => [ "O-1" ], "assignee_count" => 0, "deadline" => nil, "score" => 1,
           "activity" => { "last_6h" => { "event_count" => 0, "people" => [] }, "total" => { "event_count" => 0, "last_activity_at" => nil, "titles" => [], "files" => [] } }
         } ],
@@ -52,27 +52,27 @@ module AiEval
       "expected" => { "coverage" => [ { "objective_key" => "O-1", "status" => "uncovered" } ] }
     },
     {
-      "name" => "feature discarded no cuenta como cobertura",
+      "name" => "a discarded feature does not count as coverage",
       "context" => {
         "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => nil },
         "milestones" => [],
-        "objectives" => [ { "key" => "O-1", "title" => "Modo oscuro", "description" => "Tema oscuro para toda la app.", "priority" => "could" } ],
-        "features" => [ { "key" => "F-1", "title" => "Modo oscuro", "status" => "discarded" } ],
+        "objectives" => [ { "key" => "O-1", "title" => "Dark mode", "description" => "Dark theme for the whole app.", "priority" => "could" } ],
+        "features" => [ { "key" => "F-1", "title" => "Dark mode", "status" => "discarded" } ],
         "unattributed" => { "count" => 0, "titles" => [] },
         "deterministic_alerts" => []
       },
       "expected" => { "coverage" => [ { "objective_key" => "O-1", "status" => "uncovered" } ] }
     },
     {
-      "name" => "trabajo en curso con actividad reciente: parcial",
+      "name" => "work in progress with recent activity: partial",
       "context" => {
         "hackathon" => { "name" => "HackUSC", "now" => "2026-09-22T12:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 24.0, "challenge_text" => nil },
         "milestones" => [],
-        "objectives" => [ { "key" => "O-1", "title" => "Kanban de features", "description" => "Tablero con arrastrar y soltar.", "priority" => "must" } ],
+        "objectives" => [ { "key" => "O-1", "title" => "Feature kanban", "description" => "Board with drag and drop.", "priority" => "must" } ],
         "features" => [ {
-          "key" => "F-1", "title" => "Kanban básico", "description" => "Columnas idea/en curso/hecha, sin drag and drop todavía.",
+          "key" => "F-1", "title" => "Basic kanban", "description" => "Idea/in progress/done columns, no drag and drop yet.",
           "status" => "in_progress", "objective_keys" => [ "O-1" ], "assignee_count" => 1, "deadline" => nil, "score" => 4,
-          "activity" => { "last_6h" => { "event_count" => 2, "people" => [ "Grace" ] }, "total" => { "event_count" => 4, "last_activity_at" => "2026-09-22T11:30:00Z", "titles" => [ "Añade columnas del kanban" ], "files" => [ "app/features/board.tsx" ] } }
+          "activity" => { "last_6h" => { "event_count" => 2, "people" => [ "Grace" ] }, "total" => { "event_count" => 4, "last_activity_at" => "2026-09-22T11:30:00Z", "titles" => [ "Add the kanban columns" ], "files" => [ "app/features/board.tsx" ] } }
         } ],
         "unattributed" => { "count" => 0, "titles" => [] },
         "deterministic_alerts" => []
@@ -80,18 +80,18 @@ module AiEval
       "expected" => { "coverage" => [ { "objective_key" => "O-1", "status" => "partial" } ] }
     },
     {
-      "name" => "varios objetivos, cobertura mixta",
+      "name" => "several objectives, mixed coverage",
       "context" => {
         "hackathon" => { "name" => "HackUSC", "now" => "2026-09-23T09:00:00Z", "ends_at" => "2026-09-23T12:00:00Z", "hours_remaining" => 3.0, "challenge_text" => nil },
         "milestones" => [],
         "objectives" => [
-          { "key" => "O-1", "title" => "Autenticación", "description" => "Entrar con email y contraseña.", "priority" => "must" },
-          { "key" => "O-2", "title" => "Analítica de uso", "description" => "Saber qué features se usan más.", "priority" => "could" }
+          { "key" => "O-1", "title" => "Authentication", "description" => "Log in with email and password.", "priority" => "must" },
+          { "key" => "O-2", "title" => "Usage analytics", "description" => "Know which features are used most.", "priority" => "could" }
         ],
         "features" => [ {
-          "key" => "F-1", "title" => "Login con email", "description" => "Formulario de login con email y contraseña, ya en producción.",
+          "key" => "F-1", "title" => "Email login", "description" => "Login form with email and password, already in production.",
           "status" => "done", "objective_keys" => [ "O-1" ], "assignee_count" => 1, "deadline" => nil, "score" => 9,
-          "activity" => { "last_6h" => { "event_count" => 1, "people" => [ "Ada" ] }, "total" => { "event_count" => 8, "last_activity_at" => "2026-09-23T08:00:00Z", "titles" => [ "Login con email" ], "files" => [ "app/auth/login.rb" ] } }
+          "activity" => { "last_6h" => { "event_count" => 1, "people" => [ "Ada" ] }, "total" => { "event_count" => 8, "last_activity_at" => "2026-09-23T08:00:00Z", "titles" => [ "Email login" ], "files" => [ "app/auth/login.rb" ] } }
         } ],
         "unattributed" => { "count" => 0, "titles" => [] },
         "deterministic_alerts" => []

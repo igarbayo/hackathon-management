@@ -1,10 +1,10 @@
-# Todas las rutas de dominio bajo /teams/:team_id (RNF-SEC-001). Si el
-# usuario o el token no son del equipo, responde 404 para no revelar que el
-# equipo existe (03-api.md#convenciones-generales).
+# All domain routes under /teams/:team_id (RNF-SEC-001). If the user or the
+# token do not belong to the team, it returns 404 so it does not reveal that the
+# team exists (03-api.md#convenciones-generales).
 #
-# Admite tanto sesión web como Bearer (PAT, token de miembro; OAuth e
-# integración se añaden cuando existan, en Tokens::Resolve) para que la API
-# de dominio sea "la misma API" con cualquiera de los dos (RF-API-004).
+# It accepts both a web session and a Bearer (PAT, member token; OAuth and
+# integration are added when they exist, in Tokens::Resolve) so the domain API
+# is "the same API" with either (RF-API-004).
 module TeamScoping
   extend ActiveSupport::Concern
 
@@ -22,16 +22,16 @@ module TeamScoping
   end
 
   class_methods do
-    # Acciones que solo admiten sesión web, nunca Bearer
-    # (03-api.md#qué-no-se-puede-hacer-con-un-token). Responden 403
-    # session_required a cualquier token, sea cual sea su scope.
+    # Actions that only accept a web session, never a Bearer
+    # (03-api.md#qué-no-se-puede-hacer-con-un-token). They return 403
+    # session_required to any token, whatever its scope.
     def session_only(*actions)
       self.session_only_actions = session_only_actions + actions.map(&:to_sym)
     end
 
-    # Acciones que, autenticadas por token, exigen ese scope
-    # (12-acceso-programatico.md#scopes--rf-api-002-f2-aceptado). La sesión
-    # web nunca necesita scope: tiene todo lo que permite el rol.
+    # Actions that, when authenticated with a token, require that scope
+    # (12-acceso-programatico.md#scopes--rf-api-002-f2-aceptado). The web
+    # session never needs a scope: it has everything the role allows.
     def requires_scope(scope, only:)
       self.scope_requirements = scope_requirements + [ { scope: scope, actions: Array(only).map(&:to_sym) } ]
     end
@@ -47,7 +47,7 @@ module TeamScoping
   def reject_mixed_credentials!
     return unless cookies[Authentication::SESSION_COOKIE].present? && bearer_token.present?
 
-    raise ApiError::BadRequest.new(message: "no se puede autenticar con cookie de sesión y con Bearer a la vez")
+    raise ApiError::BadRequest.new(message: "cannot authenticate with a session cookie and Bearer at the same time")
   end
 
   def authenticate_for_team_scope!
@@ -55,12 +55,12 @@ module TeamScoping
     return authenticate_user! if token.blank?
 
     @resolved_token = ::Tokens::Resolve.call(token, expected_resource: "#{ENV.fetch('API_URL', '')}/api/v1")
-    raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless @resolved_token
+    raise ApiError::Unauthenticated.new(message: "invalid or revoked token") unless @resolved_token
 
     enforce_token_rate_limit!
   end
 
-  # RNF-API-001: 120 peticiones/min en total y 30 escrituras/min por token.
+  # RNF-API-001: 120 requests/min in total and 30 writes/min per token.
   def enforce_token_rate_limit!
     key = @resolved_token.token_record&.id || "member:#{@resolved_token.membership.id}"
     RateLimiter.check!("token:#{key}", limit: 120, period: 1.minute)
@@ -86,23 +86,23 @@ module TeamScoping
     if @resolved_token
       @team = @resolved_token.team
       @membership = @resolved_token.membership
-      # Un token de integración no tiene membership propia: actúa como el
-      # equipo, no como una persona (12-acceso-programatico.md#tokens-de-integración-de-equipo).
+      # An integration token has no membership of its own: it acts as the team, not as a person
+      # (12-acceso-programatico.md#tokens-de-integración-de-equipo).
       membership_required = @resolved_token.kind != "integration"
-      raise ApiError::NotFound.new(message: "equipo no encontrado") if @team.nil? || (membership_required && @membership.nil?) || @team.id.to_s != team_id_param.to_s
+      raise ApiError::NotFound.new(message: "team not found") if @team.nil? || (membership_required && @membership.nil?) || @team.id.to_s != team_id_param.to_s
     else
       @team = Team.active.where(id: team_id_param).first
       @membership = @team && Membership.where(team_id: @team.id, user_id: current_user.id).first
-      raise ApiError::NotFound.new(message: "equipo no encontrado") unless @membership
+      raise ApiError::NotFound.new(message: "team not found") unless @membership
 
-      # RF-TEAM-013: solo sesión web, no Bearer (un token de CLI/integración
-      # actuando sobre un equipo no significa que la persona lo esté viendo).
+      # RF-TEAM-013: web session only, not Bearer (a CLI/integration token
+      # acting on a team does not mean the person is looking at it).
       current_user.remember_last_team!(@team.id)
     end
   end
 
-  # TeamsController usa /teams/:id para sus propias acciones; el resto de
-  # controladores cuelgan de /teams/:team_id/... . Se puede sobrescribir.
+  # TeamsController uses /teams/:id for its own actions; the other controllers
+  # hang from /teams/:team_id/... . It can be overridden.
   def team_id_param
     params[:team_id] || params[:id]
   end
@@ -121,16 +121,17 @@ module TeamScoping
     super
   end
 
-  # via de RF-API-006: nil si el cambio viene de la web con sesión.
+  # via from RF-API-006: nil if the change comes from the web app with a
+  # session.
   def current_via(client: nil)
     return nil unless @resolved_token
 
     @resolved_token.via(channel: "api", client: client)
   end
 
-  # RF-API-005: Idempotency-Key en POST. Se guarda la respuesta 24 h por
-  # (identidad, clave); repetirla con el mismo cuerpo la devuelve tal cual
-  # con Idempotent-Replayed, y con otro cuerpo da 422.
+  # RF-API-005: Idempotency-Key on POST. The response is kept for 24 h per
+  # (identity, key); repeating it with the same body returns it as is with
+  # Idempotent-Replayed, and with another body it returns 422.
   IDEMPOTENCY_TTL = 24.hours
 
   def idempotency_key
@@ -139,7 +140,7 @@ module TeamScoping
 
   def check_idempotency_cache!
     return unless request.post? && idempotency_key.present?
-    raise ApiError::BadRequest.new(message: "Idempotency-Key tiene que tener entre 1 y 64 caracteres") if idempotency_key.length > 64
+    raise ApiError::BadRequest.new(message: "Idempotency-Key must be between 1 and 64 characters") if idempotency_key.length > 64
 
     cached = Sidekiq.redis { |conn| conn.call("GET", idempotency_redis_key) }
     return unless cached
@@ -172,14 +173,14 @@ module TeamScoping
   end
 
   def require_owner!
-    raise ApiError::Forbidden.new(message: "hace falta ser owner del equipo") unless current_membership.owner?
+    raise ApiError::Forbidden.new(message: "you have to be a team owner") unless current_membership.owner?
   end
 
-  # RF-API-006: si una escritura hecha con un token no genera ya su propio
-  # evento (feature_status_changed, feature_assigned…), se deja constancia
-  # con system/api_change. Las escrituras hechas desde la web no llevan
-  # via, así que no crean nada aquí. Compartido con el servidor MCP en
-  # Tracking::RecordApiChange, porque un token también escribe desde ahí.
+  # RF-API-006: if a write made with a token does not already create its own
+  # event (feature_status_changed, feature_assigned…), it is recorded with
+  # system/api_change. Writes made from the web app have no via, so they create
+  # nothing here. Shared with the MCP server in Tracking::RecordApiChange,
+  # because a token also writes from there.
   def record_api_change!(entity:, key:, fields:)
     return unless @resolved_token
 

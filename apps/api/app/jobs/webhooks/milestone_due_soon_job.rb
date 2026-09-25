@@ -1,5 +1,5 @@
-# Cada hora (12-acceso-programatico.md#webhooks-salientes): avisa 1h antes
-# de due_at. due_soon_notified_at evita repetirlo en cada pasada.
+# Every hour (12-acceso-programatico.md#webhooks-salientes): warns 1h before
+# due_at. due_soon_notified_at keeps it from repeating on every run.
 module Webhooks
   class MilestoneDueSoonJob
     include Sidekiq::Job

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AttributionSuggestion",
-  "description": "Salida de la capa 3 de atribución con IA (05-atribucion.md#capa-3--inferencia-con-ia)",
+  "description": "Output of attribution layer 3, AI inference (05-atribucion.md#capa-3--inferencia-con-ia)",
   "type": "object",
   "required": ["assignments"],
   "additionalProperties": false,

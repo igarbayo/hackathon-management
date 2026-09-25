@@ -1,6 +1,6 @@
-# PATCH/DELETE /cli/me (RF-CC-010, vía Bearer). El CLI solo tiene el token
-# de miembro, nunca la cookie de sesión: es el equivalente de
-# Api::V1::ClaudeCodeController para hackboard pause/resume/privacy/uninstall.
+# PATCH/DELETE /cli/me (RF-CC-010, through Bearer). The CLI only has the member
+# token, never the session cookie: it is the equivalent of
+# Api::V1::ClaudeCodeController for hackboard pause/resume/privacy/uninstall.
 module Api
   module V1
     module Cli

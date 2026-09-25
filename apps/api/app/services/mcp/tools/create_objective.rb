@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class CreateObjective
       def self.tool_name = "create_objective"
-      def self.description = "Crea un objetivo."
+      def self.description = "Creates an objective."
       def self.scope = "objectives:write"
       def self.read_only? = false
 

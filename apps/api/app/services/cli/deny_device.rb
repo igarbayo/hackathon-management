@@ -3,11 +3,11 @@ module Cli
   class DenyDevice
     def self.call(team:, user_code:)
       record = DeviceAuthorization.find_by_user_code(user_code)
-      raise ApiError::NotFound.new(message: "código no encontrado") unless record
-      raise ApiError::BadRequest.new(message: "este código ya no está disponible") unless record.status == "pending"
+      raise ApiError::NotFound.new(message: "code not found") unless record
+      raise ApiError::BadRequest.new(message: "this code is no longer available") unless record.status == "pending"
 
       if record.team_id.present? && record.team_id != team.id
-        raise ApiError::Conflict.new(message: "este código es de otro equipo")
+        raise ApiError::Conflict.new(message: "this code belongs to another team")
       end
 
       record.update!(status: "denied")

@@ -13,7 +13,7 @@ RSpec.describe Attribution::Decide do
   end
 
   describe "confirm" do
-    it "pasa a confirmed y registra quién decidió" do
+    it "moves to confirmed and records who decided" do
       event = suggested_event
       described_class.call(event: event, action: "confirm", decided_by: membership.user)
 
@@ -22,7 +22,7 @@ RSpec.describe Attribution::Decide do
       expect(event.attribution.decided_by_id).to eq(membership.user.id)
     end
 
-    it "aprende la rama si no es la por defecto" do
+    it "learns the branch if it is not the default one" do
       event = suggested_event(branch: "f-99-custom")
       described_class.call(event: event, action: "confirm", decided_by: membership.user)
 
@@ -31,7 +31,7 @@ RSpec.describe Attribution::Decide do
   end
 
   describe "reject" do
-    it "pasa a rejected, quita el feature_id y lo guarda en rejected_feature_ids" do
+    it "moves to rejected, removes the feature_id and stores it in rejected_feature_ids" do
       event = suggested_event
       described_class.call(event: event, action: "reject", decided_by: membership.user)
 
@@ -42,7 +42,7 @@ RSpec.describe Attribution::Decide do
   end
 
   describe "set" do
-    it "asigna a mano con method manual" do
+    it "assigns by hand with method manual" do
       event = create(:activity_event, :github_commit, team: team)
       described_class.call(event: event, action: "set", decided_by: membership.user, feature: feature)
 
@@ -51,7 +51,7 @@ RSpec.describe Attribution::Decide do
       expect(event.attribution.feature_id).to eq(feature.id)
     end
 
-    it "conserva rejected_feature_ids previos al corregir una atribución" do
+    it "keeps previous rejected_feature_ids when correcting an attribution" do
       event = suggested_event
       described_class.call(event: event, action: "reject", decided_by: membership.user)
 
@@ -64,7 +64,7 @@ RSpec.describe Attribution::Decide do
   end
 
   describe "unlink" do
-    it "deja el evento sin atribuir y recuerda la feature para no volver a sugerirla" do
+    it "leaves the event unattributed and remembers the feature so it is not suggested again" do
       event = suggested_event
       described_class.call(event: event, action: "confirm", decided_by: membership.user)
 
@@ -76,7 +76,7 @@ RSpec.describe Attribution::Decide do
     end
   end
 
-  it "confirm sin sugerencia previa es un error" do
+  it "confirm with no earlier suggestion is an error" do
     event = create(:activity_event, :github_commit, team: team)
 
     expect { described_class.call(event: event, action: "confirm", decided_by: membership.user) }

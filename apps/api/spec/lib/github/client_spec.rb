@@ -18,7 +18,7 @@ RSpec.describe Github::Client do
 
   let(:client) { described_class.new(999) }
 
-  it "obtiene el commit con el installation token" do
+  it "gets the commit with the installation token" do
     stub_request(:get, "https://api.github.com/repos/org/repo/commits/abc123")
       .with(headers: { "Authorization" => "Bearer ghs_abc" })
       .to_return(status: 200, body: { sha: "abc123" }.to_json, headers: { "Content-Type" => "application/json" })
@@ -26,7 +26,7 @@ RSpec.describe Github::Client do
     expect(client.commit("org/repo", "abc123")["sha"]).to eq("abc123")
   end
 
-  it "pagina /installation/repositories hasta que una página viene incompleta" do
+  it "pages through /installation/repositories until a page comes back incomplete" do
     stub_request(:get, "https://api.github.com/installation/repositories")
       .with(query: hash_including({ "page" => "1" }))
       .to_return(status: 200, body: { repositories: Array.new(100) { |i| { id: i } } }.to_json, headers: { "Content-Type" => "application/json" })
@@ -37,7 +37,7 @@ RSpec.describe Github::Client do
     expect(client.repositories.size).to eq(101)
   end
 
-  it "lanza RateLimited si queda menos del 20% del rate limit" do
+  it "raises RateLimited if less than 20% of the rate limit is left" do
     stub_request(:get, "https://api.github.com/repos/org/repo/commits/abc123")
       .to_return(
         status: 200, body: { sha: "abc123" }.to_json,
@@ -47,7 +47,7 @@ RSpec.describe Github::Client do
     expect { client.commit("org/repo", "abc123") }.to raise_error(Github::Client::RateLimited)
   end
 
-  it "lanza NotFound en un 404" do
+  it "raises NotFound on a 404" do
     stub_request(:get, "https://api.github.com/repos/org/repo/commits/nope").to_return(status: 404, body: "{}")
 
     expect { client.commit("org/repo", "nope") }.to raise_error(Github::Client::NotFound)

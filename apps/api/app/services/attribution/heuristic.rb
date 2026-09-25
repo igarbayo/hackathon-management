@@ -1,10 +1,10 @@
-# Heurística previa sin IA (05-atribucion.md#capa-3): si el actor solo tiene
-# una feature in_progress asignada y el evento no está en la rama por
-# defecto, se sugiere esa feature sin gastar tokens.
+# Heuristic before the AI (05-atribucion.md#capa-3): if the actor has only one
+# in_progress feature assigned and the event is not on the default branch, that
+# feature is suggested without spending tokens.
 module Attribution
   class Heuristic
     CONFIDENCE = 0.6
-    REASON = "única feature en curso del autor"
+    REASON = "the author's only feature in progress"
 
     def self.call(team:, group:)
       user_id = group.events.first.actor["user_id"]

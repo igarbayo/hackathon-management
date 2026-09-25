@@ -164,7 +164,7 @@ hackboard uninstall --purge       # remove hooks and token, and delete your even
 
 ### Let an AI agent read and update the board over MCP
 
-Create a personal access token in **Equipo y ajustes → API y MCP** (the web UI is in Spanish), then:
+Create a personal access token in **Team and settings → My access tokens (API and MCP)**, then:
 
 ```sh
 claude mcp add --transport http hackboard http://localhost:3001/api/v1/mcp \
@@ -247,7 +247,7 @@ TypeScript build and `npm audit` on every push.
 | `docker compose up` fails with "port is already allocated" | Something else is using port 3000, 3001, 27017 or 6379. Stop it, or change the host port in `docker-compose.yml`. |
 | The API fails at boot with `ArgumentError: wrong number of arguments` inside `JSON.parse` | The `json` gem version does not match the one built into the Ruby image. Keep the `json` version pinned in `apps/api/Gemfile` and rebuild with `docker compose build api`. |
 | GitHub App requests fail with an invalid private key | `GITHUB_APP_PRIVATE_KEY` can be the multi-line PEM or a single line with `\n` escapes. Check that the value is not truncated and that it has no surrounding quotes. |
-| "Analizar ahora" (Analyze now) returns `422 missing_gemini_api_key` | Add your Gemini API key in **Equipo y ajustes → IA (Gemini)**. Scheduled analyses use the team owner's key. |
+| "Analyze now" returns `422 missing_gemini_api_key` | Add your Gemini API key in **Team and settings → AI (Gemini)**. Scheduled analyses use the team owner's key. |
 | No Claude Code events show up in the feed | Hooks never fail loudly, by design: they always exit 0 with no output. Run `hackboard status` to see whether sending is paused, how many events are queued and when the last successful send was, and `hackboard test` to send a test event. |
 | GitHub or Google login redirects to an error | The client ID or secret is missing, or the callback URL registered with the provider does not match `API_URL`. |
 

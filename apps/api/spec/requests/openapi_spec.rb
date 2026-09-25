@@ -1,21 +1,21 @@
 require "rails_helper"
 
 RSpec.describe "GET /api/v1/openapi.json", type: :request do
-  it "es pública, sin autenticación" do
+  it "is public, with no authentication" do
     get "/api/v1/openapi.json"
 
     expect(response).to have_http_status(:ok)
     expect(json_response["openapi"]).to eq("3.1.0")
   end
 
-  it "cada endpoint session_only está marcado como tal" do
+  it "each session_only endpoint is marked as such" do
     get "/api/v1/openapi.json"
 
     op = json_response["paths"]["/teams/{id}"]["patch"]
     expect(op["x-hackboard-access"]).to eq("session_only")
   end
 
-  it "los endpoints de escritura llevan su scope" do
+  it "write endpoints have their scope" do
     get "/api/v1/openapi.json"
 
     create_op = json_response["paths"]["/teams/{team_id}/objectives"]["post"]
@@ -25,7 +25,7 @@ RSpec.describe "GET /api/v1/openapi.json", type: :request do
     expect(index_op["x-hackboard-scope"]).to eq("read")
   end
 
-  it "el borrado de una feature es session_only aunque el resto de acciones no lo sean" do
+  it "deleting a feature is session_only even though the other actions are not" do
     get "/api/v1/openapi.json"
 
     feature_path = json_response["paths"]["/teams/{team_id}/features/{key}"]
@@ -33,7 +33,7 @@ RSpec.describe "GET /api/v1/openapi.json", type: :request do
     expect(feature_path["get"]["x-hackboard-scope"]).to eq("read")
   end
 
-  it "incluye los endpoints solo-Bearer con su marca manual" do
+  it "includes the Bearer-only endpoints with their manual mark" do
     get "/api/v1/openapi.json"
 
     expect(json_response["paths"]["/mcp"]["post"]["x-hackboard-access"]).to eq("bearer")

@@ -1,4 +1,4 @@
-# GET /cli/config (RF-CC-… flujo de init, paso 4). Bearer hb_mt_.
+# GET /cli/config (RF-CC-… init flow, step 4). Bearer hb_mt_.
 module Api
   module V1
     module Cli

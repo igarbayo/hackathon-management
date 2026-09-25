@@ -18,7 +18,7 @@
       },
       "user_input": "params[:redirect_uri]",
       "confidence": "Weak",
-      "note": "Falso positivo: solo se redirige tras Oauth::ValidateAuthorizeParams, que exige que redirect_uri coincida EXACTAMENTE con uno ya registrado en OAuthClient.redirect_uris (12-acceso-programatico.md#oauth-21). No es un open redirect: es el comportamiento estándar de OAuth 2.1 de devolver errores al redirect_uri ya validado."
+      "note": "False positive: it only redirects after Oauth::ValidateAuthorizeParams, which requires redirect_uri to match EXACTLY one already registered in OAuthClient.redirect_uris (12-acceso-programatico.md#oauth-21). It is not an open redirect: it is the standard OAuth 2.1 behavior of returning errors to the already validated redirect_uri."
     }
   ],
   "updated": "2026-09-22 20:26:00 +0000",

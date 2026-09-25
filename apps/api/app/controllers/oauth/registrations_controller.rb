@@ -1,4 +1,4 @@
-# POST /oauth/register (RFC 7591). Público, sin sesión ni CSRF.
+# POST /oauth/register (RFC 7591). Public, no session or CSRF.
 module OAuth
   class RegistrationsController < ApplicationController
     before_action :enforce_rate_limit!
@@ -19,7 +19,7 @@ module OAuth
 
     private
 
-    # RF-API-012: /oauth/register, 10 registros por hora e IP.
+    # RF-API-012: /oauth/register, 10 registrations per hour per IP.
     def enforce_rate_limit!
       RateLimiter.check!("oauth_register:#{request.remote_ip}", limit: 10, period: 1.hour)
     end

@@ -38,7 +38,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - Enlaces de claves RF-UX-008.
 - **Acceso programático por API:** tokens de acceso personales y scopes RF-API-001…005, 007, 020. Trazabilidad RF-API-006. RNF-API-001…003. RNF-SEC-014. RF-SEC-006.
 
-**DoD específico:** en la timeline, una feature con deadline vencido aparece en rojo, y un milestone a menos de 1 h pone la cuenta atrás en rojo. Con un PAT `agente`, un `curl` crea una feature y la mueve a `in_progress`; con un PAT `observar`, el mismo `curl` recibe `403 insufficient_scope`.
+**DoD específico:** en la timeline, una feature con deadline vencido aparece en rojo, y un milestone a menos de 1 h pone la cuenta atrás en rojo. Con un PAT `agent`, un `curl` crea una feature y la mueve a `in_progress`; con un PAT `observe`, el mismo `curl` recibe `403 insufficient_scope`.
 
 ## Fase 3 · GitHub
 
@@ -76,7 +76,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - Servidor MCP: RF-MCP-001…004, 010. RNF-MCP-001. RNF-SEC-013.
 - Resolver [ABIERTO]: el modo `summaries` (opción A o B).
 
-**DoD específico:** con el MCP registrado con un PAT `agente`, Claude Code responde "¿qué me toca?" con `get_team_status`, se asigna una feature y la mueve a `in_progress`, y el cambio aparece en el feed como "vía MCP". En macOS y Windows, `hackboard init` → editar un fichero con Claude Code en una rama `f-5-x` → el evento aparece en el feed atribuido a F-5 en < 60 s. Un repo no vinculado no genera tráfico de red (verificado con un proxy).
+**DoD específico:** con el MCP registrado con un PAT `agent`, Claude Code responde "¿qué me toca?" con `get_team_status`, se asigna una feature y la mueve a `in_progress`, y el cambio aparece en el feed como "vía MCP". En macOS y Windows, `hackboard init` → editar un fichero con Claude Code en una rama `f-5-x` → el evento aparece en el feed atribuido a F-5 en < 60 s. Un repo no vinculado no genera tráfico de red (verificado con un proxy).
 
 ## Fase 6 · Integraciones
 
@@ -86,7 +86,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - claude.ai como connector: RF-MCP-020, 011.
 - Tokens de integración de equipo RF-API-011 y webhooks salientes RF-API-009. Pantalla de Integraciones RF-API-023. RNF-SEC-016.
 
-**DoD específico:** en claude.ai se añade la URL del MCP como connector, el usuario entra con Google, aprueba el preset `observar` y Claude responde en el chat "¿cómo va el equipo?" con datos reales; al revocarlo en "Apps conectadas", la siguiente llamada falla con `401`. Un webhook a un receptor de pruebas recibe `feature.status_changed` firmado en < 30 s tras mover una tarjeta, y un webhook apuntado a `http://169.254.169.254` se rechaza.
+**DoD específico:** en claude.ai se añade la URL del MCP como connector, el usuario entra con Google, aprueba el preset `observe` y Claude responde en el chat "¿cómo va el equipo?" con datos reales; al revocarlo en "Apps conectadas", la siguiente llamada falla con `401`. Un webhook a un receptor de pruebas recibe `feature.status_changed` firmado en < 30 s tras mover una tarjeta, y un webhook apuntado a `http://169.254.169.254` se rechaza.
 
 ## Después del MVP (backlog)
 

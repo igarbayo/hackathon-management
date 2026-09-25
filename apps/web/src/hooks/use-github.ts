@@ -17,8 +17,8 @@ export function useRepositories(teamId: string | undefined) {
 export function useLinkRepository(teamId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    // El backend acepta tanto "org/repo" como una URL completa en `url`
-    // (Github::RepoUrl.parse), así que no hace falta distinguir aquí.
+    // The backend takes both "org/repo" and a full URL in `url`
+    // (Github::RepoUrl.parse), so there is no need to tell them apart here.
     mutationFn: (urlOrFullName: string) =>
       apiClient.post<LinkRepositoryResponse>(`/api/v1/teams/${teamId}/repositories`, { url: urlOrFullName }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: key(teamId) }),

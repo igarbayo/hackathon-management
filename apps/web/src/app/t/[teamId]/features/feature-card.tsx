@@ -11,9 +11,9 @@ import { relativeTime } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import type { Feature } from "@/types/api";
 
-// Tarjeta del kanban dentro de su columna. Mientras se arrastra se queda como
-// hueco semitransparente en la posición donde caerá; lo que sigue al cursor es
-// la copia de `FeatureCardView` que pinta el `DragOverlay` de la página.
+// Kanban card inside its column. While dragged it stays as a translucent gap
+// where it will land; what follows the cursor is the copy of
+// `FeatureCardView` that the page's `DragOverlay` draws.
 export function FeatureCard({ feature }: { feature: Feature }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: feature.id });
 
@@ -28,8 +28,8 @@ export function FeatureCard({ feature }: { feature: Feature }) {
   );
 }
 
-// RF-FEAT-012: clave, título, avatares, deadline, chips de objetivos, score y
-// tiempo desde la última actividad.
+// RF-FEAT-012: key, title, avatars, deadline, objective chips, score and
+// time since the last activity.
 export function FeatureCardView({
   feature,
   className,
@@ -67,10 +67,10 @@ export function FeatureCardView({
       {feature.deadline && (
         <span>
           {overdue ? (
-            <Badge variant="destructive">Vencida · {new Date(feature.deadline).toLocaleDateString("es-ES")}</Badge>
+            <Badge variant="destructive">Overdue · {new Date(feature.deadline).toLocaleDateString("en-US")}</Badge>
           ) : (
             <span className="text-sm text-f1-foreground-secondary">
-              {new Date(feature.deadline).toLocaleDateString("es-ES")}
+              {new Date(feature.deadline).toLocaleDateString("en-US")}
             </span>
           )}
         </span>

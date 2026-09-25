@@ -1,9 +1,9 @@
 import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { ensureConfigDir, paths } from "./paths";
 
-// Backoff exponencial 1s -> 5min entre reintentos de flush
-// (08-integracion-claude-code.md#envío-flush). Persiste entre invocaciones
-// porque cada `hackboard flush` es un proceso nuevo.
+// Exponential backoff 1s -> 5min between flush retries
+// (08-integracion-claude-code.md#envío-flush). It persists across runs because
+// each `hackboard flush` is a new process.
 const INITIAL_MS = 1000;
 const MAX_MS = 5 * 60 * 1000;
 
@@ -37,6 +37,6 @@ export function recordSuccess(): void {
   try {
     unlinkSync(paths.backoff());
   } catch {
-    // no-op: puede que no hubiera fallos previos
+    // no-op: there may have been no earlier failures
   }
 }

@@ -1,20 +1,20 @@
 require "rails_helper"
 
 RSpec.describe OutboundWebhook, type: :model do
-  it "solo acepta URLs HTTPS" do
+  it "only accepts HTTPS URLs" do
     webhook = build(:outbound_webhook, url: "http://example.com/hook")
 
     expect(webhook).not_to be_valid
   end
 
-  it "cifra el secreto y lo puede recuperar en claro" do
-    webhook = create(:outbound_webhook, secret: "mi-secreto")
+  it "encrypts the secret and can recover it in plain text" do
+    webhook = create(:outbound_webhook, secret: "my-secret")
 
-    expect(webhook.secret_ciphertext).not_to include("mi-secreto")
-    expect(webhook.reload.secret).to eq("mi-secreto")
+    expect(webhook.secret_ciphertext).not_to include("my-secret")
+    expect(webhook.reload.secret).to eq("my-secret")
   end
 
-  it "no permite más de 5 webhooks por equipo" do
+  it "does not allow more than 5 webhooks per team" do
     team = create(:team)
     5.times { |n| create(:outbound_webhook, team: team, url: "https://example.com/#{n}") }
 
@@ -23,7 +23,7 @@ RSpec.describe OutboundWebhook, type: :model do
     expect(sixth).not_to be_valid
   end
 
-  it "se pausa automáticamente a los 50 fallos consecutivos" do
+  it "pauses itself automatically after 50 failures in a row" do
     webhook = create(:outbound_webhook, consecutive_failures: 50)
 
     expect(webhook.active).to be false

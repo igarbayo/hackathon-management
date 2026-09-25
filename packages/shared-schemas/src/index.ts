@@ -15,7 +15,7 @@ export function getSchema(name: string): Record<string, unknown> {
     return JSON.parse(readFileSync(path, "utf-8"));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      throw new Error(`No existe el schema "${name}" en packages/shared-schemas/schemas`);
+      throw new Error(`There is no schema "${name}" in packages/shared-schemas/schemas`);
     }
     throw error;
   }

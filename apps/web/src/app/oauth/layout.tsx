@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-// RF-UX-043: área privada, fuera de buscadores.
+// RF-UX-043: private area, kept out of search engines.
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };

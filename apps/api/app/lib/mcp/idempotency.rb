@@ -1,6 +1,6 @@
-# idempotency_key de create_feature (12-acceso-programatico.md#herramientas-de-escritura--rf-mcp-003-f5-aceptado).
-# Mismo mecanismo que RF-API-005 pero por (token, herramienta, clave), ya
-# que un único POST /api/v1/mcp sirve a muchas herramientas distintas.
+# idempotency_key for create_feature
+# (12-acceso-programatico.md#herramientas-de-escritura--rf-mcp-003-f5-aceptado). Same mechanism as RF-API-005 but
+# per (token, tool, key), since a single POST /api/v1/mcp serves many different tools.
 module Mcp
   module Idempotency
     TTL = 24.hours

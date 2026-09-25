@@ -4,9 +4,9 @@ import type { LucideIcon } from "lucide-react"
 import { ModuleAvatar } from "./module-avatar"
 
 /**
- * Calcado de PageHeader de F0 (patterns/ApplicationFrame + Page): icono de
- * módulo y breadcrumbs a la izquierda, acciones a la derecha. Usar al
- * principio de cada pantalla en vez de un `<h1>` suelto.
+ * Copied from F0's PageHeader (patterns/ApplicationFrame + Page): module
+ * icon and breadcrumbs on the left, actions on the right. Use it at the top
+ * of every screen instead of a bare `<h1>`.
  */
 function PageHeader({
   icon,

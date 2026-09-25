@@ -1,16 +1,16 @@
 require "rails_helper"
 
-RSpec.describe "Herramientas MCP de lectura" do
+RSpec.describe "MCP read tools" do
   let(:membership) { create(:membership) }
   let(:team) { membership.team }
-  let(:resolved_token) { Tokens::Resolve.call(Pat::Create.call(membership: membership, name: "t", preset: "completo").raw_token) }
+  let(:resolved_token) { Tokens::Resolve.call(Pat::Create.call(membership: membership, name: "t", preset: "full").raw_token) }
 
   def call(tool, args = {})
     tool.call(team: team, membership: membership, resolved_token: resolved_token, args: args)
   end
 
   describe Mcp::Tools::Whoami do
-    it "devuelve el equipo, el miembro y los scopes" do
+    it "returns the team, the member and the scopes" do
       result = call(described_class)
       expect(result[:team][:id]).to eq(team.id.to_s)
       expect(result[:scopes]).to include("read")
@@ -18,7 +18,7 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::GetTeamStatus do
-    it "incluye features por estado, overdue y alertas" do
+    it "includes features by status, overdue and alerts" do
       create(:feature, team: team, status: "in_progress", deadline: 1.day.ago)
 
       result = call(described_class)
@@ -30,7 +30,7 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::ListFeatures do
-    it "filtra por mine" do
+    it "filters by mine" do
       mine = create(:feature, team: team, assignee_ids: [ membership.id ])
       create(:feature, team: team)
 
@@ -39,7 +39,7 @@ RSpec.describe "Herramientas MCP de lectura" do
       expect(result[:features].map { |f| f[:key] }).to eq([ mine.key ])
     end
 
-    it "mine da error para un token de integración" do
+    it "mine returns an error for an integration token" do
       integration_token = Integration::Create.call(team: team, created_by: membership.user, name: "Bot", scopes: [ "read" ])
       resolved = Tokens::Resolve.call(integration_token.raw_token)
 
@@ -47,7 +47,7 @@ RSpec.describe "Herramientas MCP de lectura" do
         .to raise_error(Mcp::ToolError)
     end
 
-    it "filtra por objective_key" do
+    it "filters by objective_key" do
       objective = create(:objective, team: team)
       feature = create(:feature, team: team, objective_ids: [ objective.id ])
       create(:feature, team: team)
@@ -59,13 +59,13 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::GetFeature do
-    it "da un ToolError accionable si no existe" do
+    it "returns an actionable ToolError if it does not exist" do
       expect { call(described_class, { "key" => "F-999" }) }.to raise_error(Mcp::ToolError, /F-999/)
     end
 
-    it "incluye argumentos y eventos recientes" do
+    it "includes arguments and recent events" do
       feature = create(:feature, team: team)
-      feature.arguments.create!(kind: "pro", text: "bien", author_id: membership.user_id)
+      feature.arguments.create!(kind: "pro", text: "good", author_id: membership.user_id)
 
       result = call(described_class, { "key" => feature.key })
 
@@ -74,7 +74,7 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::ListObjectives do
-    it "incluye la cobertura del último análisis si existe" do
+    it "includes the coverage from the latest analysis if there is one" do
       objective = create(:objective, team: team)
       create(:ai_analysis, team: team, status: "succeeded", result: { "coverage" => [ { "objective_key" => objective.key, "status" => "covered" } ] })
 
@@ -85,8 +85,8 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::SuggestBranchName do
-    it "genera f-<numero>-titulo-en-kebab" do
-      feature = create(:feature, team: team, title: "Login con GitHub")
+    it "generates f-<number>-title-in-kebab-case" do
+      feature = create(:feature, team: team, title: "Login with GitHub")
 
       result = call(described_class, { "feature_key" => feature.key })
 
@@ -95,7 +95,7 @@ RSpec.describe "Herramientas MCP de lectura" do
   end
 
   describe Mcp::Tools::ListActivity do
-    it "respeta el límite máximo de 50" do
+    it "respects the maximum limit of 50" do
       create(:activity_event, team: team, source: "system", kind: "member_joined", dedupe_key: "s1")
 
       result = call(described_class, { "limit" => 500 })
@@ -103,7 +103,7 @@ RSpec.describe "Herramientas MCP de lectura" do
       expect(result[:events].size).to be <= 50
     end
 
-    it "resuelve member como \"me\"" do
+    it "resolves member as \"me\"" do
       create(:activity_event, team: team, source: "system", kind: "member_joined", dedupe_key: "s1", actor: { "user_id" => membership.user_id.to_s })
 
       result = call(described_class, { "member" => "me" })

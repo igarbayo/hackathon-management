@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class SuggestBranchName
       def self.tool_name = "suggest_branch_name"
-      def self.description = "Sugiere el nombre de rama para una feature, con el formato f-<numero>-<titulo-en-kebab>."
+      def self.description = "Suggests the branch name for a feature, in the format f-<number>-<title-in-kebab-case>."
       def self.scope = nil
       def self.read_only? = true
 

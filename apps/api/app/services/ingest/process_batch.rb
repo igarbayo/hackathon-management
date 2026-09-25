@@ -1,6 +1,6 @@
-# POST /api/v1/ingest/claude_code (RF-CC-004). Valida y deduplica en el
-# momento (para poder devolver accepted/duplicates/rejected en la respuesta)
-# y deja la creación real de los ActivityEvent a Ingest::ProcessBatchJob.
+# POST /api/v1/ingest/claude_code (RF-CC-004). It validates and deduplicates
+# right away (so it can return accepted/duplicates/rejected in the response) and
+# leaves the actual creation of the ActivityEvents to Ingest::ProcessBatchJob.
 module Ingest
   class ProcessBatch
     Result = Struct.new(:accepted, :duplicates, :rejected, keyword_init: true) do

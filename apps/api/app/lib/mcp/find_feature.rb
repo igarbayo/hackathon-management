@@ -1,5 +1,5 @@
-# Igual que FeatureLookup (el concern de los controladores REST) pero
-# lanzando Mcp::ToolError en vez de ApiError::NotFound.
+# Like FeatureLookup (the REST controllers' concern) but raising Mcp::ToolError
+# instead of ApiError::NotFound.
 module Mcp
   module FindFeature
     def self.call(team:, key:)
@@ -8,7 +8,7 @@ module Mcp
       else
         Feature.where(team_id: team.id, id: key).first
       end
-      raise Mcp::ToolError, "#{key} no existe. Usa list_features." unless feature
+      raise Mcp::ToolError, "#{key} does not exist. Use list_features." unless feature
 
       feature
     end

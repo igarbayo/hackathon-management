@@ -47,7 +47,7 @@ function OnboardingContent() {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 p-4">
       {hasTeams && (
         <div className="flex w-full max-w-md flex-col gap-2">
-          <h1 className="text-xl font-semibold text-f1-foreground">Elige un equipo</h1>
+          <h1 className="text-xl font-semibold text-f1-foreground">Choose a team</h1>
           {me.memberships.map((membership) => (
             <Card
               key={membership.team_id}
@@ -56,7 +56,7 @@ function OnboardingContent() {
             >
               <CardHeader>
                 <CardTitle>{membership.team_name}</CardTitle>
-                <CardDescription>{membership.role === "owner" ? "Owner" : "Miembro"}</CardDescription>
+                <CardDescription>{membership.role === "owner" ? "Owner" : "Member"}</CardDescription>
               </CardHeader>
             </Card>
           ))}
@@ -65,7 +65,7 @@ function OnboardingContent() {
 
       <div className="flex flex-col items-center gap-4">
         <h2 className={hasTeams ? "text-muted-foreground text-base" : "text-xl font-semibold text-f1-foreground"}>
-          {hasTeams ? "O empieza otro equipo" : "¿Cómo empezamos?"}
+          {hasTeams ? "Or start another team" : "How do you want to start?"}
         </h2>
         <div className="flex gap-4">
           <Card
@@ -73,8 +73,8 @@ function OnboardingContent() {
             onClick={() => setMode("create")}
           >
             <CardHeader>
-              <CardTitle>Crear equipo</CardTitle>
-              <CardDescription>Empieza un hackathon nuevo</CardDescription>
+              <CardTitle>Create team</CardTitle>
+              <CardDescription>Start a new hackathon</CardDescription>
             </CardHeader>
           </Card>
           <Card
@@ -82,8 +82,8 @@ function OnboardingContent() {
             onClick={() => setMode("join")}
           >
             <CardHeader>
-              <CardTitle>Unirme con código</CardTitle>
-              <CardDescription>Ya tengo el código de mi equipo</CardDescription>
+              <CardTitle>Join with a code</CardTitle>
+              <CardDescription>I already have my team&apos;s code</CardDescription>
             </CardHeader>
           </Card>
         </div>
@@ -113,7 +113,7 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
       });
       setCreated(team);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido crear el equipo");
+      setError(err instanceof ApiError ? err.message : "Could not create the team");
     }
   }
 
@@ -123,8 +123,8 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Invita a tu equipo</CardTitle>
-            <CardDescription>Comparte este código o el enlace</CardDescription>
+            <CardTitle>Invite your team</CardTitle>
+            <CardDescription>Share this code or the link</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <p className="rounded-md bg-f1-background-secondary py-3 text-center font-mono text-2xl tracking-wide text-f1-foreground">
@@ -132,17 +132,17 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
             </p>
             <Button
               variant="outline"
-              onClick={() => copyToClipboard(created.code, "Código copiado")}
+              onClick={() => copyToClipboard(created.code, "Code copied")}
             >
-              Copiar código
+              Copy code
             </Button>
             <Button
               variant="outline"
-              onClick={() => copyToClipboard(joinUrl, "Enlace copiado")}
+              onClick={() => copyToClipboard(joinUrl, "Link copied")}
             >
-              Copiar enlace de invitación
+              Copy invite link
             </Button>
-            <Button onClick={() => router.push(`/t/${created.id}/home`)}>Continuar</Button>
+            <Button onClick={() => router.push(`/t/${created.id}/home`)}>Continue</Button>
           </CardContent>
         </Card>
       </div>
@@ -153,16 +153,16 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Crear equipo</CardTitle>
+          <CardTitle>Create team</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="team-name">Nombre del equipo</Label>
+              <Label htmlFor="team-name">Team name</Label>
               <Input id="team-name" required value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="hackathon-name">Nombre del hackathon</Label>
+              <Label htmlFor="hackathon-name">Hackathon name</Label>
               <Input
                 id="hackathon-name"
                 required
@@ -171,16 +171,16 @@ function CreateTeamForm({ onBack }: { onBack: () => void }) {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="ends-at">Fecha de fin</Label>
+              <Label htmlFor="ends-at">End date</Label>
               <DatePicker id="ends-at" value={endsAt} onChange={setEndsAt} disabled={{ before: new Date() }} />
             </div>
             {error && <p className="text-destructive text-base">{error}</p>}
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={onBack}>
-                Atrás
+                Back
               </Button>
               <Button type="submit" loading={createTeam.isPending} className="flex-1">
-                Crear equipo
+                Create team
               </Button>
             </div>
           </form>
@@ -203,7 +203,7 @@ function JoinTeamForm({ onBack, initialCode }: { onBack: () => void; initialCode
       const { team_id } = await joinTeam.mutateAsync(code);
       router.push(`/t/${team_id}/home`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Código no válido");
+      setError(err instanceof ApiError ? err.message : "Invalid code");
     }
   }
 
@@ -211,12 +211,12 @@ function JoinTeamForm({ onBack, initialCode }: { onBack: () => void; initialCode
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Unirme con código</CardTitle>
+          <CardTitle>Join with a code</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="code">Código del equipo</Label>
+              <Label htmlFor="code">Team code</Label>
               <Input
                 id="code"
                 required
@@ -228,10 +228,10 @@ function JoinTeamForm({ onBack, initialCode }: { onBack: () => void; initialCode
             {error && <p className="text-destructive text-base">{error}</p>}
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={onBack}>
-                Atrás
+                Back
               </Button>
               <Button type="submit" loading={joinTeam.isPending} className="flex-1">
-                Unirme
+                Join
               </Button>
             </div>
           </form>

@@ -1,10 +1,10 @@
-# Borrado de cuenta (RF-AUTH-007, RF-SEC-004): elimina los datos personales
-# del usuario. Lo que es historia del equipo (commits, pushes, PRs) se queda,
-# pero con el actor anonimizado como "Usuario eliminado" + login de GitHub
-# (sin el email ni el nombre de autor que guarda RF-GH-024).
+# Account deletion (RF-AUTH-007, RF-SEC-004): deletes the user's personal data.
+# What is team history (commits, pushes, PRs) stays, but with the actor
+# anonymized as "Deleted user" + GitHub login (without the email or author name
+# that RF-GH-024 stores).
 module Accounts
   class Destroy
-    DELETED_DISPLAY = "Usuario eliminado"
+    DELETED_DISPLAY = "Deleted user"
 
     def self.call(user:)
       new(user).call
@@ -35,8 +35,8 @@ module Accounts
       @membership_ids ||= memberships.map(&:id)
     end
 
-    # Es una operación centrada en la persona, como el resto de MeController,
-    # pero las consultas de dominio siguen acotadas a sus equipos (RNF-SEC-001).
+    # It is an operation centered on the person, like the rest of MeController,
+    # but domain queries are still scoped to their teams (RNF-SEC-001).
     def team_ids
       @team_ids ||= memberships.map(&:team_id)
     end
@@ -49,15 +49,15 @@ module Accounts
         next if others.where(role: "owner").exists? || !others.exists?
 
         raise ApiError::Conflict.new(
-          message: "eres el único owner de \"#{membership.team.name}\" y tiene más miembros: " \
-                   "transfiere la propiedad antes de borrar la cuenta"
+          message: "you are the only owner of \"#{membership.team.name}\" and it has more members: " \
+                   "hand over ownership before deleting the account"
         )
       end
     end
 
-    # Sin su membresía, un PAT o un token OAuth dejaría de estar ligado a una
-    # persona (Tracking::RecordApiChange lo trataría como una integración), así
-    # que se revocan todos. Los tokens de integración son del equipo y siguen.
+    # Without its membership, a PAT or an OAuth token would no longer be tied to
+    # a person (Tracking::RecordApiChange would treat it as an integration), so
+    # all of them are revoked. Integration tokens belong to the team and stay.
     def revoke_tokens
       AccessToken.where(revoked_at: nil, :team_id.in => team_ids)
                  .any_of({ user_id: user.id }, { :membership_id.in => membership_ids })
@@ -65,7 +65,7 @@ module Accounts
                  .update_all(revoked_at: Time.current, revoke_reason: "account_deleted")
     end
 
-    # Como "Desconectar y borrar mis eventos" (Cli::RevokeLink), en todos sus equipos.
+    # Like "Disconnect and delete my events" (Cli::RevokeLink), in all their teams.
     def purge_personal_events
       ActivityEvent.where(:team_id.in => team_ids)
                    .any_in("actor.membership_id" => membership_ids.map(&:to_s))

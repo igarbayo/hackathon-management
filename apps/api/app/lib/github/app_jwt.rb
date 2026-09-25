@@ -1,8 +1,8 @@
-# JWT de la GitHub App (RS256), para autenticarse como la App y pedir
-# installation access tokens (07-integracion-github.md).
+# GitHub App JWT (RS256), to authenticate as the App and ask for installation
+# access tokens (07-integracion-github.md).
 module Github
   module AppJwt
-    TTL = 9.minutes # GitHub exige <= 10 min
+    TTL = 9.minutes # GitHub requires <= 10 min
 
     def self.generate
       now = Time.now.to_i
@@ -12,8 +12,8 @@ module Github
     end
 
     def self.private_key
-      # Docker Compose no soporta valores multilinea en env_file, asi que en
-      # produccion la clave viaja en una sola linea con \n literales.
+      # Docker Compose does not support multiline values in env_file, so in
+      # production the key travels on a single line with literal \n.
       OpenSSL::PKey::RSA.new(ENV.fetch("GITHUB_APP_PRIVATE_KEY").gsub('\n', "\n"))
     end
   end

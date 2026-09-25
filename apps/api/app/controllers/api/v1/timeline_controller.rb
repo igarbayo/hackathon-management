@@ -1,4 +1,4 @@
-# RF-DL-003: milestones + features con deadline, cada una con overdue: bool.
+# RF-DL-003: milestones + features with a deadline, each one with overdue: bool.
 module Api
   module V1
     class TimelineController < Api::V1::BaseController

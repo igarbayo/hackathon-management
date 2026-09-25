@@ -1,8 +1,8 @@
-# POST /oauth/token, grant_type=refresh_token (RNF-SEC-015): rotado en
-# cada uso; si se reutiliza uno ya usado, se revoca toda la conexión
-# (detección de robo). Cada rotación crea una fila nueva de AccessToken en
-# vez de mutar la existente, para poder saber si la que llega está
-# "superada" por una más nueva de la misma refresh_family_id.
+# POST /oauth/token, grant_type=refresh_token (RNF-SEC-015): rotated on every
+# use; if an already used one is reused, the whole connection is revoked (theft
+# detection). Each rotation creates a new AccessToken row instead of changing
+# the existing one, so we can tell whether the incoming one has been
+# "superseded" by a newer one from the same refresh_family_id.
 module OAuth
   class RefreshToken
     class ReuseDetected < StandardError; end
@@ -10,16 +10,16 @@ module OAuth
     def self.call(refresh_token:, client_id:)
       digest = Digest::SHA256.hexdigest(refresh_token.to_s)
       token = AccessToken.where(kind: "oauth", refresh_token_digest: digest).first
-      raise ReuseDetected, "refresh token inválido" unless token
-      raise ReuseDetected, "client_id no coincide" unless token.oauth_client&.client_id == client_id
+      raise ReuseDetected, "invalid refresh token" unless token
+      raise ReuseDetected, "client_id does not match" unless token.oauth_client&.client_id == client_id
 
       if superseded?(token) || token.revoked?
         revoke_family!(token.refresh_family_id)
-        raise ReuseDetected, "refresh token reutilizado: se ha revocado la conexión"
+        raise ReuseDetected, "refresh token reused: the connection has been revoked"
       end
 
-      raise ReuseDetected, "refresh token caducado" if token.created_at + OAuth::REFRESH_TOKEN_TTL <= Time.current
-      raise ReuseDetected, "la conexión ha caducado, hay que volver a autorizarla" if connection_expired?(token)
+      raise ReuseDetected, "refresh token expired" if token.created_at + OAuth::REFRESH_TOKEN_TTL <= Time.current
+      raise ReuseDetected, "the connection has expired, authorize it again" if connection_expired?(token)
 
       mint_next(token)
     end

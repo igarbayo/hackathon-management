@@ -24,9 +24,9 @@ import { KanbanColumn } from "./kanban-column";
 
 const COLUMNS: { status: FeatureStatus; title: string; collapsedByDefault?: boolean }[] = [
   { status: "idea", title: "Idea" },
-  { status: "in_progress", title: "En curso" },
-  { status: "done", title: "Hecha" },
-  { status: "discarded", title: "Descartada", collapsedByDefault: true },
+  { status: "in_progress", title: "In progress" },
+  { status: "done", title: "Done" },
+  { status: "discarded", title: "Dropped", collapsedByDefault: true },
 ];
 
 type Board = Record<FeatureStatus, Feature[]>;
@@ -44,8 +44,8 @@ function findColumn(board: Board, id: UniqueIdentifier): FeatureStatus | undefin
   return COLUMNS.find((c) => board[c.status].some((f) => f.id === value))?.status;
 }
 
-// Misma regla que Features::Move en la api, para que la posición optimista
-// ordene la columna igual que lo hará la respuesta del servidor.
+// Same rule as Features::Move in the api, so the optimistic position sorts
+// the column the same way the server response will.
 function positionBetween(after: Feature | undefined, before: Feature | undefined): number {
   if (after && before) return (after.position + before.position) / 2;
   if (after) return after.position + 1;
@@ -61,10 +61,10 @@ export default function FeaturesPage({ params }: { params: Promise<{ teamId: str
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-  // RF-FEAT-011: durante el arrastre el tablero se pinta desde `draft`, donde la
-  // tarjeta ya cambia de columna al pasar por encima, así que al soltar no hay
-  // nada que animar de vuelta. Tras soltar se sigue usando `draft` hasta que la
-  // caché cambie (actualización optimista del move), para no parpadear en medio.
+  // RF-FEAT-011: while dragging, the board is drawn from `draft`, where the
+  // card already changes column when it passes over it, so on drop there is
+  // nothing to animate back. After the drop `draft` is still used until the
+  // cache changes (optimistic update of the move), so nothing flickers.
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ board: Board; source: Feature[] | undefined } | null>(null);
 
@@ -79,8 +79,8 @@ export default function FeaturesPage({ params }: { params: Promise<{ teamId: str
     setDraft({ board, source: features });
   }
 
-  // Pasa la tarjeta a la otra columna en cuanto el cursor entra en ella; el
-  // reordenado dentro de una misma columna lo resuelve useSortable solo.
+  // Moves the card to the other column as soon as the cursor enters it;
+  // useSortable handles reordering within the same column by itself.
   function handleDragOver({ active, over }: DragOverEvent) {
     if (!over) return;
 

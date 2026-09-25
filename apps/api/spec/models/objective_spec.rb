@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Objective, type: :model do
-  it "asigna número y key de forma atómica, independiente de Feature" do
+  it "assigns number and key atomically, independently of Feature" do
     team = create(:team)
     create(:feature, team: team)
     objective = create(:objective, team: team)
@@ -10,7 +10,7 @@ RSpec.describe Objective, type: :model do
     expect(objective.key).to eq("O-1")
   end
 
-  it "los objetivos archivados no se consideran activos" do
+  it "archived objectives are not considered active" do
     objective = create(:objective, archived_at: Time.current)
 
     expect(Objective.active).not_to include(objective)

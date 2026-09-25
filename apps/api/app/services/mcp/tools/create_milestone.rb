@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class CreateMilestone
       def self.tool_name = "create_milestone"
-      def self.description = "Crea un milestone."
+      def self.description = "Creates a milestone."
       def self.scope = "milestones:write"
       def self.read_only? = false
 

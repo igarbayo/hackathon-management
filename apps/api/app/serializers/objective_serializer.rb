@@ -1,4 +1,4 @@
-# RF-OBJ-001: cada objetivo incluye feature_count por estado.
+# RF-OBJ-001: each objective includes feature_count by status.
 class ObjectiveSerializer
   def initialize(objective, feature_counts: nil)
     @objective = objective

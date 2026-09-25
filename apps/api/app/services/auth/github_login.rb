@@ -40,7 +40,7 @@ module Auth
       end
 
       token = response.body["access_token"]
-      raise AuthorizationFailed, "GitHub no devolvió un access_token" if token.blank?
+      raise AuthorizationFailed, "GitHub did not return an access_token" if token.blank?
 
       token
     end
@@ -50,7 +50,7 @@ module Auth
       response = connection.get("#{API_BASE}/user") do |req|
         req.headers["Authorization"] = "Bearer #{access_token}"
       end
-      raise AuthorizationFailed, "no se pudo leer el perfil de GitHub" unless response.success?
+      raise AuthorizationFailed, "could not read the GitHub profile" unless response.success?
 
       response.body
     end
@@ -75,7 +75,8 @@ module Auth
       user ||= (email.present? ? User.where(email: email.downcase).first : nil)
 
       if user
-        # RF-AUTH-011: la foto es la del último proveedor con el que se entró.
+        # RF-AUTH-011: the photo is the one from the last provider used to log
+        # in.
         user.update!(github_uid: github_uid, github_login: github_login, avatar_url: profile["avatar_url"].presence || user.avatar_url)
       else
         user = User.create!(

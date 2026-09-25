@@ -1,6 +1,6 @@
-# El `state` firmado que llevan /auth/github y /auth/google (RF-AUTH-004,
-# RF-AUTH-008). Solo protege el flujo de login, no tiene relación con el
-# servidor de autorización OAuth 2.1 de specs/12.
+# The signed `state` that /auth/github and /auth/google carry (RF-AUTH-004,
+# RF-AUTH-008). It only protects the login flow; it has nothing to do with the
+# OAuth 2.1 authorization server from specs/12.
 module OAuthLoginState
   TTL = 10.minutes
 
@@ -17,6 +17,6 @@ module OAuthLoginState
   def verify(state)
     verifier.verify(state)
   rescue ActiveSupport::MessageVerifier::InvalidSignature
-    raise ApiError::BadRequest.new(message: "state inválido o caducado")
+    raise ApiError::BadRequest.new(message: "invalid or expired state")
   end
 end

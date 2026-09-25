@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class Whoami
       def self.tool_name = "whoami"
-      def self.description = "Equipo, miembro, tipo de token, scopes y caducidad del token con el que se llama. Útil para saber qué se puede hacer antes de intentarlo."
+      def self.description = "Team, member, token type, scopes and expiry of the calling token. Useful to know what you can do before you try it."
       def self.scope = nil
       def self.read_only? = true
 

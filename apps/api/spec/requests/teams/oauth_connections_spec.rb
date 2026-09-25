@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Apps conectadas del equipo (RF-API-021)", type: :request do
+RSpec.describe "Team connected apps (RF-API-021)", type: :request do
   describe "GET /api/v1/teams/:team_id/oauth_connections" do
-    it "un owner ve las conexiones OAuth de cualquier miembro del equipo" do
+    it "an owner sees the OAuth connections of any team member" do
       owner = create(:membership, :owner)
       other_member = create(:membership, team: owner.team)
       client = create(:oauth_client)
@@ -20,7 +20,7 @@ RSpec.describe "Apps conectadas del equipo (RF-API-021)", type: :request do
       _ = token
     end
 
-    it "un miembro normal no puede verlas" do
+    it "a regular member cannot see them" do
       member = create(:membership)
       sign_in_as(member.user)
 
@@ -31,7 +31,7 @@ RSpec.describe "Apps conectadas del equipo (RF-API-021)", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:team_id/oauth_connections/:id" do
-    it "un owner revoca la conexión de otro miembro (toda la familia)" do
+    it "an owner revokes another member's connection (the whole family)" do
       owner = create(:membership, :owner)
       other_member = create(:membership, team: owner.team)
       create(:access_token, :oauth, team: owner.team, user_id: other_member.user_id, refresh_family_id: "fam-2")
@@ -44,7 +44,7 @@ RSpec.describe "Apps conectadas del equipo (RF-API-021)", type: :request do
       expect(AccessToken.where(refresh_family_id: "fam-2", revoked_at: nil)).to be_empty
     end
 
-    it "404 si la familia no es de este equipo" do
+    it "404 if the family does not belong to this team" do
       owner = create(:membership, :owner)
       other_team = create(:team)
       create(:access_token, :oauth, team: other_team, refresh_family_id: "fam-3")

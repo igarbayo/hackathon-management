@@ -1,6 +1,6 @@
-# installation (deleted/suspend) e installation_repositories (removed):
-# marcan Repository.active = false (07-integracion-github.md#normalización-por-evento).
-# No generan ActivityEvent.
+# installation (deleted/suspend) and installation_repositories (removed): they set
+# Repository.active = false (07-integracion-github.md#normalización-por-evento). They
+# do not create an ActivityEvent.
 module Github
   module Normalize
     class Installation

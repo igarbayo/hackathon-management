@@ -13,7 +13,7 @@ module Api
 
       def update
         target = Membership.where(team_id: current_team.id, id: params[:id]).first
-        raise ApiError::NotFound.new(message: "miembro no encontrado") unless target
+        raise ApiError::NotFound.new(message: "member not found") unless target
 
         is_self = target.id == current_membership.id
 
@@ -33,13 +33,13 @@ module Api
 
       def destroy
         target = Membership.where(team_id: current_team.id, id: params[:id]).first
-        raise ApiError::NotFound.new(message: "miembro no encontrado") unless target
+        raise ApiError::NotFound.new(message: "member not found") unless target
 
         is_self = target.id == current_membership.id
         raise ApiError::Forbidden.new unless is_self || current_membership.owner?
 
         unless target.destroy
-          raise ApiError::Conflict.new(message: target.errors.full_messages.first || "no se puede eliminar")
+          raise ApiError::Conflict.new(message: target.errors.full_messages.first || "cannot be removed")
         end
 
         head :no_content

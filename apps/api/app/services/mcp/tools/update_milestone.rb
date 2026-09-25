@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class UpdateMilestone
       def self.tool_name = "update_milestone"
-      def self.description = "Edita un milestone."
+      def self.description = "Edits a milestone."
       def self.scope = "milestones:write"
       def self.read_only? = false
 
@@ -23,7 +23,7 @@ module Mcp
 
       def self.call(team:, membership:, resolved_token:, args:)
         milestone = Milestone.where(team_id: team.id, id: args["id"]).first
-        raise Mcp::ToolError, "Milestone no encontrado. Usa get_timeline para ver los ids." unless milestone
+        raise Mcp::ToolError, "Milestone not found. Use get_timeline to see the ids." unless milestone
 
         attrs = args.slice("title", "kind", "due_at", "description").compact
         milestone.update!(attrs)

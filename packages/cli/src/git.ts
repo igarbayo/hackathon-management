@@ -6,10 +6,10 @@ interface CacheEntry<T> {
   at: number;
 }
 
-// El remote se cachea por cwd sin TTL explícito ("cacheado por cwd" en la
-// spec): el proceso de un hook vive milisegundos, así que basta con no
-// volver a invocar git dos veces en la misma ejecución. Rama y HEAD sí
-// llevan un TTL corto porque cambian dentro de una misma sesión larga.
+// The remote is cached per cwd with no explicit TTL ("cached per cwd" in the
+// spec): a hook process lives for milliseconds, so it is enough not to call git
+// twice in the same run. Branch and HEAD do have a short TTL because they
+// change during a single long session.
 const remoteCache = new Map<string, CacheEntry<string | null>>();
 const branchCache = new Map<string, CacheEntry<string | null>>();
 const headCache = new Map<string, CacheEntry<string | null>>();
@@ -54,8 +54,8 @@ export function getRepoRoot(cwd: string): string | null {
 }
 
 // "https://github.com/org/repo.git", "git@github.com:org/repo.git",
-// "ssh://git@github.com/org/repo" -> "github.com/org/repo", igual que
-// Github::RepoUrl del lado del servidor (07-integracion-github.md).
+// "ssh://git@github.com/org/repo" -> "github.com/org/repo", the same as
+// Github::RepoUrl on the server side (07-integracion-github.md).
 export function normalizeRemote(raw: string | null): string | null {
   if (!raw) return null;
   const trimmed = raw.trim();

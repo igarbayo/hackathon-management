@@ -1,6 +1,5 @@
-# Catálogo de herramientas del servidor MCP
-# (12-acceso-programatico.md#servidor-mcp). tools/list solo devuelve las
-# que el token puede usar (RF-MCP-004).
+# Tool catalog of the MCP server (12-acceso-programatico.md#servidor-mcp).
+# tools/list only returns the ones the token can use (RF-MCP-004).
 module Mcp
   module Registry
     TOOLS = [

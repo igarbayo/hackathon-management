@@ -1,7 +1,7 @@
-# Asignación retroactiva (07-integracion-github.md#mapeo-de-autores): da a un
-# miembro los eventos de GitHub de su equipo que todavía no tienen usuario y
-# cuyo autor coincide con alguna de sus identidades. Nunca quita un evento a
-# nadie ni devuelve los que ese miembro marcó como "No son míos".
+# Retroactive assignment (07-integracion-github.md#mapeo-de-autores): gives a
+# member the GitHub events of their team that still have no user and whose
+# author matches one of their identities. It never takes an event from anyone or
+# gives back the ones that member marked as "Not mine".
 module Activity
   class ClaimForMembership
     def self.call(membership, mapped_by: "auto", identities: nil)
@@ -14,7 +14,7 @@ module Activity
       @identities = identities || AuthorIdentity.for_membership(membership)
     end
 
-    # Devuelve cuántos eventos se han asignado.
+    # Returns how many events were assigned.
     def call
       conditions = AuthorIdentity.event_conditions(identities)
       return 0 if conditions.empty?

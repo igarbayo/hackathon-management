@@ -1,6 +1,6 @@
 # 05 · Atribución de trabajo a features
 
-> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-22
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-25
 
 Atribuir es **la clave del producto**: convierte la actividad en respuestas del tipo "quién hizo qué, y para qué feature". Se resuelve en tres capas, de más fiable a menos. Cada evento pasa por ellas en orden y se detiene en la primera que da resultado.
 
@@ -51,7 +51,7 @@ Evento nuevo
   - Si `confidence ≥ 0.5`, se guarda `{method: ai, status: suggested}` en todos los eventos del grupo.
   - Si `confidence < 0.5`, el evento sigue sin atribuir. No se vuelve a intentar hasta que llegue un evento nuevo del mismo grupo.
   - **La IA nunca confirma.** [ABIERTO] Estudiar si se autoconfirma con confidence ≥ 0,9 cuando la feature está asignada al propio actor. Hay que medir la precisión en F4 antes de decidirlo.
-- Heurística previa que no usa la IA: si el actor solo tiene **una** feature `in_progress` asignada y el evento no está en la rama por defecto, se sugiere esa feature con `confidence: 0.6` y `reason: "única feature en curso del autor"`. Así se ahorran tokens.
+- Heurística previa que no usa la IA: si el actor solo tiene **una** feature `in_progress` asignada y el evento no está en la rama por defecto, se sugiere esa feature con `confidence: 0.6` y `reason: "the author's only feature in progress"`. Así se ahorran tokens.
 
 ## Acción humana — `RF-ATR-004` [F3] Aceptado
 

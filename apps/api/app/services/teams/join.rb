@@ -2,7 +2,7 @@ module Teams
   class Join
     def self.call(user:, code:)
       team = Team.active.where(code: code.to_s.upcase.delete("-")).first
-      raise ApiError::NotFound.new(message: "código de equipo no válido") unless team
+      raise ApiError::NotFound.new(message: "invalid team code") unless team
 
       RateLimiter.check!("team_join:#{user.id}", limit: 20, period: 1.hour)
 

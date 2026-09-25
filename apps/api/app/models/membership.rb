@@ -26,8 +26,8 @@ class Membership
   before_destroy :ensure_not_last_owner
   after_destroy :revoke_access
 
-  # ADR-0018: al entrar en el equipo o añadir identidades, se le asignan los
-  # eventos de GitHub sin usuario que coinciden con ellas.
+  # ADR-0018: when joining the team or adding identities, the member gets the
+  # GitHub events with no user that match them.
   after_create :enqueue_claim
   after_update :enqueue_claim, if: -> { previous_changes.key?("git_identities") }
 
@@ -50,12 +50,12 @@ class Membership
     self.git_identities = Array(git_identities).filter_map { |i| Activity::AuthorIdentity.normalize(i) }.uniq
   end
 
-  # Una identidad no puede ser de dos miembros del mismo equipo.
+  # An identity cannot belong to two members of the same team.
   def git_identities_not_taken
     return if git_identities.empty?
 
     taken = Membership.where(team_id: team_id, :id.ne => id, :git_identities.in => git_identities).pluck(:git_identities).flatten & git_identities
-    errors.add(:git_identities, "ya son de otro miembro del equipo: #{taken.join(', ')}") if taken.any?
+    errors.add(:git_identities, "already belong to another team member: #{taken.join(', ')}") if taken.any?
   end
 
   def default_display_name
@@ -66,20 +66,20 @@ class Membership
     return unless role_was == "owner" && role != "owner"
     return if other_owners.exists?
 
-    errors.add(:role, "no se puede quitar: es el último owner del equipo")
+    errors.add(:role, "cannot be removed: it is the last owner of the team")
   end
 
   def ensure_not_last_owner
     return unless owner?
     return if other_owners.exists?
 
-    errors.add(:base, "no se puede eliminar al último owner del equipo")
+    errors.add(:base, "the last owner of the team cannot be removed")
     throw :abort
   end
 
-  # RF-TEAM-008: al salir o ser expulsado se revocan sus tokens de este equipo
-  # (el de Claude Code va embebido y desaparece con la membresía). Los ya
-  # revocados, p. ej. por Accounts::Destroy, conservan su motivo.
+  # RF-TEAM-008: when leaving or being removed, their tokens for this team are
+  # revoked (the Claude Code one is embedded and goes away with the membership).
+  # Tokens already revoked, e.g. by Accounts::Destroy, keep their reason.
   def revoke_access
     AccessToken.where(team_id: team_id, membership_id: id, revoked_at: nil)
                .update_all(revoked_at: Time.current, revoke_reason: "member_left")

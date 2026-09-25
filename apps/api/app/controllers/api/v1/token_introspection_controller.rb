@@ -1,15 +1,14 @@
-# GET /api/v1/token (RF-API-…, sección "Introspección" de 12). Con
-# cualquier Bearer: para que un agente sepa qué puede hacer antes de
-# intentarlo.
+# GET /api/v1/token (RF-API-…, "Introspection" section of 12). With any Bearer:
+# so an agent knows what it can do before trying it.
 module Api
   module V1
     class TokenIntrospectionController < ApplicationController
       def show
         header = request.headers["Authorization"]
-        raise ApiError::Unauthenticated.new(message: "falta el token") unless header&.start_with?("Bearer ")
+        raise ApiError::Unauthenticated.new(message: "missing token") unless header&.start_with?("Bearer ")
 
         resolved = ::Tokens::Resolve.call(header.delete_prefix("Bearer "))
-        raise ApiError::Unauthenticated.new(message: "token inválido o revocado") unless resolved
+        raise ApiError::Unauthenticated.new(message: "invalid or revoked token") unless resolved
 
         render json: {
           kind: resolved.kind,

@@ -8,7 +8,7 @@ module Api
 
           render json: MeSerializer.new(user).as_json
         rescue ::Auth::LogIn::InvalidCredentials
-          raise ApiError::Unauthenticated.new(message: "email o contraseña incorrectos")
+          raise ApiError::Unauthenticated.new(message: "wrong email or password")
         end
 
         def destroy

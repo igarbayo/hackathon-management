@@ -56,9 +56,9 @@ type MoveFeatureParams = {
   position?: number;
 };
 
-// RF-FEAT-011: la interfaz es optimista y revierte si la API responde con error.
-// `position` solo sirve para la actualización optimista (la calcula quien llama
-// con la misma regla que Features::Move); a la api no se envía.
+// RF-FEAT-011: the UI is optimistic and rolls back if the API returns an error.
+// `position` is only for the optimistic update (the caller works it out with the
+// same rule as Features::Move); it is not sent to the api.
 export function useMoveFeature(teamId: string) {
   const queryClient = useQueryClient();
 

@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Attribution::AiSuggestJob do
-  it "sin team_id, encola un job por cada equipo con eventos pendientes en las últimas 24h" do
+  it "with no team_id, queues one job per team with pending events in the last 24h" do
     team_with_pending = create(:team)
     create(:activity_event, :github_commit, team: team_with_pending)
 
@@ -15,7 +15,7 @@ RSpec.describe Attribution::AiSuggestJob do
     expect(described_class.jobs.map { |j| j["args"] }).to contain_exactly([ team_with_pending.id.to_s ])
   end
 
-  it "con team_id, delega en Attribution::SuggestForTeam" do
+  it "with team_id, delegates to Attribution::SuggestForTeam" do
     team = create(:team)
 
     expect(Attribution::SuggestForTeam).to receive(:call).with(team)

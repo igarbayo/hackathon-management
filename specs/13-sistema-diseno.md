@@ -1,6 +1,6 @@
 # 13 · Sistema de diseño
 
-> **Estado de implementación:** En proceso · **Última actualización:** 2026-09-23
+> **Estado de implementación:** En proceso · **Última actualización:** 2026-09-25
 
 `apps/web` sigue el sistema de diseño **F0** de Factorial (`github.com/factorialco/f0`, docs en `f0.factorial.dev`). Ver [ADR-0013](decisiones.md#adr-0013) para la decisión de no instalar `@factorialco/f0-react` y portar sus tokens en su lugar.
 
@@ -19,8 +19,9 @@
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RNF-UI-010 | Textos de botones y acciones en *sentence case*, 1-3 palabras, verbo imperativo. Las acciones destructivas nombran el objeto ("Eliminar objetivo", nunca solo "Eliminar"). Un único botón `default` (primario) por sección; el primario va a la derecha cuando se empareja con un "Cancelar". | Aceptado [F1] |
+| RNF-UI-010 | Textos de botones y acciones en *sentence case*, 1-3 palabras, verbo imperativo. Las acciones destructivas nombran el objeto ("Delete objective", nunca solo "Delete"). Un único botón `default` (primario) por sección; el primario va a la derecha cuando se empareja con un "Cancel". | Aceptado [F1] |
 | RNF-UI-011 | Patrones CRUD de F0: crear vive a nivel de colección (no en un ítem), lo destructivo se oculta por defecto en un menú de desbordamiento y siempre pide confirmación explícita (nunca `window.confirm`/`prompt`/`alert` del navegador). El estado asíncrono (`loading`) vive en la propia acción que lo dispara, no en un overlay global. | Aceptado [F1] |
+| RNF-UI-013 | **Idioma de la interfaz: inglés sencillo**, el mismo registro que el README. Todo lo que ve una persona en `apps/web` está en inglés: textos, `aria-label`, placeholders, toasts, fechas (`en-US`), `lang="en"` y el SEO (metadata, Open Graph `en_US`, JSON-LD `inLanguage: "en"`, manifest, imagen OG y `/llms.txt`). Lo mismo vale para todo lo que emite el resto del sistema (mensajes de la API y del MCP, salida del CLI, respuestas de la IA) y para el propio repo: comentarios, nombres y datos de los tests, CI, configuración y la skill `f0-style`. No hay i18n ni selector de idioma. Las únicas excepciones son `specs/` y `CLAUDE.md`, que siguen en español; cuando una spec cita un texto de la interfaz, lo que manda es el texto en inglés del código. Ver [ADR-0019](decisiones.md#adr-0019). | Implementado |
 | RNF-UI-012 | Accesibilidad WCAG 2.1/2.2 AA: contraste de los tokens en ambos temas, foco visible (`focus-visible:ring-1 ring-f1-special-ring ring-offset-1`, equivalente a `focusRing()` de F0) en todo elemento interactivo, roles nativos para checkbox/radio/dialog (nada de `<input>`/`<button>` a pelo simulando un control). | Aceptado [F1] |
 
 ## No funcionales — `RNF-UI`
@@ -35,7 +36,7 @@
 |----|-----------|--------|
 | RNF-UI-030 | Todo campo de fecha u hora de la app usa `DatePicker` (`apps/web/src/components/ui/date-picker.tsx`). Prohibido un `<input type="date">`/`type="datetime-local"` nativo suelto para captura de fecha en una pantalla de producto. | Aceptado [F1] |
 
-`DatePicker` está adaptado de [a-good-date-picker](https://github.com/gulipad/a-good-date-picker) (Guli Moreno, MIT License). Ese repo **no es un paquete npm**: es un componente de un solo fichero pensado para copiarse a mano (estilo shadcn/ui), sin props (estado interno fijo) y sin español en la rama `main` — el propio README documenta props (`value`/`onChange`/`locale`) que no existen en el código. Se han portado a mano los cambios de la [PR #2 del repo](https://github.com/gulipad/a-good-date-picker/pull/2) (props controladas + locale `es`/`en`), sustituyendo sus primitivos (Radix, `react-day-picker@8`) por los de este repo (Base UI, `react-day-picker@10`, ya restilados a F0), y se añaden dos cosas que el original no tenía:
+`DatePicker` está adaptado de [a-good-date-picker](https://github.com/gulipad/a-good-date-picker) (Guli Moreno, MIT License). Ese repo **no es un paquete npm**: es un componente de un solo fichero pensado para copiarse a mano (estilo shadcn/ui), sin props (estado interno fijo) — el propio README documenta props (`value`/`onChange`/`locale`) que no existen en el código. Se han portado a mano las props controladas de la [PR #2 del repo](https://github.com/gulipad/a-good-date-picker/pull/2), sustituyendo sus primitivos (Radix, `react-day-picker@8`) por los de este repo (Base UI, `react-day-picker@10`, ya restilados a F0), y se añaden dos cosas que el original no tenía:
 
 - **se conserva la hora** al elegir solo el día en el calendario (o se pone 23:59 si no había ninguna) — clicar un día no debe borrar una hora ya escrita;
 - **`disabled`** (día mínimo/máximo o una función), pasado directamente a `react-day-picker`.
@@ -47,15 +48,15 @@ import { DatePicker } from "@/components/ui/date-picker";
 
 const [endsAt, setEndsAt] = useState<Date>();
 
-<Label htmlFor="ends-at">Fecha de fin</Label>
+<Label htmlFor="ends-at">End date</Label>
 <DatePicker id="ends-at" value={endsAt} onChange={setEndsAt} disabled={{ before: new Date() }} />
 ```
 
-- `id` asocia el `<Label htmlFor>` con el botón disparador (un botón es un elemento etiquetable en HTML) y, por eso, ese es también el **nombre accesible** que hay que usar en los tests (`getByLabel("Fecha de fin")`), no el texto del botón ("Elige una fecha"). El campo de texto en lenguaje natural, que solo existe en el DOM con el popover abierto, se localiza con `#{id}-search`.
-- Escribir una fecha ISO (`2026-12-31T23:59`) en ese campo y pulsar Enter también funciona — `chrono-node` la entiende igual que "mañana a las 9" — así que los e2e existentes solo tuvieron que añadir el click que abre el popover y el `press("Enter")` que antes no hacía falta con el `<input>` nativo.
+- `id` asocia el `<Label htmlFor>` con el botón disparador (un botón es un elemento etiquetable en HTML) y, por eso, ese es también el **nombre accesible** que hay que usar en los tests (`getByLabel("End date")`), no el texto del botón ("Pick a date"). El campo de texto en lenguaje natural, que solo existe en el DOM con el popover abierto, se localiza con `#{id}-search`.
+- Escribir una fecha ISO (`2026-12-31T23:59`) en ese campo y pulsar Enter también funciona — `chrono-node` la entiende igual que "tomorrow at 9" — así que los e2e existentes solo tuvieron que añadir el click que abre el popover y el `press("Enter")` que antes no hacía falta con el `<input>` nativo.
 - Sin `value`/`onChange`, el componente funciona en modo no controlado (estado interno), como el original.
 
-**Fuera de alcance:** rango de fechas (el `Calendar` subyacente lo admite en `mode="range"`, pero `DatePicker` solo expone `mode="single"`) y el prop `locale="en"` no se usa en ningún sitio de la app hoy (queda listo por si hiciera falta, ver PR#2 del repo original).
+**Fuera de alcance:** rango de fechas (el `Calendar` subyacente lo admite en `mode="range"`, pero `DatePicker` solo expone `mode="single"`) y otros idiomas: la PR #2 del repo original añadía un prop `locale` (`es`/`en`), pero se quitó al pasar la interfaz a inglés (RNF-UI-013), así que el componente solo entiende y muestra fechas en inglés (formato `MMM d, yyyy · HH:mm`).
 
 ## Mapeo de tokens shadcn → F0
 

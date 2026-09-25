@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "PATCH /api/v1/me", type: :request do
   describe "gemini_api_key (RF-AI-021)" do
-    it "pone la clave personal y la serializa solo como booleano, nunca en claro" do
+    it "sets the personal key and serializes it only as a boolean, never in plain text" do
       user = create(:user)
       sign_in_as(user)
 
@@ -14,7 +14,7 @@ RSpec.describe "PATCH /api/v1/me", type: :request do
       expect(user.reload.gemini_api_key).to eq("fake-gemini-key")
     end
 
-    it "quita la clave si se manda en blanco" do
+    it "removes the key if it is sent blank" do
       user = create(:user)
       user.update!(gemini_api_key: "fake-gemini-key")
       sign_in_as(user)
@@ -26,12 +26,12 @@ RSpec.describe "PATCH /api/v1/me", type: :request do
       expect(user.reload.gemini_api_key_configured?).to be false
     end
 
-    it "sin el parámetro, no toca la clave existente" do
+    it "without the parameter, does not touch the existing key" do
       user = create(:user)
       user.update!(gemini_api_key: "fake-gemini-key")
       sign_in_as(user)
 
-      patch "/api/v1/me", params: { name: "Nuevo nombre" }, headers: csrf_headers, as: :json
+      patch "/api/v1/me", params: { name: "New name" }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:ok)
       expect(user.reload.gemini_api_key).to eq("fake-gemini-key")

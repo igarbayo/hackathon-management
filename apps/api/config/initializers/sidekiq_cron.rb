@@ -1,5 +1,5 @@
-# Tareas periódicas (01-arquitectura.md#jobs-de-sidekiq). Solo se registran
-# en el proceso de Sidekiq, no en cada boot de la web.
+# Periodic tasks (01-arquitectura.md#jobs-de-sidekiq). They are only registered
+# in the Sidekiq process, not on every web boot.
 Sidekiq.configure_server do |config|
   config.on(:startup) do
     Sidekiq::Cron::Job.create(

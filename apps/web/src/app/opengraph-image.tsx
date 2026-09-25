@@ -3,10 +3,10 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { BRAND_COLOR_DARK, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
-// RF-UX-041: imagen para Open Graph / X. Se genera en build a partir del logo
-// negativo (public/logo-horizontal-negativo-transparente.svg) sobre su mismo
-// fondo morado oscuro. Satori no entiende clases de Tailwind ni los tokens
-// f1-*, así que aquí los colores van en estilos inline (RNF-UI-001).
+// RF-UX-041: Open Graph / X image. It is built at build time from the negative
+// logo (public/logo-horizontal-negativo-transparente.svg) on its own dark
+// purple background. Satori does not understand Tailwind classes or the f1-*
+// tokens, so colors here are inline styles (RNF-UI-001).
 export const alt = `${SITE_NAME} · ${SITE_TAGLINE}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -31,7 +31,7 @@ export default function OpengraphImage() {
           color: "#FFFFFF",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- Satori solo entiende <img> */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- Satori only understands <img> */}
         <img src={logoSrc} width={789} height={200} alt="" />
         <div style={{ fontSize: 40, fontWeight: 600, textAlign: "center" }}>{SITE_TAGLINE}</div>
         <div style={{ fontSize: 26, textAlign: "center", opacity: 0.75, maxWidth: 960, lineHeight: 1.4 }}>

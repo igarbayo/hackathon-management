@@ -6,8 +6,8 @@ module Api
       session_only :create, :destroy, :resync
       requires_scope "read", only: :index
 
-      # No está en 03-api.md, pero RF-GH-010 ("repos vinculados") lo necesita
-      # y es el complemento natural de create/destroy.
+      # Not in 03-api.md, but RF-GH-010 ("linked repos") needs it and it is the
+      # natural complement of create/destroy.
       def index
         repositories = Repository.where(team_id: current_team.id, active: true)
         render json: { data: repositories.map { |r| RepositorySerializer.new(r).as_json } }
@@ -15,11 +15,11 @@ module Api
 
       def create
         full_name = params[:full_name].presence || Github::RepoUrl.parse(params[:url])
-        raise ApiError::BadRequest.new(message: "full_name o url no válidos") unless full_name
+        raise ApiError::BadRequest.new(message: "invalid full_name or url") unless full_name
 
         if already_linked_elsewhere?(full_name)
           raise ApiError::Conflict.new(
-            message: "este repositorio ya está vinculado a otro equipo",
+            message: "this repository is already linked to another team",
             details: { code: "repo_already_linked" }
           )
         end
@@ -34,10 +34,10 @@ module Api
         end
       end
 
-      # RNF-GH-003: "Resincronizar" relanza la importación del histórico.
+      # RNF-GH-003: "Resync" runs the history import again.
       def resync
         repository = Repository.where(team_id: current_team.id, id: params[:id]).first
-        raise ApiError::NotFound.new(message: "repositorio no encontrado") unless repository
+        raise ApiError::NotFound.new(message: "repository not found") unless repository
 
         Github::ImportHistoryJob.perform_async(repository.id.to_s)
         head :accepted
@@ -45,7 +45,7 @@ module Api
 
       def destroy
         repository = Repository.where(team_id: current_team.id, id: params[:id]).first
-        raise ApiError::NotFound.new(message: "repositorio no encontrado") unless repository
+        raise ApiError::NotFound.new(message: "repository not found") unless repository
 
         repository.update!(active: false)
         head :no_content

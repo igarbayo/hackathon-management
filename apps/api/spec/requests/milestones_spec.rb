@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Milestones & timeline", type: :request do
   describe "CRUD /api/v1/teams/:team_id/milestones" do
-    it "cualquier miembro puede crear uno" do
+    it "any member can create one" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -12,29 +12,29 @@ RSpec.describe "Milestones & timeline", type: :request do
       expect(response).to have_http_status(:created)
     end
 
-    it "los lista ordenados por due_at" do
+    it "lists them sorted by due_at" do
       membership = create(:membership)
-      create(:milestone, team: membership.team, due_at: 3.days.from_now, title: "Tarde")
-      create(:milestone, team: membership.team, due_at: 1.day.from_now, title: "Pronto")
+      create(:milestone, team: membership.team, due_at: 3.days.from_now, title: "Late")
+      create(:milestone, team: membership.team, due_at: 1.day.from_now, title: "Soon")
       sign_in_as(membership.user)
 
       get "/api/v1/teams/#{membership.team.id}/milestones"
 
-      expect(json_response["data"].map { |m| m["title"] }).to eq(%w[Pronto Tarde])
+      expect(json_response["data"].map { |m| m["title"] }).to eq(%w[Soon Late])
     end
   end
 
   describe "GET /api/v1/teams/:team_id/timeline" do
-    it "marca overdue las features con deadline pasado y no done" do
+    it "marks as overdue the features with a past deadline that are not done" do
       membership = create(:membership)
-      create(:feature, team: membership.team, title: "Vencida", deadline: 1.day.ago, status: "in_progress")
-      create(:feature, team: membership.team, title: "Hecha aunque vencida", deadline: 1.day.ago, status: "done")
+      create(:feature, team: membership.team, title: "Overdue", deadline: 1.day.ago, status: "in_progress")
+      create(:feature, team: membership.team, title: "Done even though overdue", deadline: 1.day.ago, status: "done")
       sign_in_as(membership.user)
 
       get "/api/v1/teams/#{membership.team.id}/timeline"
 
-      overdue = json_response["data"].find { |i| i["title"] == "Vencida" }
-      not_overdue = json_response["data"].find { |i| i["title"] == "Hecha aunque vencida" }
+      overdue = json_response["data"].find { |i| i["title"] == "Overdue" }
+      not_overdue = json_response["data"].find { |i| i["title"] == "Done even though overdue" }
       expect(overdue["overdue"]).to be true
       expect(not_overdue["overdue"]).to be false
     end

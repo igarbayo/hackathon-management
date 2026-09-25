@@ -1,4 +1,4 @@
-# Fuente de los resúmenes del nivel summaries del CLI (opción A,
+# Source of the summaries for the CLI's summaries level (option A,
 # 08-integracion-claude-code.md#cómo-se-generan-los-resúmenes-summaries).
 module Mcp
   module Tools
@@ -7,7 +7,7 @@ module Mcp
       STATUS_HINTS = %w[started blocked ready_for_review].freeze
 
       def self.tool_name = "report_progress"
-      def self.description = "Informa del progreso en una feature. No cambia su estado: status_hint es solo una sugerencia visible. Llama a esta herramienta al terminar una unidad de trabajo significativa."
+      def self.description = "Reports progress on a feature. It does not change its status: status_hint is only a visible suggestion. Call this tool when you finish a meaningful unit of work."
       def self.scope = "progress:write"
       def self.read_only? = false
 
@@ -25,7 +25,7 @@ module Mcp
       end
 
       def self.call(team:, membership:, resolved_token:, args:)
-        raise Mcp::ToolError, "report_progress necesita un token de miembro o PAT de una persona." unless membership
+        raise Mcp::ToolError, "report_progress needs a member token or a person's PAT." unless membership
 
         feature = Mcp::FindFeature.call(team: team, key: args["feature_key"])
         enforce_daily_limit!(team, membership, feature)
@@ -55,7 +55,7 @@ module Mcp
           :occurred_at.gte => today_start
         ).count
 
-        raise Mcp::ToolError, "Límite diario de #{DAILY_LIMIT_PER_FEATURE} report_progress en #{feature.key} alcanzado." if count >= DAILY_LIMIT_PER_FEATURE
+        raise Mcp::ToolError, "Daily limit of #{DAILY_LIMIT_PER_FEATURE} report_progress calls on #{feature.key} reached." if count >= DAILY_LIMIT_PER_FEATURE
       end
       private_class_method :enforce_daily_limit!
     end

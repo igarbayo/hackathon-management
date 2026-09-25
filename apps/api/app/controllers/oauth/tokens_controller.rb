@@ -1,5 +1,5 @@
-# POST /oauth/token (RF-API-012). Sin sesión, sin CSRF: son clientes
-# públicos sin secreto (RNF-SEC-015) que autentican con PKCE, no con cookie.
+# POST /oauth/token (RF-API-012). No session, no CSRF: they are public clients
+# with no secret (RNF-SEC-015) that authenticate with PKCE, not with a cookie.
 module OAuth
   class TokensController < ApplicationController
     before_action :enforce_rate_limit!
@@ -38,7 +38,7 @@ module OAuth
       }
     end
 
-    # RF-API-012: /oauth/token, 30 peticiones por minuto por cliente.
+    # RF-API-012: /oauth/token, 30 requests per minute per client.
     def enforce_rate_limit!
       return if params[:client_id].blank?
 

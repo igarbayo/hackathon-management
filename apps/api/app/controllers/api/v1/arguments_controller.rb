@@ -22,7 +22,7 @@ module Api
 
       def update
         argument = find_argument
-        raise ApiError::Forbidden.new(message: "solo el autor puede editarlo") unless argument.author_id == current_user&.id
+        raise ApiError::Forbidden.new(message: "only the author can edit it") unless argument.author_id == current_user&.id
 
         argument.update!(text: params[:text])
         record_api_change!(entity: "argument", key: "#{argument.feature.key}/#{argument.id}", fields: %w[text])
@@ -55,10 +55,10 @@ module Api
 
       private
 
-      # Añadir/editar pros y contras y votar son acciones de una persona; un
-      # token de integración (sin membership propia) no puede hacerlas.
+      # Adding/editing pros and cons and voting are actions of a person; an
+      # integration token (with no membership of its own) cannot do them.
       def require_person!
-        raise ApiError::Forbidden.new(message: "esta acción no está disponible para tokens de integración") if current_user.nil?
+        raise ApiError::Forbidden.new(message: "this action is not available for integration tokens") if current_user.nil?
       end
 
       def find_feature
@@ -68,7 +68,7 @@ module Api
       def find_argument
         feature = find_feature
         argument = feature.arguments.find(params[:id])
-        raise ApiError::NotFound.new(message: "argumento no encontrado") unless argument
+        raise ApiError::NotFound.new(message: "argument not found") unless argument
 
         argument
       end

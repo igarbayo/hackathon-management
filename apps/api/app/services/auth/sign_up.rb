@@ -1,8 +1,8 @@
 module Auth
   class SignUp
-    # Mismo límite que el login (RNF-SEC-005): la spec no daba un número
-    # propio para signup, y es el mismo vector de abuso (creación masiva de
-    # cuentas) que el de fuerza bruta en login.
+    # Same limit as login (RNF-SEC-005): the spec gave no specific number for
+    # signup, and it is the same abuse vector (mass account creation) as login
+    # brute force.
     LIMIT = 10
     PERIOD = 15.minutes
 

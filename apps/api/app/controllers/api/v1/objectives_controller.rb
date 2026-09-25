@@ -49,7 +49,7 @@ module Api
 
       def find_objective
         Objective.where(team_id: current_team.id, id: params[:id]).first.tap do |objective|
-          raise ApiError::NotFound.new(message: "objetivo no encontrado") unless objective
+          raise ApiError::NotFound.new(message: "objective not found") unless objective
         end
       end
 

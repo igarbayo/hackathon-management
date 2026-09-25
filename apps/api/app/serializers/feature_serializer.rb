@@ -1,4 +1,4 @@
-# RF-FEAT-001/002: incluye score y last_activity_at.
+# RF-FEAT-001/002: includes score and last_activity_at.
 class FeatureSerializer
   def initialize(feature, detail: false)
     @feature = feature

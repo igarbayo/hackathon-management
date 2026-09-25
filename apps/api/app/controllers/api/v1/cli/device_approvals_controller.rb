@@ -1,5 +1,5 @@
-# POST /teams/:team_id/cli/device/approve y /deny (RF-CC-002). Con sesión:
-# hereda de BaseController para exigir CSRF (RNF-SEC-003).
+# POST /teams/:team_id/cli/device/approve and /deny (RF-CC-002). With a session:
+# it inherits from BaseController to require CSRF (RNF-SEC-003).
 module Api
   module V1
     module Cli

@@ -61,15 +61,15 @@ import {
 import { ApiError } from "@/lib/api-client";
 import type { ClaudeCodeStatus, Me, Member } from "@/types/api";
 
-function copyToClipboard(text: string, message = "Copiado") {
+function copyToClipboard(text: string, message = "Copied") {
   navigator.clipboard.writeText(text);
   toast.success(message);
 }
 
 const PAT_PRESETS = [
-  { value: "observar", label: "Observar (solo lectura)" },
-  { value: "agente", label: "Agente (lectura + mover features + progreso)" },
-  { value: "completo", label: "Completo (todo salvo ingesta)" },
+  { value: "observe", label: "Observe (read only)" },
+  { value: "agent", label: "Agent (read + move features + progress)" },
+  { value: "full", label: "Full (everything except ingest)" },
 ];
 
 const INTEGRATION_SCOPES = [
@@ -111,7 +111,7 @@ export default function SettingsPage({ params }: { params: Promise<{ teamId: str
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <PageHeader icon={SettingsIcon} title="Equipo y ajustes" />
+      <PageHeader icon={SettingsIcon} title="Team and settings" />
 
       <TeamCodeCard teamId={teamId} code={team.code} formattedCode={team.formatted_code} isOwner={isOwner} />
       <HackathonCard teamId={teamId} team={team} isOwner={isOwner} />
@@ -146,19 +146,19 @@ function TeamCodeCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Código de equipo</CardTitle>
+        <CardTitle className="text-base">Team code</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-lg">{formattedCode}</span>
-        <Button variant="outline" size="sm" onClick={() => copyToClipboard(code, "Código copiado")}>
-          <CopyIcon className="size-3.5" /> Copiar código
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(code, "Code copied")}>
+          <CopyIcon className="size-3.5" /> Copy code
         </Button>
-        <Button variant="outline" size="sm" onClick={() => copyToClipboard(joinUrl, "Enlace copiado")}>
-          <CopyIcon className="size-3.5" /> Copiar enlace
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(joinUrl, "Link copied")}>
+          <CopyIcon className="size-3.5" /> Copy link
         </Button>
         {isOwner && (
           <Button variant="outline" size="sm" onClick={() => rotateCode.mutate()} disabled={rotateCode.isPending}>
-            <RefreshCwIcon className="size-3.5" /> Regenerar
+            <RefreshCwIcon className="size-3.5" /> Regenerate
           </Button>
         )}
       </CardContent>
@@ -185,15 +185,15 @@ function HackathonCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <div>
-          <Label>Nombre del hackathon</Label>
+          <Label>Hackathon name</Label>
           <p className="text-base">{team.hackathon?.name}</p>
         </div>
         <div>
-          <Label>Zona horaria</Label>
+          <Label>Time zone</Label>
           <p className="text-base">{team.hackathon?.timezone}</p>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="challenge">Texto del reto</Label>
+          <Label htmlFor="challenge">Challenge text</Label>
           <Textarea
             id="challenge"
             disabled={!isOwner}
@@ -226,7 +226,7 @@ function MembersCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Miembros</CardTitle>
+        <CardTitle className="text-base">Members</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {members.map((member) => {
@@ -238,7 +238,7 @@ function MembersCard({
               </Avatar>
               <span className="flex-1 text-base text-f1-foreground">{member.display_name}</span>
               <Badge variant={member.claude_code ? "positive" : "outline"}>
-                {member.claude_code ? "Claude Code conectado" : "Claude Code no conectado"}
+                {member.claude_code ? "Claude Code connected" : "Claude Code not connected"}
               </Badge>
 
               {isOwner ? (
@@ -259,7 +259,7 @@ function MembersCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={isMe ? "Salir del equipo" : "Expulsar"}
+                  aria-label={isMe ? "Leave team" : "Remove"}
                   onClick={() => removeMember.mutate(member.id)}
                 >
                   <Trash2Icon className="size-4" />
@@ -273,7 +273,7 @@ function MembersCard({
   );
 }
 
-// RF-GH-010: repos vinculados, botón "Añadir repo" y estado de la instalación.
+// RF-GH-010: linked repos, the "Add repo" button and the install status.
 function GitHubCard({ teamId }: { teamId: string }) {
   const { data: repositories, isLoading } = useRepositories(teamId);
   const linkRepository = useLinkRepository(teamId);
@@ -297,7 +297,7 @@ function GitHubCard({ teamId }: { teamId: string }) {
         setInput("");
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido vincular el repositorio");
+      setError(err instanceof ApiError ? err.message : "Could not link the repository");
     }
   }
 
@@ -309,36 +309,36 @@ function GitHubCard({ teamId }: { teamId: string }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {isLoading && <p className="text-muted-foreground text-base">Cargando…</p>}
+        {isLoading && <p className="text-muted-foreground text-base">Loading…</p>}
         {repositories?.map((repo) => (
           <div key={repo.id} className="flex items-center gap-3 rounded-md border p-2 text-base">
-            <Badge variant="positive">Conectado</Badge>
+            <Badge variant="positive">Connected</Badge>
             <span className="flex-1">{repo.full_name}</span>
             <span className="text-muted-foreground text-sm">{repo.default_branch}</span>
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Resincronizar"
+              aria-label="Resync"
               onClick={() => resyncRepository.mutate(repo.id)}
               disabled={resyncRepository.isPending}
             >
               <RefreshCwIcon className="size-4" />
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Desvincular" onClick={() => unlinkRepository.mutate(repo.id)}>
+            <Button variant="ghost" size="icon" aria-label="Unlink" onClick={() => unlinkRepository.mutate(repo.id)}>
               <Trash2Icon className="size-4" />
             </Button>
           </div>
         ))}
-        {repositories?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay repos vinculados.</p>}
+        {repositories?.length === 0 && <p className="text-muted-foreground text-base">No linked repos yet.</p>}
 
         <form onSubmit={handleAdd} className="flex gap-2">
           <Input
-            placeholder="org/repo o https://github.com/org/repo"
+            placeholder="org/repo or https://github.com/org/repo"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
           <Button type="submit" disabled={linkRepository.isPending}>
-            Añadir repo
+            Add repo
           </Button>
         </form>
 
@@ -346,9 +346,9 @@ function GitHubCard({ teamId }: { teamId: string }) {
 
         {installUrl && (
           <div className="rounded-md border p-2 text-base">
-            <p>Hace falta instalar la GitHub App para acceder a este repositorio.</p>
+            <p>You need to install the GitHub App to access this repository.</p>
             <a href={installUrl} className="text-primary underline">
-              Instalar la App en GitHub
+              Install the App on GitHub
             </a>
           </div>
         )}
@@ -357,8 +357,8 @@ function GitHubCard({ teamId }: { teamId: string }) {
   );
 }
 
-// RF-CC-010: cada persona solo ve y toca su propio enlace, nunca el de otro
-// miembro (es opt-in e individual, 08-integracion-claude-code.md).
+// RF-CC-010: each person only sees and changes their own link, never another
+// member's (it is opt-in and per person, 08-integracion-claude-code.md).
 function ClaudeCodeCard({
   teamId,
   formattedCode,
@@ -384,7 +384,7 @@ function ClaudeCodeCard({
         {!link ? (
           <>
             <p className="text-muted-foreground text-base">
-              No está conectado. Son dos pasos:
+              Not connected. It takes two steps:
             </p>
             <ol className="text-muted-foreground list-inside list-decimal text-base">
               <li>
@@ -395,20 +395,20 @@ function ClaudeCodeCard({
               </li>
             </ol>
             <p className="text-muted-foreground text-sm">
-              Esto registra tu Claude Code en este equipo y añade el hook que envía tu actividad. Se envían metadatos
-              (qué archivo, qué comando, cuánto tardó) y, si eliges ese nivel de privacidad, un resumen corto — nunca
-              el contenido de los archivos, diffs, ni el texto de tus prompts.
+              This registers your Claude Code with this team and adds the hook that sends your activity. It sends
+              metadata (which file, which command, how long it took) and, if you choose that privacy level, a short
+              summary — never file contents, diffs or the text of your prompts.
             </p>
           </>
         ) : (
           <>
             <div className="flex items-center gap-2 text-base">
-              <Badge variant={link.paused ? "outline" : "positive"}>{link.paused ? "Pausado" : "Conectado"}</Badge>
+              <Badge variant={link.paused ? "outline" : "positive"}>{link.paused ? "Paused" : "Connected"}</Badge>
               <span className="text-muted-foreground font-mono text-sm">{link.token_prefix}…</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label>Nivel de privacidad</Label>
+              <Label>Privacy level</Label>
               <Select
                 value={link.privacy_level}
                 onValueChange={(privacy_level) => privacy_level && update.mutate({ privacy_level })}
@@ -418,14 +418,14 @@ function ClaudeCodeCard({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="metadata">Metadata</SelectItem>
-                  <SelectItem value="summaries">Metadata + resúmenes</SelectItem>
-                  <SelectItem value="off">Desactivado</SelectItem>
+                  <SelectItem value="summaries">Metadata + summaries</SelectItem>
+                  <SelectItem value="off">Off</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <p className="text-muted-foreground text-sm">
-              Último evento: {link.last_event_at ? new Date(link.last_event_at).toLocaleString() : "todavía ninguno"}
+              Last event: {link.last_event_at ? new Date(link.last_event_at).toLocaleString("en-US") : "none yet"}
             </p>
 
             <div className="flex gap-2">
@@ -435,24 +435,24 @@ function ClaudeCodeCard({
                 onClick={() => update.mutate({ paused: !link.paused })}
                 disabled={update.isPending}
               >
-                {link.paused ? "Reanudar" : "Pausar"}
+                {link.paused ? "Resume" : "Pause"}
               </Button>
               {!confirmingPurge ? (
                 <Button variant="ghost" size="sm" onClick={() => setConfirmingPurge(true)}>
-                  <Trash2Icon className="size-3.5" /> Desconectar
+                  <Trash2Icon className="size-3.5" /> Disconnect
                 </Button>
               ) : (
                 <div className="flex flex-col gap-1.5 rounded-md border p-2">
-                  <p className="text-sm">¿Solo desconectar, o también borrar tus eventos ya enviados?</p>
+                  <p className="text-sm">Only disconnect, or also delete the events you already sent?</p>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => disconnect.mutate(false)} disabled={disconnect.isPending}>
-                      Solo desconectar
+                      Only disconnect
                     </Button>
                     <Button variant="destructive" size="sm" onClick={() => disconnect.mutate(true)} disabled={disconnect.isPending}>
-                      Desconectar y borrar mis eventos
+                      Disconnect and delete my events
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => setConfirmingPurge(false)}>
-                      Cancelar
+                      Cancel
                     </Button>
                   </div>
                 </div>
@@ -465,9 +465,9 @@ function ClaudeCodeCard({
   );
 }
 
-// RF-AI-021: clave personal de Gemini, de la cuenta (no del equipo). Se usa
-// en los análisis y sugerencias de atribución que esa persona dispara, y —
-// si es owner — también en lo automático del equipo (06-analisis-ia.md#proveedor).
+// RF-AI-021: personal Gemini key, per account (not per team). It is used for
+// the analyses and attribution suggestions that person triggers and, if they
+// are an owner, also for the team's automatic runs (06-analisis-ia.md#proveedor).
 function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
   const update = useUpdateMe();
   const [value, setValue] = useState("");
@@ -478,18 +478,18 @@ function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
     try {
       await update.mutateAsync({ gemini_api_key: value.trim() });
       setValue("");
-      toast.success("Clave de Gemini guardada");
+      toast.success("Gemini key saved");
     } catch {
-      toast.error("No se ha podido guardar la clave");
+      toast.error("Could not save the key");
     }
   }
 
   async function handleRemove() {
     try {
       await update.mutateAsync({ gemini_api_key: "" });
-      toast.success("Clave de Gemini eliminada");
+      toast.success("Gemini key removed");
     } catch {
-      toast.error("No se ha podido eliminar la clave");
+      toast.error("Could not remove the key");
     }
   }
 
@@ -497,32 +497,32 @@ function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <SparklesIcon className="size-4" /> IA (Gemini) — clave personal
+          <SparklesIcon className="size-4" /> AI (Gemini) — personal key
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center gap-2 text-base">
           <Badge variant={me.gemini_api_key_configured ? "positive" : "outline"}>
-            {me.gemini_api_key_configured ? "Configurada" : "No configurada"}
+            {me.gemini_api_key_configured ? "Set up" : "Not set up"}
           </Badge>
         </div>
         <p className="text-muted-foreground text-sm">
-          Se usa para tus análisis bajo demanda (“Analizar ahora”, MCP o API){isOwner ? " y, como eres owner, también para el análisis programado y la atribución sugerida de este equipo" : ""}.
-          Nunca se vuelve a mostrar en claro tras guardarla.
+          Used for your on-demand analyses (“Analyze now”, MCP or API){isOwner ? " and, since you are an owner, also for this team's scheduled analysis and suggested attribution" : ""}.
+          It is never shown in plain text again after you save it.
         </p>
         <form onSubmit={handleSave} className="flex gap-2">
           <Input
             type="password"
-            placeholder={me.gemini_api_key_configured ? "Sustituir por una clave nueva" : "Pega tu clave de Gemini (AIza…)"}
+            placeholder={me.gemini_api_key_configured ? "Replace with a new key" : "Paste your Gemini key (AIza…)"}
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />
           <Button type="submit" disabled={update.isPending || !value.trim()}>
-            Guardar
+            Save
           </Button>
           {me.gemini_api_key_configured && (
             <Button type="button" variant="outline" onClick={handleRemove} disabled={update.isPending}>
-              Quitar
+              Remove
             </Button>
           )}
         </form>
@@ -536,36 +536,37 @@ function RevealedToken({ label, token, apiUrl, onDismiss }: { label: string; tok
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-f1-border-warning-bold bg-f1-background-warning p-3 text-base">
-      <p className="font-medium">{label}: apúntalo ahora, no se vuelve a mostrar.</p>
+      <p className="font-medium">{label}: copy it now, it will not be shown again.</p>
       <div className="flex items-center gap-2">
         <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{token}</code>
-        <Button variant="outline" size="sm" onClick={() => copyToClipboard(token, "Token copiado")}>
-          <CopyIcon className="size-3.5" /> Copiar
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(token, "Token copied")}>
+          <CopyIcon className="size-3.5" /> Copy
         </Button>
       </div>
-      <p className="text-muted-foreground text-sm">Para registrar el MCP en Claude Code:</p>
+      <p className="text-muted-foreground text-sm">To add the MCP server to Claude Code:</p>
       <div className="flex items-center gap-2">
         <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{mcpCommand}</code>
-        <Button variant="outline" size="sm" onClick={() => copyToClipboard(mcpCommand, "Comando copiado")}>
-          <CopyIcon className="size-3.5" /> Copiar
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(mcpCommand, "Command copied")}>
+          <CopyIcon className="size-3.5" /> Copy
         </Button>
       </div>
       <Button variant="ghost" size="sm" className="self-start" onClick={onDismiss}>
-        Ya lo he guardado
+        I have saved it
       </Button>
     </div>
   );
 }
 
-// RF-API-001/RF-MCP-010/RF-API-020: PATs. Cualquier miembro crea los suyos;
-// un owner ve además los del resto del equipo (ya viene así del backend,
-// sin parámetro que pedirlo) y aquí se etiqueta de quién es cada uno.
+// RF-API-001/RF-MCP-010/RF-API-020: PATs. Any member creates their own;
+// an owner also sees the rest of the team's (the backend already returns
+// them, with no parameter to ask for it) and here each one is labeled with
+// whose it is.
 function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: Member[]; isOwner: boolean }) {
   const { data: tokens } = useTokens(teamId);
   const create = useCreateToken(teamId);
   const revoke = useRevokeToken(teamId);
   const [name, setName] = useState("");
-  const [preset, setPreset] = useState("observar");
+  const [preset, setPreset] = useState("observe");
   const [error, setError] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<string | null>(null);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -579,14 +580,14 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
       setRevealed(result.token);
       setName("");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido crear el token");
+      setError(err instanceof ApiError ? err.message : "Could not create the token");
     }
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Mis tokens de acceso (API y MCP)</CardTitle>
+        <CardTitle className="text-base">My access tokens (API and MCP)</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {revealed && <RevealedToken label="Token" token={revealed} apiUrl={apiUrl} onDismiss={() => setRevealed(null)} />}
@@ -601,21 +602,21 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
                   {isOwner && owner && <span className="text-muted-foreground"> · {owner.display_name}</span>}
                 </span>
                 <span className="text-muted-foreground font-mono text-sm">{token.token_prefix}…</span>
-                <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(token.id)}>
+                <Button variant="ghost" size="icon" aria-label="Revoke" onClick={() => revoke.mutate(token.id)}>
                   <Trash2Icon className="size-4" />
                 </Button>
               </div>
               <p className="text-muted-foreground text-sm">
-                {token.scopes.join(", ")} · caduca {token.expires_at ? new Date(token.expires_at).toLocaleDateString() : "—"} ·
-                último uso: {token.last_used_at ? new Date(token.last_used_at).toLocaleString() : "todavía ninguno"}
+                {token.scopes.join(", ")} · expires {token.expires_at ? new Date(token.expires_at).toLocaleDateString("en-US") : "—"} ·
+                last used: {token.last_used_at ? new Date(token.last_used_at).toLocaleString("en-US") : "never"}
               </p>
             </div>
           );
         })}
-        {tokens?.length === 0 && <p className="text-muted-foreground text-base">Todavía no tienes tokens.</p>}
+        {tokens?.length === 0 && <p className="text-muted-foreground text-base">You have no tokens yet.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2 sm:flex-row">
-          <Input placeholder="Nombre (p. ej. Claude Code portátil)" value={name} onChange={(e) => setName(e.target.value)} className="flex-1" />
+          <Input placeholder="Name (e.g. Claude Code laptop)" value={name} onChange={(e) => setName(e.target.value)} className="flex-1" />
           <Select value={preset} onValueChange={(v) => v && setPreset(v)}>
             <SelectTrigger className="sm:w-64">
               <SelectValue />
@@ -629,14 +630,14 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
             </SelectContent>
           </Select>
           <Button type="submit" disabled={create.isPending}>
-            Crear token
+            Create token
           </Button>
         </form>
         {error && <p className="text-destructive text-base">{error}</p>}
         <p className="text-muted-foreground text-sm">
-          No lo subas a un repositorio ni lo compartas: da acceso a la API con los permisos elegidos.{" "}
+          Do not commit it to a repository or share it: it gives access to the API with the chosen permissions.{" "}
           <a href={`${apiUrl}/api/v1/openapi.json`} target="_blank" rel="noreferrer" className="text-primary underline">
-            Documentación OpenAPI
+            OpenAPI docs
           </a>
         </p>
 
@@ -644,16 +645,16 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
           <p className="text-base font-medium">claude.ai (custom connector)</p>
           <div className="flex items-center gap-2">
             <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{apiUrl}/api/v1/mcp</code>
-            <Button variant="outline" size="sm" onClick={() => copyToClipboard(`${apiUrl}/api/v1/mcp`, "URL copiada")}>
-              <CopyIcon className="size-3.5" /> Copiar
+            <Button variant="outline" size="sm" onClick={() => copyToClipboard(`${apiUrl}/api/v1/mcp`, "URL copied")}>
+              <CopyIcon className="size-3.5" /> Copy
             </Button>
           </div>
           <p className="text-muted-foreground text-sm">
-            En claude.ai: Ajustes → Connectors → Añadir custom connector, pega esta URL e inicia sesión cuando te lo pida.
-            No hace falta copiar ningún token: claude.ai pedirá permiso con la pantalla de consentimiento. Las conexiones
-            autorizadas aparecen en{" "}
-            <a href="#apps-conectadas" className="text-primary underline">
-              Apps conectadas
+            In claude.ai: Settings → Connectors → Add custom connector, paste this URL and log in when asked. You do
+            not need to copy any token: claude.ai asks for permission with the consent screen. Authorized connections
+            show up in{" "}
+            <a href="#connected-apps" className="text-primary underline">
+              Connected apps
             </a>
             .
           </p>
@@ -663,7 +664,7 @@ function ApiTokensCard({ teamId, members, isOwner }: { teamId: string; members: 
   );
 }
 
-// RF-API-011/RF-API-023: solo owners. El actor de lo que hace es la integración.
+// RF-API-011/RF-API-023: owners only. The integration is the actor of what it does.
 function IntegrationsCard({ teamId }: { teamId: string }) {
   const { data: integrations } = useIntegrations(teamId);
   const create = useCreateIntegration(teamId);
@@ -688,7 +689,7 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
       setRevealed(result.token);
       setName("");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido crear la integración");
+      setError(err instanceof ApiError ? err.message : "Could not create the integration");
     }
   }
 
@@ -701,11 +702,11 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <PlugIcon className="size-4" /> Tokens de integración
+          <PlugIcon className="size-4" /> Integration tokens
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {revealed && <RevealedToken label="Token de integración" token={revealed} apiUrl={apiUrl} onDismiss={() => setRevealed(null)} />}
+        {revealed && <RevealedToken label="Integration token" token={revealed} apiUrl={apiUrl} onDismiss={() => setRevealed(null)} />}
 
         {integrations?.map((integration) => (
           <div key={integration.id} className="flex items-center gap-3 rounded-md border p-2 text-base">
@@ -713,17 +714,17 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
             <span className="text-muted-foreground font-mono text-sm">{integration.token_prefix}…</span>
             <span className="text-muted-foreground text-sm">{integration.scopes.join(", ")}</span>
             <Button variant="outline" size="sm" onClick={() => handleRotate(integration.id)}>
-              Rotar
+              Rotate
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(integration.id)}>
+            <Button variant="ghost" size="icon" aria-label="Revoke" onClick={() => revoke.mutate(integration.id)}>
               <Trash2Icon className="size-4" />
             </Button>
           </div>
         ))}
-        {integrations?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay integraciones.</p>}
+        {integrations?.length === 0 && <p className="text-muted-foreground text-base">No integrations yet.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2">
-          <Input placeholder="Nombre (p. ej. Bot de Slack)" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input placeholder="Name (e.g. Slack bot)" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="flex flex-wrap gap-2">
             {INTEGRATION_SCOPES.map((scope) => (
               <label key={scope} className="flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm has-data-[checked]:border-primary">
@@ -733,7 +734,7 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
             ))}
           </div>
           <Button type="submit" disabled={create.isPending} className="self-start">
-            Crear integración
+            Create integration
           </Button>
         </form>
         {error && <p className="text-destructive text-base">{error}</p>}
@@ -742,7 +743,7 @@ function IntegrationsCard({ teamId }: { teamId: string }) {
   );
 }
 
-// RF-API-009: webhooks salientes, solo owners.
+// RF-API-009: outgoing webhooks, owners only.
 function WebhooksCard({ teamId }: { teamId: string }) {
   const { data: webhooks } = useWebhooks(teamId);
   const create = useCreateWebhook(teamId);
@@ -770,7 +771,7 @@ function WebhooksCard({ teamId }: { teamId: string }) {
       setUrl("");
       setEvents([]);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido crear el webhook");
+      setError(err instanceof ApiError ? err.message : "Could not create the webhook");
     }
   }
 
@@ -783,21 +784,21 @@ function WebhooksCard({ teamId }: { teamId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <WebhookIcon className="size-4" /> Webhooks salientes
+          <WebhookIcon className="size-4" /> Outgoing webhooks
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {revealedSecret && (
           <div className="flex flex-col gap-2 rounded-md border border-f1-border-warning-bold bg-f1-background-warning p-3 text-base">
-            <p className="font-medium">Secreto de firma: apúntalo ahora, no se vuelve a mostrar.</p>
+            <p className="font-medium">Signing secret: copy it now, it will not be shown again.</p>
             <div className="flex items-center gap-2">
               <code className="bg-muted flex-1 truncate rounded p-1.5 font-mono text-sm">{revealedSecret}</code>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(revealedSecret, "Secreto copiado")}>
-                <CopyIcon className="size-3.5" /> Copiar
+              <Button variant="outline" size="sm" onClick={() => copyToClipboard(revealedSecret, "Secret copied")}>
+                <CopyIcon className="size-3.5" /> Copy
               </Button>
             </div>
             <Button variant="ghost" size="sm" className="self-start" onClick={() => setRevealedSecret(null)}>
-              Ya lo he guardado
+              I have saved it
             </Button>
           </div>
         )}
@@ -805,39 +806,39 @@ function WebhooksCard({ teamId }: { teamId: string }) {
         {webhooks?.map((webhook) => (
           <div key={webhook.id} className="flex flex-col gap-2 rounded-md border p-2 text-base">
             <div className="flex items-center gap-2">
-              <Badge variant={webhook.active ? "positive" : "outline"}>{webhook.active ? "Activo" : "Pausado"}</Badge>
+              <Badge variant={webhook.active ? "positive" : "outline"}>{webhook.active ? "Active" : "Paused"}</Badge>
               <span className="flex-1 truncate">{webhook.url}</span>
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={webhook.active ? "Pausar" : "Reanudar"}
+                aria-label={webhook.active ? "Pause" : "Resume"}
                 onClick={() => update.mutate({ id: webhook.id, active: !webhook.active })}
               >
                 <RefreshCwIcon className="size-4" />
               </Button>
-              <Button variant="ghost" size="icon" aria-label="Eliminar" onClick={() => remove.mutate(webhook.id)}>
+              <Button variant="ghost" size="icon" aria-label="Delete" onClick={() => remove.mutate(webhook.id)}>
                 <Trash2Icon className="size-4" />
               </Button>
             </div>
             <p className="text-muted-foreground text-sm">{webhook.events.join(", ")}</p>
             {webhook.consecutive_failures > 0 && (
-              <p className="text-destructive text-sm">{webhook.consecutive_failures} fallos seguidos</p>
+              <p className="text-destructive text-sm">{webhook.consecutive_failures} failures in a row</p>
             )}
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => test.mutate(webhook.id)} disabled={test.isPending}>
-                Probar
+                Test
               </Button>
               <Button variant="outline" size="sm" onClick={() => handleRotate(webhook.id)}>
-                Rotar secreto
+                Rotate secret
               </Button>
               <Button variant="outline" size="sm" onClick={() => setOpenDeliveries(openDeliveries === webhook.id ? null : webhook.id)}>
-                Ver entregas
+                View deliveries
               </Button>
             </div>
             {openDeliveries === webhook.id && <WebhookDeliveries teamId={teamId} webhookId={webhook.id} />}
           </div>
         ))}
-        {webhooks?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay webhooks.</p>}
+        {webhooks?.length === 0 && <p className="text-muted-foreground text-base">No webhooks yet.</p>}
 
         <form onSubmit={handleCreate} className="flex flex-col gap-2">
           <Input placeholder="https://…" value={url} onChange={(e) => setUrl(e.target.value)} />
@@ -850,7 +851,7 @@ function WebhooksCard({ teamId }: { teamId: string }) {
             ))}
           </div>
           <Button type="submit" disabled={create.isPending} className="self-start">
-            Crear webhook
+            Create webhook
           </Button>
         </form>
         {error && <p className="text-destructive text-base">{error}</p>}
@@ -871,18 +872,18 @@ function WebhookDeliveries({ teamId, webhookId }: { teamId: string; webhookId: s
           <span className="flex-1">{delivery.event}</span>
           <span className="text-muted-foreground">{delivery.response_status ?? "—"}</span>
           <Button variant="ghost" size="sm" onClick={() => redeliver.mutate({ webhookId, deliveryId: delivery.id })}>
-            Reenviar
+            Redeliver
           </Button>
         </div>
       ))}
-      {deliveries?.length === 0 && <p className="text-muted-foreground text-sm">Todavía no hay entregas.</p>}
+      {deliveries?.length === 0 && <p className="text-muted-foreground text-sm">No deliveries yet.</p>}
     </div>
   );
 }
 
-// RF-API-021: "Apps conectadas" no es por equipo, es de la cuenta. Se
-// muestra aquí igualmente por simplicidad, ya que hoy no hay una pantalla
-// de ajustes de cuenta aparte de los ajustes de equipo.
+// RF-API-021: "Connected apps" is not per team, it belongs to the account. It
+// is shown here anyway for simplicity, since there is no account settings
+// screen apart from the team settings yet.
 function ConnectedAppsCard() {
   const { data: connections } = useOAuthConnections();
   const revoke = useRevokeOAuthConnection();
@@ -890,29 +891,29 @@ function ConnectedAppsCard() {
   if (connections?.length === 0) return null;
 
   return (
-    <Card id="apps-conectadas">
+    <Card id="connected-apps">
       <CardHeader>
-        <CardTitle className="text-base">Apps conectadas</CardTitle>
+        <CardTitle className="text-base">Connected apps</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {connections?.map((connection) => (
           <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-base">
             <div className="flex items-center gap-3">
               <span className="flex-1">
-                {connection.client.name ?? "App desconocida"}
+                {connection.client.name ?? "Unknown app"}
                 {!connection.client.first_party && (
                   <Badge variant="warning" className="ml-2">
-                    No verificada
+                    Unverified
                   </Badge>
                 )}
               </span>
-              <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(connection.id)}>
+              <Button variant="ghost" size="icon" aria-label="Revoke" onClick={() => revoke.mutate(connection.id)}>
                 <Trash2Icon className="size-4" />
               </Button>
             </div>
             <p className="text-muted-foreground text-sm">
-              {connection.scopes.join(", ")} · autorizada el {new Date(connection.created_at).toLocaleDateString()} · último
-              uso: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString() : "todavía ninguno"}
+              {connection.scopes.join(", ")} · authorized on {new Date(connection.created_at).toLocaleDateString("en-US")} · last
+              used: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString("en-US") : "never"}
             </p>
           </div>
         ))}
@@ -921,9 +922,8 @@ function ConnectedAppsCard() {
   );
 }
 
-// RF-API-021: "un owner ve las de todo el equipo y puede revocarlas" — a
-// diferencia de ConnectedAppsCard (mis apps), esta muestra las de
-// cualquier miembro del equipo.
+// RF-API-021: "an owner sees the whole team's and can revoke them" — unlike
+// ConnectedAppsCard (my apps), this one shows those of any team member.
 function TeamConnectedAppsCard({ teamId }: { teamId: string }) {
   const { data: connections } = useTeamOAuthConnections(teamId);
   const revoke = useRevokeTeamOAuthConnection(teamId);
@@ -933,28 +933,28 @@ function TeamConnectedAppsCard({ teamId }: { teamId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Apps conectadas (equipo)</CardTitle>
+        <CardTitle className="text-base">Connected apps (team)</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {connections?.map((connection) => (
           <div key={connection.id} className="flex flex-col gap-1 rounded-md border p-2 text-base">
             <div className="flex items-center gap-3">
               <span className="flex-1">
-                {connection.client.name ?? "App desconocida"}
+                {connection.client.name ?? "Unknown app"}
                 {!connection.client.first_party && (
                   <Badge variant="warning" className="ml-2">
-                    No verificada
+                    Unverified
                   </Badge>
                 )}
               </span>
               <span className="text-muted-foreground text-sm">{connection.user.display_name ?? "—"}</span>
-              <Button variant="ghost" size="icon" aria-label="Revocar" onClick={() => revoke.mutate(connection.id)}>
+              <Button variant="ghost" size="icon" aria-label="Revoke" onClick={() => revoke.mutate(connection.id)}>
                 <Trash2Icon className="size-4" />
               </Button>
             </div>
             <p className="text-muted-foreground text-sm">
-              {connection.scopes.join(", ")} · autorizada el {new Date(connection.created_at).toLocaleDateString()} · último
-              uso: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString() : "todavía ninguno"}
+              {connection.scopes.join(", ")} · authorized on {new Date(connection.created_at).toLocaleDateString("en-US")} · last
+              used: {connection.last_used_at ? new Date(connection.last_used_at).toLocaleString("en-US") : "never"}
             </p>
           </div>
         ))}
@@ -963,8 +963,8 @@ function TeamConnectedAppsCard({ teamId }: { teamId: string }) {
   );
 }
 
-// RF-AUTH-007 / RF-SEC-004: borrar la cuenta. Es irreversible, así que se
-// confirma escribiendo el email de la cuenta, no con un simple sí/no.
+// RF-AUTH-007 / RF-SEC-004: delete the account. It cannot be undone, so it is
+// confirmed by typing the account email, not with a simple yes/no.
 function DeleteAccountCard({ email }: { email: string }) {
   const router = useRouter();
   const deleteMe = useDeleteMe();
@@ -988,10 +988,10 @@ function DeleteAccountCard({ email }: { email: string }) {
     setError(null);
     try {
       await deleteMe.mutateAsync();
-      toast.success("Tu cuenta se ha borrado");
+      toast.success("Your account has been deleted");
       router.replace("/login");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido borrar la cuenta");
+      setError(err instanceof ApiError ? err.message : "Could not delete the account");
     }
   }
 
@@ -999,21 +999,21 @@ function DeleteAccountCard({ email }: { email: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <TriangleAlertIcon className="size-4" /> Borrar cuenta
+          <TriangleAlertIcon className="size-4" /> Delete account
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <p className="text-muted-foreground text-sm">
-          Borra tu cuenta y tus datos personales en todos tus equipos. Si eres el único owner de un equipo con más
-          miembros, antes tienes que pasarle la propiedad a otro. Más detalles en la{" "}
+          Deletes your account and your personal data in all your teams. If you are the only owner of a team with
+          more members, you first have to hand ownership to someone else. More details in the{" "}
           <Link href="/privacy" className="text-foreground underline">
-            política de privacidad
+            privacy policy
           </Link>
           .
         </p>
         <div>
           <Button variant="destructive" onClick={() => setOpen(true)}>
-            Borrar cuenta
+            Delete account
           </Button>
         </div>
       </CardContent>
@@ -1022,16 +1022,16 @@ function DeleteAccountCard({ email }: { email: string }) {
         <AlertDialogContent>
           <form onSubmit={handleDelete} className="flex flex-col gap-4">
             <AlertDialogHeader>
-              <AlertDialogTitle>Borrar tu cuenta</AlertDialogTitle>
+              <AlertDialogTitle>Delete your account</AlertDialogTitle>
               <AlertDialogDescription>
-                No se puede deshacer. Se borran tu perfil, tus sesiones, tus tokens y apps conectadas, tu clave de Gemini
-                y tu actividad de Claude Code. En la actividad de GitHub pasarás a aparecer como «Usuario eliminado». Los
-                equipos en los que eres el único miembro se eliminan.
+                This cannot be undone. It deletes your profile, sessions, tokens and connected apps, your Gemini key
+                and your Claude Code activity. In GitHub activity you will show up as “Deleted user”. Teams where you
+                are the only member are deleted.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="delete-account-confirmation">
-                Escribe <span className="text-foreground font-semibold">{email}</span> para confirmar
+                Type <span className="text-foreground font-semibold">{email}</span> to confirm
               </Label>
               <Input
                 id="delete-account-confirmation"
@@ -1048,9 +1048,9 @@ function DeleteAccountCard({ email }: { email: string }) {
               </p>
             )}
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleteMe.isPending}>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel disabled={deleteMe.isPending}>Cancel</AlertDialogCancel>
               <AlertDialogAction type="submit" variant="destructive" disabled={!confirmed} loading={deleteMe.isPending}>
-                Borrar cuenta
+                Delete account
               </AlertDialogAction>
             </AlertDialogFooter>
           </form>

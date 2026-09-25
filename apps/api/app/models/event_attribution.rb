@@ -1,8 +1,8 @@
-# Se llama EventAttribution (no Attribution) porque el namespace Attribution
-# lo usan los jobs y servicios de atribución (Attribution::ConventionJob…,
-# 01-arquitectura.md), y una class y un module no pueden compartir nombre.
-# Sigue siendo el campo `attribution` de ActivityEvent en el modelo de datos
-# y en el JSON de la API (02-modelo-datos.md#activityevent).
+# It is called EventAttribution (not Attribution) because the Attribution
+# namespace is used by the attribution jobs and services
+# (Attribution::ConventionJob…, 01-arquitectura.md), and a class and a module
+# cannot share a name. It is still the `attribution` field of ActivityEvent in
+# the data model and in the API JSON (02-modelo-datos.md#activityevent).
 class EventAttribution
   include Mongoid::Document
 

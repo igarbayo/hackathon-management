@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: GitHub, Inc.
 // SPDX-License-Identifier: LicenseRef-ThirdPartyLogos
 //
-// Logos de terceros, sin modificar, solo para los botones de "Continuar con…"
-// (RF-AUTH-010). La "G" de Google sigue las Sign in with Google Branding
-// Guidelines (colores oficiales, sin recolorear) y el GitHub mark es el de
-// Octicons (`mark-github`), que hereda el color del texto como piden las
-// GitHub Logo Guidelines. Ver LICENSES/LicenseRef-ThirdPartyLogos.txt.
+// Third-party logos, unmodified, only for the "Continue with…" buttons
+// (RF-AUTH-010). The Google "G" follows the Sign in with Google Branding
+// Guidelines (official colors, not recolored) and the GitHub mark is the one
+// from Octicons (`mark-github`), which takes the text color as the GitHub Logo
+// Guidelines ask. See LICENSES/LicenseRef-ThirdPartyLogos.txt.
 
 export function GoogleLogo({ className }: { className?: string }) {
   return (

@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Servidor de autorización OAuth 2.1 (12-acceso-programatico.md#oauth-21).
-  # Fuera de /api/v1: son rutas del propio servidor de autorización, no de
-  # la API de dominio (RFC 8414, RFC 9728, RFC 7591, RFC 7009).
+  # OAuth 2.1 authorization server (12-acceso-programatico.md#oauth-21). Outside
+  # /api/v1: they are routes of the authorization server itself, not of the
+  # domain API (RFC 8414, RFC 9728, RFC 7591, RFC 7009).
   get ".well-known/oauth-authorization-server", to: "oauth/discovery#authorization_server"
   get ".well-known/oauth-protected-resource/api/v1/mcp", to: "oauth/discovery#protected_resource_mcp"
   get ".well-known/oauth-protected-resource/api/v1", to: "oauth/discovery#protected_resource_api"

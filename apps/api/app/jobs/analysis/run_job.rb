@@ -1,13 +1,13 @@
-# Ejecuta un análisis de cobertura ya creado en estado queued
-# (06-analisis-ia.md#análisis-de-cobertura, Analysis::Enqueue). Como mucho
-# uno en curso por equipo (Analysis::Lock). Si el contexto no ha cambiado
-# desde el último análisis completado, no llama a la IA (status: skipped).
+# Runs a coverage analysis already created in the queued status
+# (06-analisis-ia.md#análisis-de-cobertura, Analysis::Enqueue). At most one
+# running per team (Analysis::Lock). If the context has not changed since the
+# last completed analysis, it does not call the AI (status: skipped).
 module Analysis
   class RunJob
     include Sidekiq::Job
     sidekiq_options queue: "ai", retry: 3
 
-    PROMPT_VERSION = "coverage_v1"
+    PROMPT_VERSION = "coverage_v2"
 
     def perform(analysis_id)
       analysis = AiAnalysis.where(id: analysis_id).first
@@ -55,8 +55,8 @@ module Analysis
       generate(analysis, team, context, api_key)
     end
 
-    # RF-AI-021: lo manual usa la clave de quien lo pidió; lo programado
-    # (sin requested_by_id) usa la del owner del equipo.
+    # RF-AI-021: a manual analysis uses the key of whoever asked for it; a
+    # scheduled one (no requested_by_id) uses the team owner's.
     def resolve_api_key(analysis, team)
       user = analysis.requested_by_id ? User.where(id: analysis.requested_by_id).first : Ai::KeyOwner.for(team)
       user&.gemini_api_key
@@ -93,7 +93,7 @@ module Analysis
 
     def validate!(data, schema)
       schemer = JSONSchemer.schema(schema)
-      raise Ai::Provider::InvalidOutputError, "la salida no cumple el schema" unless schemer.valid?(data)
+      raise Ai::Provider::InvalidOutputError, "the output does not match the schema" unless schemer.valid?(data)
 
       data
     end

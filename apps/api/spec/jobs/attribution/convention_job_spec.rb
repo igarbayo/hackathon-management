@@ -3,21 +3,21 @@ require "rails_helper"
 RSpec.describe Attribution::ConventionJob do
   let(:team) { create(:team) }
 
-  it "se encola automáticamente al crear un evento de un kind atribuible" do
-    create(:activity_event, :github_commit, team: team, title: "algo")
+  it "is queued automatically when an event of an attributable kind is created" do
+    create(:activity_event, :github_commit, team: team, title: "something")
 
     expect(described_class.jobs.size).to eq(1)
   end
 
-  it "no se encola para kinds no atribuibles (p. ej. system)" do
+  it "is not queued for non-attributable kinds (e.g. system)" do
     create(:activity_event, team: team, source: "system", kind: "member_joined")
 
     expect(described_class.jobs).to be_empty
   end
 
-  it "capa 1: atribuye por convención al ejecutarse" do
+  it "layer 1: attributes by convention when it runs" do
     feature = create(:feature, team: team)
-    event = create(:activity_event, :github_commit, team: team, title: "Arregla F-#{feature.number}")
+    event = create(:activity_event, :github_commit, team: team, title: "Fix F-#{feature.number}")
 
     described_class.drain
 
@@ -27,9 +27,9 @@ RSpec.describe Attribution::ConventionJob do
     expect(event.attribution.status).to eq("confirmed")
   end
 
-  it "capa 2: si no hay convención, prueba la rama conocida" do
-    feature = create(:feature, team: team, branch_names: [ "mi-rama" ])
-    event = create(:activity_event, :github_commit, team: team, title: "sin clave", branch: "mi-rama")
+  it "layer 2: if there is no convention, tries the known branch" do
+    feature = create(:feature, team: team, branch_names: [ "my-branch" ])
+    event = create(:activity_event, :github_commit, team: team, title: "no key", branch: "my-branch")
 
     described_class.drain
 
@@ -38,8 +38,8 @@ RSpec.describe Attribution::ConventionJob do
     expect(event.attribution.method).to eq("branch")
   end
 
-  it "sin convención ni rama conocida, el evento queda sin atribución" do
-    create(:activity_event, :github_commit, team: team, title: "sin pistas")
+  it "with no convention or known branch, the event stays unattributed" do
+    create(:activity_event, :github_commit, team: team, title: "no clues")
 
     described_class.drain
 
@@ -47,7 +47,7 @@ RSpec.describe Attribution::ConventionJob do
     expect(event.attribution).to be_nil
   end
 
-  it "es idempotente: no toca un evento que ya tiene atribución" do
+  it "is idempotent: does not touch an event that already has an attribution" do
     other_feature = create(:feature, team: team)
     feature = create(:feature, team: team)
     event = create(:activity_event, :github_commit, team: team, title: "F-#{feature.number}")
@@ -59,8 +59,8 @@ RSpec.describe Attribution::ConventionJob do
     expect(event.reload.attribution.feature_id).to eq(other_feature.id)
   end
 
-  it "guarda mentioned_feature_keys aunque no se pueda atribuir" do
-    create(:activity_event, :github_commit, team: team, title: "menciona F-777")
+  it "stores mentioned_feature_keys even if it cannot attribute" do
+    create(:activity_event, :github_commit, team: team, title: "mentions F-777")
 
     described_class.drain
 

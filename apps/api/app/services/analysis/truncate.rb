@@ -1,6 +1,6 @@
-# Si el contexto supera ~30.000 caracteres, se recorta en este orden
-# (06-analisis-ia.md#construcción-del-contexto): títulos de actividad, rutas
-# de ficheros, descripciones de features.
+# If the context goes over ~30,000 characters, it is cut in this order
+# (06-analisis-ia.md#construcción-del-contexto): activity titles, file paths,
+# feature descriptions.
 module Analysis
   class Truncate
     MAX_CHARS = 30_000

@@ -60,30 +60,30 @@ class AccessToken
   private
 
   def scopes_never_include_ingest
-    errors.add(:scopes, "no puede incluir el scope ingest") if scopes&.include?("ingest")
+    errors.add(:scopes, "cannot include the ingest scope") if scopes&.include?("ingest")
   end
 
-  # Un token de integración actúa como el equipo, no como una persona: no
-  # puede informar de progreso, que es de alguien (12-acceso-programatico.md#tokens-de-integración-de-equipo).
+  # An integration token acts as the team, not as a person: it cannot report progress, which belongs to
+  # someone (12-acceso-programatico.md#tokens-de-integración-de-equipo).
   def integration_scopes_restricted
-    errors.add(:scopes, "no puede incluir progress:write en un token de integración") if scopes&.include?("progress:write")
+    errors.add(:scopes, "cannot include progress:write in an integration token") if scopes&.include?("progress:write")
   end
 
   def expires_within_max_lifetime
     return if expires_at.blank?
 
-    errors.add(:expires_at, "no puede superar los 90 días desde la creación") if expires_at > MAX_LIFETIME.from_now + 1.minute
+    errors.add(:expires_at, "cannot be more than 90 days after creation") if expires_at > MAX_LIFETIME.from_now + 1.minute
   end
 
   def pat_limit_per_membership
     return if membership_id.blank?
 
     active_count = self.class.active.where(kind: "pat", membership_id: membership_id).count
-    errors.add(:base, "ya hay #{MAX_ACTIVE_PATS_PER_MEMBERSHIP} tokens de acceso personal activos") if active_count >= MAX_ACTIVE_PATS_PER_MEMBERSHIP
+    errors.add(:base, "there are already #{MAX_ACTIVE_PATS_PER_MEMBERSHIP} active personal access tokens") if active_count >= MAX_ACTIVE_PATS_PER_MEMBERSHIP
   end
 
   def integration_limit_per_team
     active_count = self.class.active.where(kind: "integration", team_id: team_id).count
-    errors.add(:base, "ya hay #{MAX_ACTIVE_INTEGRATION_TOKENS_PER_TEAM} tokens de integración activos en el equipo") if active_count >= MAX_ACTIVE_INTEGRATION_TOKENS_PER_TEAM
+    errors.add(:base, "there are already #{MAX_ACTIVE_INTEGRATION_TOKENS_PER_TEAM} active integration tokens in the team") if active_count >= MAX_ACTIVE_INTEGRATION_TOKENS_PER_TEAM
   end
 end

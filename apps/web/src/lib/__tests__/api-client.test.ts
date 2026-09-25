@@ -13,7 +13,7 @@ describe("apiClient", () => {
     vi.restoreAllMocks();
   });
 
-  it("no pide csrf token para peticiones GET", async () => {
+  it("does not ask for a csrf token on GET requests", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ ok: true }));
 
     await apiClient.get("/api/v1/me");
@@ -23,7 +23,7 @@ describe("apiClient", () => {
     expect((init?.headers as Record<string, string>)["X-CSRF-Token"]).toBeUndefined();
   });
 
-  it("obtiene el csrf token una vez y lo reutiliza en peticiones que mutan", async () => {
+  it("gets the csrf token once and reuses it on requests that mutate", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(jsonResponse({ csrf_token: "token-abc" }))
@@ -39,17 +39,17 @@ describe("apiClient", () => {
     expect(thirdCallHeaders["X-CSRF-Token"]).toBe("token-abc");
   });
 
-  it("lanza ApiError con el código y el mensaje del backend", async () => {
+  it("throws ApiError with the backend code and message", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      jsonResponse({ error: { code: "validation_failed", message: "Título obligatorio" } }, 422),
+      jsonResponse({ error: { code: "validation_failed", message: "Title is required" } }, 422),
     );
 
     await expect(apiClient.get("/api/v1/teams/x")).rejects.toMatchObject(
-      new ApiError(422, "Título obligatorio", "validation_failed"),
+      new ApiError(422, "Title is required", "validation_failed"),
     );
   });
 
-  it("devuelve undefined en respuestas 204" , async () => {
+  it("returns undefined on 204 responses", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 204 }));
 
     await expect(apiClient.delete("/api/v1/teams/x/members/1")).resolves.toBeUndefined();

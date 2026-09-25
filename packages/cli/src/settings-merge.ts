@@ -2,7 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 
-// Nombres de hooks tal como los espera Claude Code
+// Hook names as Claude Code expects them
 // (08-integracion-claude-code.md#hooks-instalados).
 export const HOOK_EVENTS = ["SessionStart", "UserPromptSubmit", "PostToolUse", "Stop", "SessionEnd"] as const;
 export type HookEvent = (typeof HOOK_EVENTS)[number];
@@ -26,9 +26,9 @@ function ownEntry(event: HookEvent): HookEntry {
   return entry;
 }
 
-// Las entradas propias se identifican porque el comando empieza por
-// "hackboard hook" (flujo de init, paso 5): así se puede fusionar sin tocar
-// lo que ya había, y quitar limpiamente en el uninstall.
+// Our own entries are recognized because the command starts with "hackboard
+// hook" (init flow, step 5): this way we can merge without touching what was
+// already there, and remove them cleanly on uninstall.
 function isOwnEntry(entry: unknown): entry is HookEntry {
   const candidate = entry as HookEntry | undefined;
   return Array.isArray(candidate?.hooks) && candidate.hooks.some((h) => typeof h?.command === "string" && h.command.startsWith("hackboard hook"));
@@ -74,8 +74,7 @@ export function readSettingsFile(path: string): Record<string, unknown> {
   }
 }
 
-// "Si el fichero existe, antes de escribir guarda una copia en .bak"
-// (flujo de init, paso 5).
+// "If the file exists, save a .bak copy before writing" (init flow, step 5).
 export function writeSettingsFile(path: string, settings: Record<string, unknown>): void {
   if (existsSync(path)) copyFileSync(path, `${path}.bak`);
   mkdirSync(dirname(path), { recursive: true });

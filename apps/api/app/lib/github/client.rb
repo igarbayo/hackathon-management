@@ -1,6 +1,6 @@
-# Cliente de la API REST de GitHub autenticado con un installation token
-# (07-integracion-github.md). RNF-GH-002: deja un margen del 20% sobre el
-# rate limit de GitHub antes de frenar en vez de agotarlo.
+# GitHub REST API client authenticated with an installation token
+# (07-integracion-github.md). RNF-GH-002: leaves a 20% margin on GitHub's rate
+# limit before slowing down, instead of using it all up.
 module Github
   class Client
     class RateLimited < StandardError
@@ -8,7 +8,7 @@ module Github
 
       def initialize(reset_at)
         @reset_at = reset_at
-        super("rate limit de GitHub casi agotado, reintentar después de #{reset_at}")
+        super("GitHub rate limit almost used up, retry after #{reset_at}")
       end
     end
 
@@ -50,7 +50,7 @@ module Github
       response = connection.get(path, params)
       handle_rate_limit(response)
       raise NotFound, path if response.status == 404
-      raise "GitHub respondió #{response.status} en #{path}" unless response.success?
+      raise "GitHub responded #{response.status} on #{path}" unless response.success?
 
       response.body
     end

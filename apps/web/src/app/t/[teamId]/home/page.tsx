@@ -26,11 +26,11 @@ export default function HomePage({ params }: { params: Promise<{ teamId: string 
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader icon={HouseIcon} title="Inicio" />
+      <PageHeader icon={HouseIcon} title="Home" />
 
       <Card>
         <CardHeader>
-          <CardTitle>Progreso global</CardTitle>
+          <CardTitle>Overall progress</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading && <LoadingState rows={1} />}
@@ -46,15 +46,15 @@ function Progress({ features }: { features: Feature[] }) {
   const { total, byStatus, donePercent } = progressByStatus(features);
 
   if (total === 0) {
-    return <p className="text-muted-foreground text-base">Todavía no hay features.</p>;
+    return <p className="text-muted-foreground text-base">No features yet.</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-6">
-        <BigNumber value={`${donePercent}%`} label="Completado" tone="positive" />
-        <BigNumber value={byStatus.done} label="Hechas" tone="positive" />
-        <BigNumber value={byStatus.in_progress} label="En curso" tone="warning" />
+        <BigNumber value={`${donePercent}%`} label="Complete" tone="positive" />
+        <BigNumber value={byStatus.done} label="Done" tone="positive" />
+        <BigNumber value={byStatus.in_progress} label="In progress" tone="warning" />
         <BigNumber value={byStatus.idea} label="Idea" tone="neutral" />
       </div>
       <div className="flex h-2 overflow-hidden rounded-full bg-f1-background-secondary">

@@ -2,16 +2,16 @@ require "rails_helper"
 
 RSpec.describe "Teams", type: :request do
   describe "POST /api/v1/teams" do
-    it "crea el equipo con el usuario como owner" do
+    it "creates the team with the user as owner" do
       user = create(:user)
       sign_in_as(user)
 
       post "/api/v1/teams",
-           params: { name: "Los Bytes", hackathon: { name: "HackUSC", starts_at: 1.day.from_now, ends_at: 3.days.from_now, timezone: "Europe/Madrid" } },
+           params: { name: "The Bytes", hackathon: { name: "HackUSC", starts_at: 1.day.from_now, ends_at: 3.days.from_now, timezone: "Europe/Madrid" } },
            headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:created)
-      expect(json_response["name"]).to eq("Los Bytes")
+      expect(json_response["name"]).to eq("The Bytes")
       expect(json_response["code"]).to be_present
 
       membership = Membership.where(team_id: json_response["id"], user_id: user.id).first
@@ -21,7 +21,7 @@ RSpec.describe "Teams", type: :request do
   end
 
   describe "POST /api/v1/teams/join" do
-    it "crea una membresía member con el código" do
+    it "creates a member membership with the code" do
       team = create(:team)
       user = create(:user)
       sign_in_as(user)
@@ -33,7 +33,7 @@ RSpec.describe "Teams", type: :request do
       expect(user.reload.last_team_id).to eq(team.id)
     end
 
-    it "acepta el código formateado con guion" do
+    it "accepts the code formatted with a hyphen" do
       team = create(:team)
       user = create(:user)
       sign_in_as(user)
@@ -43,7 +43,7 @@ RSpec.describe "Teams", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "es idempotente si ya era miembro" do
+    it "is idempotent if they were already a member" do
       team = create(:team)
       user = create(:user)
       create(:membership, team: team, user: user, role: "member")
@@ -55,7 +55,7 @@ RSpec.describe "Teams", type: :request do
       expect(Membership.where(team_id: team.id, user_id: user.id).count).to eq(1)
     end
 
-    it "404 con un código que no existe (sin revelar nada más)" do
+    it "404 with a code that does not exist (without revealing anything else)" do
       user = create(:user)
       sign_in_as(user)
 
@@ -66,7 +66,7 @@ RSpec.describe "Teams", type: :request do
   end
 
   describe "GET /api/v1/teams/:id" do
-    it "404 si el usuario no es miembro (no revela que el equipo existe)" do
+    it "404 if the user is not a member (it does not reveal that the team exists)" do
       team = create(:team)
       outsider = create(:user)
       sign_in_as(outsider)
@@ -76,7 +76,7 @@ RSpec.describe "Teams", type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
-    it "200 con los datos del equipo si es miembro" do
+    it "200 with the team data if they are a member" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -86,7 +86,7 @@ RSpec.describe "Teams", type: :request do
       expect(json_response["id"]).to eq(membership.team.id.to_s)
     end
 
-    it "recuerda el equipo como el último abierto (RF-TEAM-013)" do
+    it "remembers the team as the last opened one (RF-TEAM-013)" do
       membership = create(:membership)
       sign_in_as(membership.user)
 
@@ -95,9 +95,9 @@ RSpec.describe "Teams", type: :request do
       expect(membership.user.reload.last_team_id).to eq(membership.team.id)
     end
 
-    it "no lo recuerda si la petición viene con un token, no con sesión" do
+    it "does not remember it if the request comes with a token, not a session" do
       membership = create(:membership)
-      result = Pat::Create.call(membership: membership, name: "CLI", preset: "observar")
+      result = Pat::Create.call(membership: membership, name: "CLI", preset: "observe")
 
       get "/api/v1/teams/#{membership.team.id}", headers: { "Authorization" => "Bearer #{result.raw_token}" }
 
@@ -107,31 +107,31 @@ RSpec.describe "Teams", type: :request do
   end
 
   describe "PATCH /api/v1/teams/:id" do
-    it "solo el owner puede editar" do
+    it "only the owner can edit" do
       membership = create(:membership, role: "member")
       sign_in_as(membership.user)
 
-      patch "/api/v1/teams/#{membership.team.id}", params: { name: "Nuevo nombre" }, headers: csrf_headers, as: :json
+      patch "/api/v1/teams/#{membership.team.id}", params: { name: "New name" }, headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "el owner puede cambiar el nombre y el challenge_text" do
+    it "the owner can change the name and the challenge_text" do
       membership = create(:membership, :owner)
       sign_in_as(membership.user)
 
       patch "/api/v1/teams/#{membership.team.id}",
-            params: { name: "Nuevo nombre", hackathon: { challenge_text: "Construir X" } },
+            params: { name: "New name", hackathon: { challenge_text: "Build X" } },
             headers: csrf_headers, as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(json_response["name"]).to eq("Nuevo nombre")
-      expect(json_response["hackathon"]["challenge_text"]).to eq("Construir X")
+      expect(json_response["name"]).to eq("New name")
+      expect(json_response["hackathon"]["challenge_text"]).to eq("Build X")
     end
   end
 
   describe "POST /api/v1/teams/:id/code/rotate" do
-    it "genera un código distinto y el anterior deja de servir" do
+    it "generates a different code and the previous one stops working" do
       membership = create(:membership, :owner)
       sign_in_as(membership.user)
       old_code = membership.team.code
@@ -149,7 +149,7 @@ RSpec.describe "Teams", type: :request do
   end
 
   describe "DELETE /api/v1/teams/:id" do
-    it "exige escribir el nombre del equipo para confirmar" do
+    it "requires typing the team name to confirm" do
       membership = create(:membership, :owner)
       sign_in_as(membership.user)
 
@@ -159,7 +159,7 @@ RSpec.describe "Teams", type: :request do
       expect(membership.team.reload.deleted_at).to be_nil
     end
 
-    it "borra lógicamente el equipo cuando el nombre coincide" do
+    it "soft-deletes the team when the name matches" do
       membership = create(:membership, :owner)
       sign_in_as(membership.user)
 
@@ -169,7 +169,7 @@ RSpec.describe "Teams", type: :request do
       expect(membership.team.reload.deleted_at).to be_present
     end
 
-    it "un member no puede borrar el equipo" do
+    it "a member cannot delete the team" do
       membership = create(:membership, role: "member")
       sign_in_as(membership.user)
 

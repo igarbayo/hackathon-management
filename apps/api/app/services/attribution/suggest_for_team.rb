@@ -1,10 +1,10 @@
-# Orquesta la capa 3 para un equipo (05-atribucion.md#capa-3): agrupa,
-# aplica la heurística sin IA y, para lo que quede, hace una llamada por
-# lotes a la IA. Máx. 60 eventos por lote.
+# Runs layer 3 for a team (05-atribucion.md#capa-3): groups, applies the
+# heuristic without AI and, for what is left, makes one batched call to the AI.
+# Max. 60 events per batch.
 module Attribution
   class SuggestForTeam
     MAX_EVENTS_PER_BATCH = 60
-    PROMPT_VERSION = "attribution_v1"
+    PROMPT_VERSION = "attribution_v2"
     MIN_CONFIDENCE = 0.5
 
     def self.call(team)
@@ -55,8 +55,8 @@ module Attribution
     end
 
     def ask_ai(groups)
-      # RF-AI-021: es un job de fondo sin actor, así que usa la clave del
-      # owner del equipo. Sin ella, no se llama a la IA (sin fallback).
+      # RF-AI-021: it is a background job with no actor, so it uses the team
+      # owner's key. Without it, the AI is not called (no fallback).
       api_key = Ai::KeyOwner.for(team)&.gemini_api_key
       return groups.each { |g| mark_attempted(g) } if api_key.blank?
 

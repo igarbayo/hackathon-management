@@ -1,7 +1,7 @@
 require_relative "dataset"
 
-# Lógica de RNF-AI-002 separada del .rake para poder probarla sin que un
-# exit del task mate el proceso de RSpec.
+# RNF-AI-002 logic kept apart from the .rake so it can be tested without the
+# task's exit killing the RSpec process.
 module AiEval
   module Runner
     Score = Struct.new(:name, :accuracy, :actual, :error, keyword_init: true)
@@ -11,7 +11,7 @@ module AiEval
       scores.each { |score| report_case(score, out) }
 
       overall = scores.sum(&:accuracy) / scores.size.to_f
-      out.puts "\nConcordancia media: #{(overall * 100).round(1)}%"
+      out.puts "\nAverage agreement: #{(overall * 100).round(1)}%"
 
       { scores: scores, overall: overall }
     end
@@ -33,7 +33,7 @@ module AiEval
       out.puts "[#{status}] #{score.name} (#{(score.accuracy * 100).round}%)"
       return if score.accuracy == 1.0
 
-      out.puts "       obtenido: #{score.actual || score.error}"
+      out.puts "       got: #{score.actual || score.error}"
     end
     private_class_method :report_case
   end

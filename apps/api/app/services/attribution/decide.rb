@@ -1,4 +1,4 @@
-# Acción humana sobre la atribución de un evento (RF-ATR-004).
+# Human action on an event's attribution (RF-ATR-004).
 module Attribution
   class Decide
     ACTIONS = %w[confirm reject set unlink].freeze
@@ -17,7 +17,7 @@ module Attribution
     end
 
     def call
-      raise InvalidAction, "acción desconocida: #{action}" unless ACTIONS.include?(action)
+      raise InvalidAction, "unknown action: #{action}" unless ACTIONS.include?(action)
 
       case action
       when "confirm" then confirm
@@ -36,7 +36,7 @@ module Attribution
 
     def confirm
       current = event.attribution
-      raise InvalidAction, "no hay una sugerencia que confirmar" unless current&.feature_id
+      raise InvalidAction, "there is no suggestion to confirm" unless current&.feature_id
 
       current.status = "confirmed"
       current.decided_by_id = decided_by.id
@@ -46,7 +46,7 @@ module Attribution
 
     def reject
       current = event.attribution
-      raise InvalidAction, "no hay una sugerencia que rechazar" unless current&.feature_id
+      raise InvalidAction, "there is no suggestion to reject" unless current&.feature_id
 
       rejected_id = current.feature_id
       current.status = "rejected"
@@ -57,7 +57,7 @@ module Attribution
     end
 
     def set_feature
-      raise InvalidAction, "hace falta indicar la feature" unless feature
+      raise InvalidAction, "the feature is required" unless feature
 
       rejected_ids = event.attribution&.rejected_feature_ids || []
       event.build_attribution(
@@ -71,13 +71,13 @@ module Attribution
       learn_branch(feature)
     end
 
-    # Desvincular deja el evento como "sin atribuir" pero conserva
-    # rejected_feature_ids para no volver a sugerir la misma feature
-    # (05-atribucion.md#acción-humana). Se modela como un rechazo de la
-    # atribución vigente en vez de vaciar el sub-documento entero.
+    # Unlinking leaves the event as "unattributed" but keeps
+    # rejected_feature_ids so the same feature is not suggested again
+    # (05-atribucion.md#acción-humana). It is modeled as a rejection of the
+    # current attribution instead of emptying the whole subdocument.
     def unlink
       current = event.attribution
-      raise InvalidAction, "el evento no tiene atribución" unless current
+      raise InvalidAction, "the event has no attribution" unless current
 
       previous_id = current.feature_id
       current.status = "rejected"

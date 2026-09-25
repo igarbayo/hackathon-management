@@ -1,5 +1,5 @@
-# Repos accesibles por las instalaciones del equipo, con caché de 5 min
-# (RF-GH-020, RF-GH-003).
+# Repos the team's installations can access, with a 5 min cache (RF-GH-020,
+# RF-GH-003).
 module Github
   class AvailableRepos
     CACHE_TTL = 5.minutes

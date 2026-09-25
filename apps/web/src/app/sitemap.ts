@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 
-// RF-UX-043: las únicas rutas públicas de la web.
+// RF-UX-043: the only public routes of the web app.
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE_URL, changeFrequency: "monthly", priority: 1 },

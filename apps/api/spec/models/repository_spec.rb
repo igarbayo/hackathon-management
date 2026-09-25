@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Repository, type: :model do
-  it "un repositorio activo pertenece a un solo equipo (ADR-0007)" do
+  it "an active repository belongs to a single team (ADR-0007)" do
     create(:repository, github_repo_id: 555, active: true)
     other_team_same_repo = build(:repository, github_repo_id: 555, active: true)
 
@@ -9,7 +9,7 @@ RSpec.describe Repository, type: :model do
     expect(other_team_same_repo.errors[:base]).to be_present
   end
 
-  it "permite el mismo github_repo_id si el primero está inactivo" do
+  it "allows the same github_repo_id if the first one is inactive" do
     create(:repository, github_repo_id: 777, active: false)
     other_team_same_repo = build(:repository, github_repo_id: 777, active: true)
 

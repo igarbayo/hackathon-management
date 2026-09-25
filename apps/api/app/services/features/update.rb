@@ -1,5 +1,5 @@
-# RF-FEAT-004: los cambios de status y assignee_ids generan eventos `system`.
-# `via` (RF-API-006) solo viene relleno si el cambio lo hizo un token.
+# RF-FEAT-004: status and assignee_ids changes create `system` events. `via`
+# (RF-API-006) is only set if a token made the change.
 module Features
   class Update
     def self.call(feature:, attrs:, via: nil)
@@ -23,7 +23,7 @@ module Features
         kind: "feature_status_changed",
         dedupe_key: "system:feature_status_changed:#{feature.id}:#{feature.updated_at.to_f}",
         occurred_at: Time.current,
-        title: "#{feature.key} pasó de #{previous_status} a #{feature.status}",
+        title: "#{feature.key} moved from #{previous_status} to #{feature.status}",
         payload: { entity: "feature", key: feature.key, action: "status_changed", fields: [ "status" ] },
         via: via
       )
@@ -38,7 +38,7 @@ module Features
         kind: "feature_assigned",
         dedupe_key: "system:feature_assigned:#{feature.id}:#{feature.updated_at.to_f}",
         occurred_at: Time.current,
-        title: "#{feature.key}: asignación actualizada",
+        title: "#{feature.key}: assignees updated",
         payload: { entity: "feature", key: feature.key, action: "assigned", fields: [ "assignee_ids" ] },
         via: via
       )

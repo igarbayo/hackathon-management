@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-// Logos de marca de public/. El horizontal tiene una versión negativa (sin el
-// fondo morado oscuro del original, para que asiente sobre cualquier panel)
-// que se muestra solo en modo oscuro.
+// Brand logos from public/. The horizontal one has a negative version (without
+// the dark purple background of the original, so it sits on any panel) that
+// is shown only in dark mode.
 export function LogoHorizontal({ className, priority }: { className?: string; priority?: boolean }) {
   return (
     <span className={cn("inline-flex", className)}>

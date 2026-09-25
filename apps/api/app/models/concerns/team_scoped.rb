@@ -1,6 +1,6 @@
-# Todo documento de dominio que no sea User, Session u OAuthClient lleva
-# team_id (RNF-SEC-001, 02-modelo-datos.md#convenciones). Nunca se debe
-# consultar uno de estos modelos sin acotar por equipo.
+# Every domain document other than User, Session or OAuthClient has a team_id
+# (RNF-SEC-001, 02-modelo-datos.md#convenciones). One of these models must never
+# be queried without scoping it to a team.
 module TeamScoped
   extend ActiveSupport::Concern
 

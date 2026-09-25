@@ -1,26 +1,26 @@
 require "rails_helper"
 
 RSpec.describe Team, type: :model do
-  it "genera un código único de 8 caracteres al crear" do
+  it "generates a unique 8-character code on create" do
     team = create(:team)
 
     expect(team.code).to match(/\A[23456789ABCDEFGHJKMNPQRSTVWXYZ]{8}\z/)
   end
 
-  it "formatea el código como XXXX-XXXX" do
+  it "formats the code as XXXX-XXXX" do
     team = create(:team, code: "ABCD1234".tr("01", "23"))
 
     expect(team.formatted_code).to eq("#{team.code[0, 4]}-#{team.code[4, 4]}")
   end
 
-  it "no permite dos equipos con el mismo código" do
+  it "does not allow two teams with the same code" do
     existing = create(:team)
     duplicate = build(:team, code: existing.code)
 
     expect(duplicate).not_to be_valid
   end
 
-  it "valida el hackathon embebido" do
+  it "validates the embedded hackathon" do
     team = build(:team)
     team.hackathon.timezone = "No/Existe"
 
@@ -28,7 +28,7 @@ RSpec.describe Team, type: :model do
   end
 
   describe "#next_feature_number! / #next_objective_number!" do
-    it "incrementa de forma atómica y nunca repite un número" do
+    it "increments atomically and never repeats a number" do
       team = create(:team)
 
       numbers = Array.new(20) { team.next_feature_number! }
@@ -37,7 +37,7 @@ RSpec.describe Team, type: :model do
       expect(numbers).to eq((1..20).to_a)
     end
 
-    it "lleva contadores independientes para features y objetivos" do
+    it "keeps separate counters for features and objectives" do
       team = create(:team)
 
       expect(team.next_feature_number!).to eq(1)
@@ -45,7 +45,7 @@ RSpec.describe Team, type: :model do
       expect(team.next_feature_number!).to eq(2)
     end
 
-    it "no repite número bajo llamadas concurrentes (uso de find_one_and_update atómico)" do
+    it "does not repeat a number under concurrent calls (atomic find_one_and_update)" do
       team = create(:team)
 
       numbers = []
@@ -64,7 +64,7 @@ RSpec.describe Team, type: :model do
   end
 
   describe "#soft_delete! (RF-TEAM-009)" do
-    it "marca el equipo como borrado y revoca todos sus tokens" do
+    it "marks the team as deleted and revokes all its tokens" do
       team = create(:team)
       pat = create(:access_token, team: team)
       integration = create(:access_token, :integration, team: team)

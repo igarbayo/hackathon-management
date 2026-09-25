@@ -2,7 +2,7 @@ module Mcp
   module Tools
     class CreateFeature
       def self.tool_name = "create_feature"
-      def self.description = "Crea una feature en estado idea y devuelve su clave."
+      def self.description = "Creates a feature in the idea status and returns its key."
       def self.scope = "features:write"
       def self.read_only? = false
 
@@ -34,7 +34,7 @@ module Mcp
         }.compact
 
         if args["assign_to_me"]
-          raise Mcp::ToolError, "assign_to_me no está disponible para un token de integración." unless membership
+          raise Mcp::ToolError, "assign_to_me is not available for an integration token." unless membership
 
           attrs["assignee_ids"] = [ membership.id.to_s ]
         end

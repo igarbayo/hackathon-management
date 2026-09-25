@@ -19,12 +19,12 @@ describe("turn-state", () => {
     vi.resetModules();
   });
 
-  it("agrega ficheros y cuenta herramientas hasta cerrar el turno", async () => {
+  it("collects files and counts tools until the turn closes", async () => {
     const { openTurn, addToolUse, closeTurn } = await import("./turn-state");
 
     openTurn("s1", 42);
     addToolUse("s1", { path: "a.rb", tool: "Edit" });
-    addToolUse("s1", null); // herramienta sin fichero (o excluido): cuenta pero no se lista
+    addToolUse("s1", null); // tool with no file (or excluded): counted but not listed
     addToolUse("s1", { path: "b.rb", tool: "Write" });
 
     const turn = closeTurn("s1");
@@ -37,7 +37,7 @@ describe("turn-state", () => {
     ]);
   });
 
-  it("closeTurn borra el estado: un segundo cierre no encuentra nada", async () => {
+  it("closeTurn deletes the state: a second close finds nothing", async () => {
     const { openTurn, closeTurn } = await import("./turn-state");
 
     openTurn("s2", 1);
@@ -46,9 +46,9 @@ describe("turn-state", () => {
     expect(closeTurn("s2")).toBeNull();
   });
 
-  it("Stop sin UserPromptSubmit previo no revienta (turno vacío)", async () => {
+  it("Stop with no earlier UserPromptSubmit does not blow up (empty turn)", async () => {
     const { closeTurn } = await import("./turn-state");
 
-    expect(closeTurn("nunca-abierto")).toBeNull();
+    expect(closeTurn("never-opened")).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-# Nunca expone el secreto (se muestra una sola vez, al crearlo o rotarlo).
+# It never exposes the secret (it is shown only once, when created or rotated).
 class OutboundWebhookSerializer
   def initialize(webhook)
     @webhook = webhook

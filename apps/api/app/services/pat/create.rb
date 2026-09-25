@@ -1,15 +1,15 @@
-# POST /teams/:team_id/tokens (RF-API-001). Un miembro solo crea PATs para
-# sí mismo. El valor en claro solo se devuelve aquí, una vez (RNF-SEC-002).
+# POST /teams/:team_id/tokens (RF-API-001). A member only creates PATs for
+# themselves. The plain value is only returned here, once (RNF-SEC-002).
 module Pat
   PRESETS = {
-    "observar" => %w[read],
-    "agente" => %w[read features:write arguments:write progress:write],
-    "completo" => %w[read features:write objectives:write arguments:write milestones:write attribution:write analyses:run progress:write]
+    "observe" => %w[read],
+    "agent" => %w[read features:write arguments:write progress:write],
+    "full" => %w[read features:write objectives:write arguments:write milestones:write attribution:write analyses:run progress:write]
   }.freeze
 
   class Create
     def self.call(membership:, name:, preset: nil, scopes: nil, expires_at: nil)
-      resolved_scopes = (scopes.presence || PRESETS.fetch(preset.presence || "observar")) | [ "read" ]
+      resolved_scopes = (scopes.presence || PRESETS.fetch(preset.presence || "observe")) | [ "read" ]
       raw_token = "hb_pat_#{SecureRandom.hex(24)}"
 
       token = AccessToken.create!(

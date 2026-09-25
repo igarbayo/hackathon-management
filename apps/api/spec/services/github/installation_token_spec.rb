@@ -11,7 +11,7 @@ RSpec.describe Github::InstallationToken do
     ENV["GITHUB_APP_PRIVATE_KEY"] = original_key
   end
 
-  it "pide un token nuevo y lo cachea" do
+  it "asks for a new token and caches it" do
     stub = stub_request(:post, "https://api.github.com/app/installations/999/access_tokens")
            .to_return(status: 201, body: { token: "ghs_abc123" }.to_json, headers: { "Content-Type" => "application/json" })
 
@@ -21,6 +21,6 @@ RSpec.describe Github::InstallationToken do
     expect(stub).to have_been_requested.once
 
     described_class.fetch(999)
-    expect(stub).to have_been_requested.once # segunda vez usa la caché
+    expect(stub).to have_been_requested.once # the second time uses the cache
   end
 end

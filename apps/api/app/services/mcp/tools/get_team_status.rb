@@ -6,9 +6,9 @@ module Mcp
       def self.read_only? = true
 
       def self.description
-        "Foto del proyecto ahora mismo: tiempo hasta el fin del hackathon y hasta el siguiente milestone, " \
-          "features por estado, tus features en curso, features vencidas, cobertura del último análisis y sus " \
-          "alertas, y los 10 últimos eventos del feed. Llama a esta herramienta al empezar una sesión de trabajo."
+        "Snapshot of the project right now: time until the hackathon ends and until the next milestone, " \
+          "features by status, your features in progress, overdue features, coverage from the latest analysis and its " \
+          "alerts, and the 10 latest feed events. Call this tool when you start a work session."
       end
 
       def self.input_schema

@@ -1,10 +1,9 @@
-# Diario (09-privacidad-seguridad.md#retención). Dos tareas independientes:
-# 1. Borra ActivityEvent/AiAnalysis de equipos cuyo hackathon terminó hace
-#    más de 90 días, salvo que el owner haya marcado settings.retain_data.
-# 2. Borra físicamente los equipos con borrado lógico (deleted_at) desde
-#    hace más de 30 días.
-# Session (TTL propio) y WebhookDelivery (TTL propio) ya se limpian solos
-# vía índices Mongo con expire_after_seconds.
+# Daily (09-privacidad-seguridad.md#retención). Two independent tasks: 1.
+# Deletes ActivityEvent/AiAnalysis of teams whose hackathon ended more than 90
+# days ago, unless the owner set settings.retain_data. 2. Physically deletes
+# teams soft-deleted (deleted_at) more than 30 days ago. Session (its own TTL)
+# and WebhookDelivery (its own TTL) are already cleaned up by Mongo indexes with
+# expire_after_seconds.
 module Maintenance
   class RetentionJob
     include Sidekiq::Job

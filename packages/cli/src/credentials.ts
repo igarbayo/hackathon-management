@@ -20,8 +20,8 @@ export function readCredentials(): Credentials | null {
   }
 }
 
-// Nunca se guarda dentro del repo (flujo de init, paso 3): siempre en
-// ~/.config/hackboard, con permisos 0600.
+// It is never stored inside the repo (init flow, step 3): always in
+// ~/.config/hackboard, with 0600 permissions.
 export function writeCredentials(creds: Credentials): void {
   ensureConfigDir();
   const file = paths.credentials();
@@ -29,7 +29,7 @@ export function writeCredentials(creds: Credentials): void {
   try {
     chmodSync(file, 0o600);
   } catch {
-    // Windows no tiene permisos POSIX; no pasa nada.
+    // Windows has no POSIX permissions; that is fine.
   }
 }
 
@@ -41,7 +41,7 @@ export function clearCredentials(): void {
   }
 }
 
-// 401 del servidor (token revocado): se deja de encolar y `status` lo avisa.
+// 401 from the server (token revoked): queuing stops and `status` reports it.
 export function markDisconnected(): void {
   const creds = readCredentials();
   if (!creds) return;

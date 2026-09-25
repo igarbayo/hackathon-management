@@ -1,4 +1,4 @@
-# /teams/:team_id/webhooks (RF-API-009). Solo owners, solo sesión.
+# /teams/:team_id/webhooks (RF-API-009). Owners only, session only.
 module Api
   module V1
     class WebhooksController < Api::V1::BaseController
@@ -21,7 +21,7 @@ module Api
         webhook.secret = secret
         webhook.save!
 
-        Webhooks::Enqueue.call(team: current_team, event: "ping", data: { message: "Webhook creado" })
+        Webhooks::Enqueue.call(team: current_team, event: "ping", data: { message: "Webhook created" })
 
         render json: OutboundWebhookSerializer.new(webhook).as_json.merge(secret: secret), status: :created
       end
@@ -42,7 +42,7 @@ module Api
       def test
         require_owner!
         webhook = find_webhook
-        Webhooks::Enqueue.call(team: current_team, event: "ping", data: { message: "Prueba manual" })
+        Webhooks::Enqueue.call(team: current_team, event: "ping", data: { message: "Manual test" })
         head :accepted
       end
 
@@ -66,7 +66,7 @@ module Api
         require_owner!
         webhook = find_webhook
         delivery = OutboundDelivery.where(team_id: current_team.id, outbound_webhook_id: webhook.id, id: params[:delivery_id]).first
-        raise ApiError::NotFound.new(message: "entrega no encontrada") unless delivery
+        raise ApiError::NotFound.new(message: "delivery not found") unless delivery
 
         Webhooks::DeliverJob.perform_async(delivery.id.to_s)
         head :accepted
@@ -76,7 +76,7 @@ module Api
 
       def find_webhook
         OutboundWebhook.where(team_id: current_team.id, id: params[:id] || params[:webhook_id]).first.tap do |webhook|
-          raise ApiError::NotFound.new(message: "webhook no encontrado") unless webhook
+          raise ApiError::NotFound.new(message: "webhook not found") unless webhook
         end
       end
     end

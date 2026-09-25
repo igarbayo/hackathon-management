@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CoverageAnalysis",
-  "description": "Salida del análisis de cobertura con IA (06-analisis-ia.md#esquema-de-salida)",
+  "description": "Output of the AI coverage analysis (06-analisis-ia.md#esquema-de-salida)",
   "type": "object",
   "required": ["summary", "coverage", "orphan_features", "gaps", "risks"],
   "additionalProperties": false,

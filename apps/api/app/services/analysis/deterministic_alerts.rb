@@ -1,6 +1,6 @@
-# Alertas deterministas (06-analisis-ia.md#alertas-deterministas). Se
-# calculan sin llamar a la IA, en cada petición a analyses/latest y también
-# se guardan en el snapshot de AiAnalysis.
+# Deterministic alerts (06-analisis-ia.md#alertas-deterministas). They are
+# worked out without calling the AI, on every request to analyses/latest, and
+# are also stored in the AiAnalysis snapshot.
 module Analysis
   class DeterministicAlerts
     def self.call(team)

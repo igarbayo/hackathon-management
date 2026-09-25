@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { publicPageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = publicPageMetadata({
-  title: "Crear cuenta",
+  title: "Sign up",
   description:
-    "Crea tu cuenta de Hackboard gratis y monta el tablero de tu equipo de hackathon en menos de 2 minutos.",
+    "Create your free Hackboard account and set up your hackathon team's board in under 2 minutes.",
   path: "/signup",
 });
 

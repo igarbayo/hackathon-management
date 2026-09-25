@@ -1,5 +1,5 @@
-# Ojo: no confundir con OutboundDelivery. Este modelo registra las entregas
-# ENTRANTES de GitHub, para idempotencia y depuración (02-modelo-datos.md).
+# Careful: not to be confused with OutboundDelivery. This model records INCOMING
+# deliveries from GitHub, for idempotency and debugging (02-modelo-datos.md).
 class WebhookDelivery
   include Mongoid::Document
   include Mongoid::Timestamps

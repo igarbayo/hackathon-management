@@ -79,7 +79,7 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <Button variant="ghost" size="sm" className="w-fit" onClick={() => router.push(`/t/${teamId}/features`)}>
-        <ArrowLeftIcon className="size-4" /> Volver al kanban
+        <ArrowLeftIcon className="size-4" /> Back to kanban
       </Button>
 
       <PageHeader
@@ -96,22 +96,22 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
             {feature.status !== "discarded" && (
               <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
                 <Button variant="outline" onClick={() => setDiscardOpen(true)}>
-                  Descartar feature
+                  Drop feature
                 </Button>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Descartar «{feature.title}»</DialogTitle>
-                    <DialogDescription>El motivo es opcional y queda registrado en la actividad.</DialogDescription>
+                    <DialogTitle>Drop “{feature.title}”</DialogTitle>
+                    <DialogDescription>The reason is optional and is recorded in the activity.</DialogDescription>
                   </DialogHeader>
                   <Input
-                    placeholder="Motivo (opcional)"
+                    placeholder="Reason (optional)"
                     value={discardReason}
                     onChange={(e) => setDiscardReason(e.target.value)}
                   />
                   <DialogFooter>
-                    <DialogClose render={<Button variant="ghost" />}>Cancelar</DialogClose>
+                    <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
                     <Button onClick={handleDiscard} loading={updateFeature.isPending}>
-                      Descartar feature
+                      Drop feature
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -120,27 +120,27 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
             <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={<Button variant="ghost" size="icon" aria-label="Más acciones de la feature" />}
+                  render={<Button variant="ghost" size="icon" aria-label="More feature actions" />}
                 >
                   <EllipsisVerticalIcon />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
-                    <Trash2Icon className="size-4" /> Eliminar feature
+                    <Trash2Icon className="size-4" /> Delete feature
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Eliminar «{feature.title}»</AlertDialogTitle>
+                  <AlertDialogTitle>Delete “{feature.title}”</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta acción no se puede deshacer. Se pierden sus pros y contras.
+                    This cannot be undone. Its pros and cons are lost.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction variant="destructive" onClick={handleDelete}>
-                    Eliminar feature
+                    Delete feature
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -151,7 +151,7 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Descripción</CardTitle>
+          <CardTitle className="text-base">Description</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
@@ -165,7 +165,7 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Cómo vincular trabajo</CardTitle>
+          <CardTitle className="text-base">How to link work</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center gap-2">
           <code className="rounded bg-muted px-2 py-1 text-sm">{branchName}</code>
@@ -174,10 +174,10 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
             size="sm"
             onClick={() => {
               navigator.clipboard.writeText(branchName);
-              toast.success("Rama copiada");
+              toast.success("Branch copied");
             }}
           >
-            <CopyIcon className="size-3.5" /> Copiar
+            <CopyIcon className="size-3.5" /> Copy
           </Button>
         </CardContent>
       </Card>
@@ -198,7 +198,7 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
           onDelete={(id) => deleteArgument.mutate(id)}
         />
         <ArgumentColumn
-          title="Contras"
+          title="Cons"
           kind="con"
           args={cons}
           myUserId={me?.id}
@@ -251,7 +251,7 @@ function ArgumentColumn({
             <button
               onClick={() => onVote(argument.id, Boolean(argument.voted_by_me))}
               className={`focus-ring flex items-center gap-1 rounded ${argument.voted_by_me ? tone : "text-f1-foreground-secondary"}`}
-              aria-label="Votar"
+              aria-label="Vote"
             >
               <Icon className={argument.voted_by_me ? "size-4 fill-current" : "size-4"} />
               {argument.votes}
@@ -260,7 +260,7 @@ function ArgumentColumn({
             {argument.author_id === myUserId && (
               <button
                 onClick={() => onDelete(argument.id)}
-                aria-label="Eliminar argumento"
+                aria-label="Delete argument"
                 className="focus-ring rounded text-f1-foreground-secondary hover:text-f1-foreground-critical"
               >
                 <Trash2Icon className="size-3.5" />
@@ -277,13 +277,13 @@ function ArgumentColumn({
           className="flex gap-2"
         >
           <Input
-            placeholder={`Añadir ${title.toLowerCase()}…`}
+            placeholder={kind === "pro" ? "Add a pro…" : "Add a con…"}
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
             maxLength={280}
           />
           <Button type="submit" size="sm">
-            Añadir
+            Add
           </Button>
         </form>
       </CardContent>

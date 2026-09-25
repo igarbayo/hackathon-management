@@ -1,5 +1,5 @@
-# input_hash = SHA-256 del contexto sin el campo `ahora`, redondeando las
-# horas restantes a la hora (06-analisis-ia.md#construcción-del-contexto).
+# input_hash = SHA-256 of the context without the `now` field, rounding the
+# remaining hours to the hour (06-analisis-ia.md#construcción-del-contexto).
 module Analysis
   class InputHash
     def self.call(context)

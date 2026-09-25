@@ -1,5 +1,5 @@
-# Verifica X-Hub-Signature-256 con comparación en tiempo constante
-# (RF-GH-006, RNF-SEC-006).
+# Verifies X-Hub-Signature-256 with a constant-time comparison (RF-GH-006,
+# RNF-SEC-006).
 module Github
   module WebhookSignature
     def self.valid?(payload_body, signature_header)

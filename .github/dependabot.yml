@@ -1,6 +1,6 @@
-# RNF-SEC-011 (specs/09-privacidad-seguridad.md): escaneo de dependencias en
-# CI para api, web y cli. Dependabot no necesita un workflow: GitHub lo
-# ejecuta solo a partir de este fichero.
+# RNF-SEC-011 (specs/09-privacidad-seguridad.md): dependency scanning in CI for
+# api, web and cli. Dependabot does not need a workflow: GitHub runs it from
+# this file alone.
 version: 2
 updates:
   - package-ecosystem: bundler

@@ -1,6 +1,6 @@
 # 04 · Pantallas y requisitos funcionales
 
-> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-23
+> **Estado de implementación:** Implementada · **Última actualización:** 2026-09-25
 
 ## Layout general — `RF-UX`
 
@@ -9,7 +9,7 @@
 | RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px, que se cierra al elegir cualquier opción (navegación, logo o cambio de equipo). | Aceptado [F1] |
 | RF-UX-002 | Arriba del menú: selector de equipo (si el usuario tiene más de uno), que muestra siempre el nombre del equipo y nunca su id, y nombre del hackathon. | Aceptado [F1] |
 | RF-UX-003 | Barra superior con una **cuenta atrás persistente** al siguiente milestone. Cambia a ámbar a menos de 3 h y a rojo a menos de 1 h. | Aceptado [F2] |
-| RF-UX-004 | Todas las fechas se muestran en la zona horaria del hackathon e indican la zona. | Aceptado [F1] |
+| RF-UX-004 | Todas las fechas se muestran en la zona horaria del hackathon e indican la zona, con formato en inglés (`en-US`, RNF-UI-013). | Aceptado [F1] |
 | RF-UX-005 | Todas las pantallas tienen estados de *cargando* (skeleton), *vacío* (con un CTA para crear lo primero) y *error* (con reintento). | Aceptado [F1] |
 | RF-UX-006 | Modo claro y oscuro según el sistema, con un interruptor manual. | Aceptado [F1] |
 | RF-UX-007 | Buscador global `Ctrl/Cmd+K`: salta a una feature por clave o título, o a una pantalla. | Propuesto [F2] |
@@ -20,10 +20,10 @@
 | ID | Requisito | Estado |
 |----|-----------|--------|
 | RF-UX-040 | **Marca:** los logos de `apps/web/public/` (`logo-horizontal.svg`, `logo-horizontal-negativo.svg`, `logo-icono.svg`, `logo-icono-transparente.svg`) son la única identidad visual. El horizontal va en la cabecera del sidebar y encima de la tarjeta de login y registro; el icono, en el sidebar de solo iconos y en la barra superior móvil. En modo oscuro se usa el negativo sin su fondo (`logo-horizontal-negativo-transparente.svg`). Favicon (`app/favicon.ico`, `app/icon.svg`), `apple-icon.png` e iconos del manifest (`public/icons/`) salen del mismo logo. | Implementado |
-| RF-UX-041 | **Metadata y previsualización social:** `metadataBase` desde `NEXT_PUBLIC_SITE_URL`, título con plantilla `%s · Hackboard`, descripción, `canonical`, Open Graph (`es_ES`) y tarjeta `summary_large_image` de X. Imagen OG de 1200×630 generada en build (`app/opengraph-image.tsx`) con el logo negativo. Las páginas públicas usan `publicPageMetadata` (`lib/site.ts`) para no perder la imagen OG al sobrescribir `openGraph`. `theme-color` con el morado de marca. | Implementado |
-| RF-UX-042 | **Datos estructurados:** JSON-LD (`schema.org`) en todas las páginas con `Organization`, `WebSite` y `SoftwareApplication`. | Implementado |
+| RF-UX-041 | **Metadata y previsualización social:** `metadataBase` desde `NEXT_PUBLIC_SITE_URL`, título con plantilla `%s · Hackboard`, descripción, `canonical`, Open Graph (`en_US`) y tarjeta `summary_large_image` de X. Imagen OG de 1200×630 generada en build (`app/opengraph-image.tsx`) con el logo negativo. Las páginas públicas usan `publicPageMetadata` (`lib/site.ts`) para no perder la imagen OG al sobrescribir `openGraph`. `theme-color` con el morado de marca. | Implementado |
+| RF-UX-042 | **Datos estructurados:** JSON-LD (`schema.org`) en todas las páginas con `Organization`, `WebSite` y `SoftwareApplication`, con `inLanguage: "en"`. | Implementado |
 | RF-UX-043 | **Indexación:** solo `/`, `/login`, `/signup` y `/privacy` son indexables. `robots.txt` bloquea `/t/`, `/onboarding`, `/oauth/` y `/cli/`, y esas rutas llevan además `noindex, nofollow`. `sitemap.xml` con las rutas públicas y `manifest.webmanifest` con nombre, colores e iconos. | Implementado |
-| RF-UX-044 | **`/llms.txt`** ([llmstxt.org](https://llmstxt.org)): qué es Hackboard, qué hace y dónde están sus puntos de entrada públicos (registro, OpenAPI, servidor MCP y discovery de OAuth 2.1), con las URLs de `NEXT_PUBLIC_SITE_URL` y `NEXT_PUBLIC_API_URL`. Nunca incluye datos de equipos. | Implementado |
+| RF-UX-044 | **`/llms.txt`** ([llmstxt.org](https://llmstxt.org)): qué es Hackboard, qué hace y dónde están sus puntos de entrada públicos (registro, OpenAPI, servidor MCP y discovery de OAuth 2.1), con las URLs de `NEXT_PUBLIC_SITE_URL` y `NEXT_PUBLIC_API_URL`. Está en inglés, como todo el SEO (RNF-UI-013). Nunca incluye datos de equipos. | Implementado |
 Rutas: `/login`, `/signup`, `/privacy`, `/onboarding`, `/oauth/consent`, `/t/[teamId]/{home,objectives,features,features/[key],decisions,deadlines,activity,analysis,settings}`.
 
 | Menú | Icono Lucide | Ruta |
@@ -139,7 +139,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-ACT-012 | Chip de atribución: **confirmada** (sólido), **sugerida** (borde discontinuo, con ✓ y ✗ en línea y el motivo en un tooltip) o **sin atribuir** (botón "Asignar a…"). | Aceptado [F3] |
 | RF-ACT-013 | Vista **"Quién hizo qué"**: matriz de personas × features con el número de eventos y el último, en una ventana configurable (3 h, 12 h o todo). | Aceptado [F3] |
 | RF-ACT-014 | Los eventos consecutivos de un mismo actor en la misma rama en menos de 10 min se agrupan ("Ana hizo 4 commits en f-12") y se pueden expandir. | Aceptado [F3] |
-| RF-ACT-015 | Los eventos de Claude Code nunca muestran texto de prompts con el nivel `metadata`. Muestran "Sesión de Claude Code · 6 ficheros editados en `f-12-login`". | Aceptado [F5] |
+| RF-ACT-015 | Los eventos de Claude Code nunca muestran texto de prompts con el nivel `metadata`. Muestran "Claude Code session · 6 files edited on `f-12-login`". | Aceptado [F5] |
 | RF-ACT-016 | Selección múltiple para confirmar o reasignar en bloque. | Aceptado [F4] |
 | RF-ACT-018 | **Autores sin vincular y "Son míos".** Filtro "Autores sin vincular" con la lista de esos autores (login, email, número de eventos) y un botón "Son míos" por autor. Casillas en los eventos de GitHub para seleccionar varios y una barra con "Son míos", "No son míos" y, para owners, "Asignar a…" un miembro. La casilla "Asignarme también los futuros de este autor" (para owners, "Asignar también…") va marcada por defecto. Un miembro solo puede seleccionar eventos sin usuario o suyos; un owner, cualquiera de GitHub. Los eventos asignados a mano muestran un discreto "asignado a mano" junto al actor. Ver [07](07-integracion-github.md#mapeo-de-autores) y [ADR-0018](decisiones.md#adr-0018). | Implementado |
 | RF-ACT-017 | Los eventos con `via` muestran una etiqueta "vía API" o "vía MCP · <cliente>" junto al actor, y el nombre del token en un tooltip. Filtro "Hecho por agentes/API" y filtro por token (RF-API-008). | Aceptado [F3] |
@@ -169,7 +169,7 @@ Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 | RF-TEAM-022 | **Hackathon:** nombre, fechas, zona horaria y texto del reto. | Aceptado [F1] |
 | RF-GH-010 | **GitHub:** repos vinculados, botón "Añadir repo" (pegar URL o elegir de la lista) y estado de la instalación. Indica si el último webhook tuvo éxito. | Aceptado [F3] |
 | RF-CC-010 | **Claude Code (sección personal):** instrucciones en 2 pasos (`npm i -g hackboard` y `hackboard init --team XXXX-XXXX`), estado, nivel de privacidad, botones de pausar, desconectar y "desconectar y borrar mis eventos". Explica en lenguaje llano qué se envía y qué no. | Aceptado [F5] |
-| RF-API-020 | **API y MCP (sección personal):** lista de mis tokens (nombre, prefijo, scopes, caducidad y último uso) con botón de revocar. "Nuevo token": nombre, preset (`observar` por defecto, `agente`, `completo` o personalizado) y caducidad; el token se muestra **una sola vez** con botón de copiar y un aviso de no subirlo al repo. Enlace a la documentación OpenAPI. Un owner ve además los tokens de todo el equipo y puede revocarlos. | Aceptado [F2] |
+| RF-API-020 | **API y MCP (sección personal):** lista de mis tokens (nombre, prefijo, scopes, caducidad y último uso) con botón de revocar. "Nuevo token": nombre, preset (`observe` por defecto, `agent`, `full` o personalizado) y caducidad; el token se muestra **una sola vez** con botón de copiar y un aviso de no subirlo al repo. Enlace a la documentación OpenAPI. Un owner ve además los tokens de todo el equipo y puede revocarlos. | Aceptado [F2] |
 | RF-MCP-010 | **MCP (dentro de API y MCP):** el comando `claude mcp add …` listo para copiar, con el token de miembro (lectura + progreso) o con un PAT recién creado (lo que permita su preset). Explica qué podrá ver y hacer el agente con cada opción. | Aceptado [F5] |
 | RF-API-021 | **Apps conectadas (sección personal):** conexiones OAuth (claude.ai, apps de terceros) con cliente, equipo, scopes, fecha y último uso, y botón de revocar. Un owner ve las de todo el equipo y puede revocarlas. | Aceptado [F6] |
 | RF-API-022 | **Pantalla de consentimiento** (`/oauth/consent`): si no hay sesión, primero login con Google, GitHub o contraseña. Después muestra el nombre de la app (con "no verificada" si se registró sola), el dominio al que volverá, un selector de equipo, los permisos agrupados en lenguaje llano ("Ver el tablero", "Crear y mover features"…) con los presets, y los botones Permitir y Cancelar. Un aviso recuerda que la app actuará en tu nombre. | Aceptado [F6] |

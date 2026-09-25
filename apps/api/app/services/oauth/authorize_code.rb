@@ -1,5 +1,5 @@
-# Crea el código de un solo uso, de 60s (OAuthGrant::DEFAULT_TTL), que
-# POST /oauth/token canjea con PKCE (12-acceso-programatico.md#oauth-21).
+# Creates the single-use, 60s code (OAuthGrant::DEFAULT_TTL) that POST
+# /oauth/token exchanges with PKCE (12-acceso-programatico.md#oauth-21).
 module OAuth
   class AuthorizeCode
     def self.call(client:, user:, membership:, scopes:, redirect_uri:, resource:, code_challenge:)

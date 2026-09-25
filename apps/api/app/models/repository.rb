@@ -24,6 +24,6 @@ class Repository
     return unless active
 
     conflict = Repository.where(github_repo_id: github_repo_id, active: true).where(:id.ne => id).exists?
-    errors.add(:base, "ya hay otro equipo con este repositorio activo") if conflict
+    errors.add(:base, "another team already has this repository active") if conflict
   end
 end

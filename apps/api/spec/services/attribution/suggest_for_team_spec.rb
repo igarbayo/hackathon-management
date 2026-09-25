@@ -16,12 +16,12 @@ RSpec.describe Attribution::SuggestForTeam do
     )
   end
 
-  # RF-AI-021: ask_ai usa la clave del owner del equipo (job de fondo, sin actor).
+  # RF-AI-021: ask_ai uses the team owner's key (background job, no actor).
   def make_owner_with_key(team)
     create(:membership, :owner, team: team).user.update!(gemini_api_key: "test-key")
   end
 
-  it "no hace nada si ai_attribution_enabled está desactivado" do
+  it "does nothing if ai_attribution_enabled is turned off" do
     team = create(:team)
     team.update!(settings: team.settings.merge("ai_attribution_enabled" => false))
     create(:activity_event, :github_commit, team: team)
@@ -31,11 +31,11 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(a_request(:post, /generativelanguage/)).not_to have_been_made
   end
 
-  it "usa la heurística sin llamar a la IA si el actor tiene una sola feature in_progress" do
+  it "uses the heuristic without calling the AI if the actor has a single in_progress feature" do
     membership = create(:membership)
     team = membership.team
     feature = create(:feature, team: team, status: "in_progress", assignee_ids: [ membership.user_id ])
-    event = create(:activity_event, :github_commit, team: team, branch: "f-x-algo", actor: { "user_id" => membership.user_id.to_s })
+    event = create(:activity_event, :github_commit, team: team, branch: "f-x-something", actor: { "user_id" => membership.user_id.to_s })
 
     described_class.call(team)
 
@@ -47,14 +47,14 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(event.attribution.confidence).to eq(0.6)
   end
 
-  it "llama a la IA para los grupos que no resuelve la heurística y aplica confidence >= 0.5" do
+  it "calls the AI for the groups the heuristic does not resolve and applies confidence >= 0.5" do
     membership = create(:membership)
     team = membership.team
     make_owner_with_key(team)
     feature = create(:feature, team: team)
     event = create(:activity_event, :github_commit, team: team, actor: { "user_id" => membership.user_id.to_s })
 
-    stub_gemini({ "assignments" => [ { "group_id" => event_group_id(event), "feature_key" => feature.key, "confidence" => 0.8, "reason" => "coincide el título" } ] })
+    stub_gemini({ "assignments" => [ { "group_id" => event_group_id(event), "feature_key" => feature.key, "confidence" => 0.8, "reason" => "the title matches" } ] })
 
     described_class.call(team)
 
@@ -63,7 +63,7 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(event.attribution.confidence).to eq(0.8)
   end
 
-  it "sin clave de Gemini del owner, no llama a la IA y marca los grupos como intentados" do
+  it "with no owner Gemini key, does not call the AI and marks the groups as attempted" do
     membership = create(:membership)
     team = membership.team
     create(:membership, :owner, team: team)
@@ -79,14 +79,14 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(event.ai_suggestion_attempted_at).to be_present
   end
 
-  it "no atribuye y marca ai_suggestion_attempted_at si confidence < 0.5" do
+  it "does not attribute and sets ai_suggestion_attempted_at if confidence < 0.5" do
     membership = create(:membership)
     team = membership.team
     make_owner_with_key(team)
     feature = create(:feature, team: team)
     event = create(:activity_event, :github_commit, team: team, actor: { "user_id" => membership.user_id.to_s })
 
-    stub_gemini({ "assignments" => [ { "group_id" => event_group_id(event), "feature_key" => feature.key, "confidence" => 0.3, "reason" => "no seguro" } ] })
+    stub_gemini({ "assignments" => [ { "group_id" => event_group_id(event), "feature_key" => feature.key, "confidence" => 0.3, "reason" => "not sure" } ] })
 
     described_class.call(team)
 
@@ -95,7 +95,7 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(event.ai_suggestion_attempted_at).to be_present
   end
 
-  it "no vuelve a intentar un grupo ya intentado sin eventos nuevos" do
+  it "does not retry a group already attempted with no new events" do
     membership = create(:membership)
     team = membership.team
     event = create(:activity_event, :github_commit, team: team, actor: { "user_id" => membership.user_id.to_s })
@@ -106,7 +106,7 @@ RSpec.describe Attribution::SuggestForTeam do
     expect(a_request(:post, /generativelanguage/)).not_to have_been_made
   end
 
-  it "nunca vuelve a sugerir una feature ya rechazada para ese grupo" do
+  it "never suggests again a feature already rejected for that group" do
     membership = create(:membership)
     team = membership.team
     make_owner_with_key(team)

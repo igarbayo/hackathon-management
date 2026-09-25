@@ -26,7 +26,7 @@ function triggerFlush(): void {
     const child = spawn(process.execPath, [process.argv[1], "flush"], { detached: true, stdio: "ignore" });
     child.unref();
   } catch {
-    // best-effort: si no se puede lanzar, el próximo hook lo reintentará
+    // best-effort: if it cannot be started, the next hook will retry it
   }
 }
 
@@ -41,8 +41,8 @@ function baseEvent(kind: string, ref: string, remote: string, branch: string | n
   };
 }
 
-// RNF-CC-001: nunca lanza, nunca escribe en stdout. bin/hackboard.ts envuelve
-// esta función en try/catch y siempre sale con 0.
+// RNF-CC-001: never throws, never writes to stdout. bin/hackboard.ts wraps this
+// function in try/catch and always exits with 0.
 export function runHook(event: string | undefined): void {
   const creds = readCredentials();
   if (!creds || creds.connected === false || creds.paused || creds.privacy_level === "off") return;
@@ -54,8 +54,8 @@ export function runHook(event: string | undefined): void {
 
   const remote = getRemote(cwd);
   const cache = readConfigCache();
-  // Filtro de repositorio: si no coincide con un repo vinculado, se
-  // descarta en local (08-integracion-claude-code.md#comportamiento-de-hackboard-hook).
+  // Repository filter: if it does not match a linked repo, the event is dropped locally
+  // (08-integracion-claude-code.md#comportamiento-de-hackboard-hook).
   if (!remote || !cache || !cache.repos.includes(remote)) return;
 
   const branch = getBranch(cwd);

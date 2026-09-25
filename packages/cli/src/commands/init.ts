@@ -34,7 +34,7 @@ async function tryOpenBrowser(url: string): Promise<void> {
     else if (process.platform === "win32") spawn("cmd", ["/c", "start", "", url], { stdio: "ignore" }).unref();
     else spawn("xdg-open", [url], { stdio: "ignore" }).unref();
   } catch {
-    // no-op: la URL ya se ha mostrado en la terminal
+    // no-op: the URL has already been shown in the terminal
   }
 }
 
@@ -77,12 +77,12 @@ async function maybeRegisterMcp(scope: "local" | "user", token: string): Promise
   try {
     existing = execFileSync("claude", ["mcp", "list"], { encoding: "utf-8" });
   } catch {
-    console.log(`\n\`claude\` no está en el PATH. Para registrar el MCP a mano:\n  ${manualCommand}`);
+    console.log(`\n\`claude\` is not in the PATH. To add the MCP server by hand:\n  ${manualCommand}`);
     return;
   }
 
   if (existing.includes("hackboard")) {
-    console.log("\nYa existe un servidor MCP \"hackboard\" registrado: no se toca.");
+    console.log("\nAn MCP server called \"hackboard\" is already registered: leaving it as is.");
     return;
   }
 
@@ -90,9 +90,9 @@ async function maybeRegisterMcp(scope: "local" | "user", token: string): Promise
     execFileSync("claude", ["mcp", "add", "--transport", "http", "--scope", scope, "hackboard", mcpUrl, "--header", `Authorization: Bearer ${token}`], {
       stdio: "ignore",
     });
-    console.log("\nMCP de Hackboard registrado en Claude Code.");
+    console.log("\nHackboard MCP server added to Claude Code.");
   } catch (error) {
-    console.log(`\nNo se ha podido registrar el MCP automáticamente (${(error as Error).message}). Cópialo a mano:\n  ${manualCommand}`);
+    console.log(`\nCould not add the MCP server automatically (${(error as Error).message}). Add it by hand:\n  ${manualCommand}`);
   }
 }
 
@@ -101,20 +101,20 @@ export async function runInit(argv: string[]): Promise<void> {
   const cwd = process.cwd();
 
   if (!getRemote(cwd)) {
-    console.log("No se ha detectado un repo git con remote de GitHub en este directorio. Se continúa con scope \"user\".");
+    console.log("No git repo with a GitHub remote found in this folder. Continuing with scope \"user\".");
     options.scope = "user";
   }
 
-  console.log("Conectando con Hackboard…");
+  console.log("Connecting to Hackboard…");
   const device = await createDevice(options.team);
-  console.log(`\nEntra en: ${device.verification_url}`);
-  console.log(`Código: ${device.user_code}\n`);
-  console.log("Esperando a que apruebes el acceso desde el navegador…");
+  console.log(`\nGo to: ${device.verification_url}`);
+  console.log(`Code: ${device.user_code}\n`);
+  console.log("Waiting for you to approve access in the browser…");
   await tryOpenBrowser(device.verification_url);
 
   const result = await pollForToken(device.device_code, device.interval, device.expires_in);
   if (!result) {
-    console.error("El código ha caducado o se ha rechazado. Vuelve a intentarlo con `hackboard init`.");
+    console.error("The code has expired or was denied. Try again with `hackboard init`.");
     process.exitCode = 1;
     return;
   }
@@ -129,18 +129,18 @@ export async function runInit(argv: string[]): Promise<void> {
     paused: false,
     privacy_level: "metadata",
   });
-  console.log(`Conectado al equipo "${result.team.name}".`);
+  console.log(`Connected to the team "${result.team.name}".`);
 
   const settingsPath = settingsPathFor(options.scope, cwd);
   writeSettingsFile(settingsPath, mergeHooksIntoSettings(readSettingsFile(settingsPath)));
-  console.log(`Hooks instalados en ${settingsPath}`);
+  console.log(`Hooks installed in ${settingsPath}`);
 
   if (options.scope === "local") ensureGitignored(cwd);
 
   if (options.mcp !== false) await maybeRegisterMcp(options.scope, result.token);
 
   await runTest();
-  // verification_url la genera la api con su APP_URL, así que su origen es la web
-  // correcta en cualquier despliegue sin que el CLI tenga que conocerla.
-  console.log(`\nListo. Tus eventos aparecerán en ${new URL(device.verification_url).origin}/t/${result.team.id}/activity`);
+  // The api builds verification_url from its APP_URL, so its origin is the right
+  // web app in any deployment without the CLI having to know it.
+  console.log(`\nDone. Your events will show up at ${new URL(device.verification_url).origin}/t/${result.team.id}/activity`);
 }

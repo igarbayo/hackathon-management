@@ -1,12 +1,12 @@
 require "ipaddr"
 
-# En producción todo el tráfico llega por Cloudflare Tunnel (01-arquitectura),
-# así que la conexión que ve Puma es la de cloudflared, no la del cliente. Sin
-# esto, request.remote_ip sería la misma para todo el mundo y los límites por
-# IP de RateLimiter (RNF-SEC-005) serían uno solo, compartido por todos.
+# In production all traffic comes through Cloudflare Tunnel (01-arquitectura),
+# so the connection Puma sees is cloudflared's, not the client's. Without this,
+# request.remote_ip would be the same for everyone and RateLimiter's per-IP
+# limits (RNF-SEC-005) would be a single one shared by all.
 #
-# Solo se hace caso a CF-Connecting-IP si la conexión viene de una red privada
-# o de loopback (donde corre cloudflared); desde fuera se ignora.
+# CF-Connecting-IP is only trusted if the connection comes from a private or
+# loopback network (where cloudflared runs); from outside it is ignored.
 class CloudflareRemoteIp
   HEADER = "HTTP_CF_CONNECTING_IP".freeze
 

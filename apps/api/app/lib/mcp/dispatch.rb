@@ -1,6 +1,6 @@
-# JSON-RPC 2.0 sobre Streamable HTTP (12-acceso-programatico.md#servidor-mcp).
-# Una sola respuesta JSON por petición: no hace falta SSE para el catálogo
-# de herramientas de Hackboard (ninguna es de larga duración).
+# JSON-RPC 2.0 over Streamable HTTP (12-acceso-programatico.md#servidor-mcp). A
+# single JSON response per request: SSE is not needed for Hackboard's tool
+# catalog (none of them run for long).
 module Mcp
   class Dispatch
     PROTOCOL_VERSION = "2025-06-18"
@@ -19,7 +19,7 @@ module Mcp
     end
 
     def call
-      return error_response(-32600, "petición JSON-RPC inválida") unless message.is_a?(Hash) && message["jsonrpc"] == "2.0"
+      return error_response(-32600, "invalid JSON-RPC request") unless message.is_a?(Hash) && message["jsonrpc"] == "2.0"
 
       result = route
       return Mcp::Notification.new if result.is_a?(Mcp::Notification)
@@ -40,7 +40,7 @@ module Mcp
       when "tools/list" then handle_tools_list
       when "tools/call" then handle_tools_call
       else
-        raise Mcp::ProtocolError.new(-32601, "método desconocido: #{message['method']}")
+        raise Mcp::ProtocolError.new(-32601, "unknown method: #{message['method']}")
       end
     end
 
@@ -73,8 +73,8 @@ module Mcp
       resolved_token.client_name = Mcp::SessionStore.client_name(session_id)
       name = message.dig("params", "name")
       tool = Mcp::Registry.find(name)
-      raise Mcp::ProtocolError.new(-32602, "herramienta desconocida: #{name}") unless tool
-      raise Mcp::ProtocolError.new(-32000, "al token le falta el scope #{tool.scope}") unless tool.scope.nil? || resolved_token.scopes.include?(tool.scope)
+      raise Mcp::ProtocolError.new(-32602, "unknown tool: #{name}") unless tool
+      raise Mcp::ProtocolError.new(-32000, "the token is missing the #{tool.scope} scope") unless tool.scope.nil? || resolved_token.scopes.include?(tool.scope)
 
       args = message.dig("params", "arguments") || {}
 

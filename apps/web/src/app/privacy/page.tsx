@@ -3,16 +3,17 @@ import Link from "next/link";
 import { LogoHorizontal } from "@/components/brand/logo";
 import { publicPageMetadata } from "@/lib/site";
 
-// RF-SEC-007: política de privacidad pública (arts. 13 y 14 del RGPD). El
-// contenido refleja el inventario de specs/09-privacidad-seguridad.md: si
-// cambia un dato, un tercero o un plazo allí, se cambia también aquí.
+// RF-SEC-007: public privacy policy (GDPR arts. 13 and 14). The content
+// mirrors the inventory in specs/09-privacidad-seguridad.md: if a piece of
+// data, a third party or a retention period changes there, change it here too.
 export const metadata: Metadata = publicPageMetadata({
-  title: "Política de privacidad",
-  description: "Qué datos trata Hackboard, para qué, con qué base legal, con quién se comparten, cuánto tiempo se guardan y cómo ejercer tus derechos.",
+  title: "Privacy policy",
+  description:
+    "What data Hackboard processes, why, on what legal basis, who it is shared with, how long it is kept and how to use your rights.",
   path: "/privacy",
 });
 
-const UPDATED_AT = "24 de septiembre de 2026";
+const UPDATED_AT = "September 24, 2026";
 const CONTACT_EMAIL = "iggarbayo@gmail.com";
 
 type Treatment = {
@@ -25,100 +26,100 @@ type Treatment = {
 
 const TREATMENTS: Treatment[] = [
   {
-    title: "Tu cuenta",
-    data: "Email, nombre, avatar, contraseña (solo su hash bcrypt, nunca en claro), login e identificador de GitHub e identificador de Google (sub), si entras con ellos.",
-    purpose: "Crear tu cuenta, identificarte al entrar y mostrarte a tu equipo.",
-    basis: "Ejecución del contrato: prestarte el servicio que pides al registrarte (art. 6.1.b RGPD).",
-    retention: "Mientras exista la cuenta.",
+    title: "Your account",
+    data: "Email, name, avatar, password (only its bcrypt hash, never in plain text), GitHub login and ID, and Google ID (sub), if you sign in with them.",
+    purpose: "Create your account, identify you when you log in and show you to your team.",
+    basis: "Performance of a contract: providing the service you ask for when you sign up (GDPR art. 6.1.b).",
+    retention: "As long as the account exists.",
   },
   {
-    title: "Sesiones",
-    data: "Un identificador de sesión (solo su hash), la dirección IP y el navegador (user agent) desde los que entraste.",
-    purpose: "Mantener la sesión abierta y detectar accesos indebidos a tu cuenta.",
-    basis: "Interés legítimo en la seguridad del servicio y de tu cuenta (art. 6.1.f RGPD).",
-    retention: "30 días desde el último uso de la sesión, o hasta que cierres sesión.",
+    title: "Sessions",
+    data: "A session ID (only its hash), and the IP address and browser (user agent) you logged in from.",
+    purpose: "Keep you logged in and detect unauthorized access to your account.",
+    basis: "Legitimate interest in the security of the service and of your account (GDPR art. 6.1.f).",
+    retention: "30 days from the last use of the session, or until you log out.",
   },
   {
-    title: "Contenido del equipo",
-    data: "Lo que el equipo escribe en Hackboard: objetivos, features, argumentos y votos, milestones, deadlines, el nombre que usas en el equipo y tus identidades de git.",
-    purpose: "Que el equipo organice su hackathon.",
-    basis: "Ejecución del contrato (art. 6.1.b RGPD).",
-    retention: "Mientras exista el equipo. Si se elimina, se borra definitivamente a los 30 días.",
+    title: "Team content",
+    data: "What the team writes in Hackboard: objectives, features, arguments and votes, milestones, deadlines, the name you use in the team and your git identities.",
+    purpose: "Let the team organize its hackathon.",
+    basis: "Performance of a contract (GDPR art. 6.1.b).",
+    retention: "As long as the team exists. If it is deleted, it is permanently erased after 30 days.",
   },
   {
-    title: "Actividad de GitHub",
-    data: "De los repositorios que el equipo vincula: sha, mensaje (recortado), autor, email del autor, rutas de ficheros y líneas añadidas y quitadas de cada commit.",
-    purpose: "Mostrar el feed de actividad y relacionar el trabajo con las features.",
-    basis: "Ejecución del contrato para los miembros del equipo; interés legítimo del equipo en seguir su propio trabajo para el resto de autores de commits (art. 6.1.f RGPD).",
-    retention: "90 días después del final del hackathon, salvo que el owner marque el equipo como «conservar».",
+    title: "GitHub activity",
+    data: "From the repositories the team links: the sha, message (shortened), author, author email, file paths and lines added and removed of each commit.",
+    purpose: "Show the activity feed and link the work to features.",
+    basis: "Performance of a contract for team members; the team's legitimate interest in following its own work for other commit authors (GDPR art. 6.1.f).",
+    retention: "90 days after the hackathon ends, unless the owner marks the team as “keep”.",
   },
   {
-    title: "Actividad de Claude Code (opcional)",
-    data: "Solo si tú conectas el CLI: tipo de evento, horas, rama, sha, rutas relativas de ficheros editados, número de herramientas y longitud del prompt. Con el nivel «resúmenes», además un resumen de hasta 500 caracteres que escribe Claude y ves antes de enviarlo.",
-    purpose: "Mostrar al equipo en qué estás trabajando.",
-    basis: "Ejecución del contrato, en una función que solo tú activas y que puedes pausar o desconectar cuando quieras (art. 6.1.b RGPD).",
-    retention: "Como la actividad de GitHub. Puedes borrarla en cualquier momento con «Desconectar y borrar mis eventos».",
+    title: "Claude Code activity (optional)",
+    data: "Only if you connect the CLI: event type, times, branch, sha, relative paths of edited files, number of tools and prompt length. With the “summaries” level, also a summary of up to 500 characters that Claude writes and you see before it is sent.",
+    purpose: "Show your team what you are working on.",
+    basis: "Performance of a contract, in a feature that only you turn on and can pause or disconnect at any time (GDPR art. 6.1.b).",
+    retention: "Same as GitHub activity. You can delete it at any time with “Disconnect and delete my events”.",
   },
   {
-    title: "Análisis con IA (opcional)",
-    data: "Títulos, descripciones, mensajes de commit, rutas y recuentos del equipo, y el resultado del análisis. Tu clave de la API de Gemini, cifrada.",
-    purpose: "Calcular la cobertura de objetivos y relacionar commits con features.",
-    basis: "Ejecución del contrato, solo cuando configuras tu clave y lanzas un análisis (art. 6.1.b RGPD).",
-    retention: "Los análisis, como la actividad. La clave, hasta que la quites o borres la cuenta.",
+    title: "AI analysis (optional)",
+    data: "The team's titles, descriptions, commit messages, paths and counts, and the result of the analysis. Your Gemini API key, encrypted.",
+    purpose: "Work out objective coverage and link commits to features.",
+    basis: "Performance of a contract, only when you set up your key and run an analysis (GDPR art. 6.1.b).",
+    retention: "Analyses, same as activity. The key, until you remove it or delete your account.",
   },
   {
-    title: "Tokens, apps conectadas y webhooks",
-    data: "Nombre, prefijo, permisos y último uso de tus tokens (solo su hash); nombre y permisos de las apps que autorizas; de los webhooks salientes, su URL, el secreto cifrado y el estado, código y duración de cada entrega (nunca el contenido).",
-    purpose: "Dar acceso programático a Hackboard y avisar a otras herramientas del equipo.",
-    basis: "Ejecución del contrato (art. 6.1.b RGPD).",
-    retention: "Tokens y conexiones, hasta 30 días después de revocarse o caducar. Entregas de webhooks, 14 días.",
+    title: "Tokens, connected apps and webhooks",
+    data: "Name, prefix, permissions and last use of your tokens (only their hash); name and permissions of the apps you authorize; for outgoing webhooks, their URL, the encrypted secret and the status, code and duration of each delivery (never the content).",
+    purpose: "Give programmatic access to Hackboard and notify the team's other tools.",
+    basis: "Performance of a contract (GDPR art. 6.1.b).",
+    retention: "Tokens and connections, up to 30 days after they are revoked or expire. Webhook deliveries, 14 days.",
   },
   {
-    title: "Registros técnicos",
-    data: "Dirección IP, fecha, ruta pedida y resultado de cada petición; contadores temporales por IP para limitar abusos.",
-    purpose: "Mantener el servicio funcionando y protegerlo frente a abusos y ataques.",
-    basis: "Interés legítimo en la seguridad del servicio (art. 6.1.f RGPD).",
-    retention: "Los registros rotan y se sobrescriben automáticamente; los contadores duran como máximo 1 hora.",
+    title: "Technical logs",
+    data: "IP address, date, requested path and result of each request; temporary per-IP counters to limit abuse.",
+    purpose: "Keep the service running and protect it from abuse and attacks.",
+    basis: "Legitimate interest in the security of the service (GDPR art. 6.1.f).",
+    retention: "Logs rotate and are overwritten automatically; counters last 1 hour at most.",
   },
   {
-    title: "Cuando me escribes",
-    data: "Tu email y lo que me cuentes.",
-    purpose: "Responderte y atender el ejercicio de tus derechos.",
-    basis: "Cumplimiento de una obligación legal cuando ejerces tus derechos (art. 6.1.c RGPD); interés legítimo en el resto de casos.",
-    retention: "El tiempo necesario para resolver la petición y, después, el plazo en que puedan exigirse responsabilidades.",
+    title: "When you write to me",
+    data: "Your email and what you tell me.",
+    purpose: "Reply to you and handle requests to use your rights.",
+    basis: "Compliance with a legal obligation when you use your rights (GDPR art. 6.1.c); legitimate interest in all other cases.",
+    retention: "As long as needed to resolve the request and, after that, for the period in which liability can be claimed.",
   },
 ];
 
 const PROVIDERS: { name: string; what: string; where: string }[] = [
   {
     name: "Cloudflare (Cloudflare, Inc.)",
-    what: "Todo el tráfico entre tu navegador (o el CLI) y el servidor pasa por su red mediante un túnel cifrado: ve tu dirección IP y las peticiones que haces. Actúa como encargado del tratamiento.",
-    where: "Red global, con sede en Estados Unidos.",
+    what: "All traffic between your browser (or the CLI) and the server goes through its network over an encrypted tunnel: it sees your IP address and the requests you make. It acts as a data processor.",
+    where: "Global network, based in the United States.",
   },
   {
     name: "MongoDB Atlas (MongoDB, Inc.)",
-    what: "Base de datos donde se guarda todo lo anterior. Actúa como encargado del tratamiento.",
-    where: "Servidores en la Unión Europea.",
+    what: "The database where everything above is stored. It acts as a data processor.",
+    where: "Servers in the European Union.",
   },
   {
     name: "Upstash (Upstash, Inc.)",
-    what: "Colas y datos temporales (trabajos en segundo plano, contadores, respuestas idempotentes de 24 horas). Actúa como encargado del tratamiento.",
-    where: "Servidores en la Unión Europea.",
+    what: "Queues and temporary data (background jobs, counters, idempotent responses kept for 24 hours). It acts as a data processor.",
+    where: "Servers in the European Union.",
   },
   {
     name: "GitHub (GitHub, Inc.)",
-    what: "Si entras con GitHub o el equipo vincula repositorios: Hackboard recibe tu perfil público y lee la actividad de esos repositorios.",
-    where: "Estados Unidos.",
+    what: "If you sign in with GitHub or the team links repositories: Hackboard receives your public profile and reads the activity of those repositories.",
+    where: "United States.",
   },
   {
     name: "Google (Google LLC)",
-    what: "Si entras con Google: te identifica y nos da tu email, nombre y foto. Si usas el análisis con IA: recibe, con tu clave de Gemini, el contexto del equipo descrito arriba.",
-    where: "Estados Unidos.",
+    what: "If you sign in with Google: it identifies you and gives us your email, name and photo. If you use AI analysis: it receives, with your Gemini key, the team context described above.",
+    where: "United States.",
   },
   {
     name: "Anthropic (Anthropic, PBC)",
-    what: "Solo si conectas Hackboard a claude.ai: recibe lo que Claude consulte del tablero, según los permisos que apruebes.",
-    where: "Estados Unidos.",
+    what: "Only if you connect Hackboard to claude.ai: it receives what Claude reads from the board, within the permissions you approve.",
+    where: "United States.",
   },
 ];
 
@@ -149,7 +150,7 @@ export default function PrivacyPage() {
     <main className="flex min-h-screen flex-col items-center gap-8 px-4 py-10">
       <Link
         href="/"
-        aria-label="Ir a Hackboard"
+        aria-label="Go to Hackboard"
         className="focus-visible:ring-f1-special-ring rounded focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-none"
       >
         <LogoHorizontal className="h-10" priority />
@@ -157,70 +158,67 @@ export default function PrivacyPage() {
 
       <article className="bg-f1-background border-f1-border text-f1-foreground-secondary flex w-full max-w-[712px] flex-col gap-8 rounded-xl border p-6 text-base sm:p-8">
         <header className="flex flex-col gap-1">
-          <h1 className="text-f1-foreground text-2xl font-semibold">Política de privacidad</h1>
-          <p className="text-sm">Última actualización: {UPDATED_AT}</p>
+          <h1 className="text-f1-foreground text-2xl font-semibold">Privacy policy</h1>
+          <p className="text-sm">Last updated: {UPDATED_AT}</p>
         </header>
 
         <p>
-          Hackboard es una herramienta para organizar equipos de hackathon. Guarda lo mínimo para funcionar y nunca guarda
-          el texto de tus prompts, las respuestas de Claude, diffs ni el contenido de tus ficheros. Aquí tienes el detalle.
+          Hackboard is a tool to organize hackathon teams. It stores the minimum it needs to work and never stores the
+          text of your prompts, Claude&apos;s replies, diffs or the content of your files. Here are the details.
         </p>
 
-        <Section id="responsable" title="Quién es el responsable">
+        <Section id="controller" title="Who is the data controller">
           <p>
-            Ignacio Garbayo, que desarrolla y gestiona Hackboard como particular. Para cualquier cuestión sobre tus datos,
-            escríbeme a <Mail />.
+            Ignacio Garbayo, who builds and runs Hackboard as an individual. For any question about your data, write to
+            me at <Mail />.
           </p>
         </Section>
 
-        <Section id="datos" title="Qué datos trato, para qué y por qué">
+        <Section id="data" title="What data I process, what for and why">
           <div className="flex flex-col gap-3">
             {TREATMENTS.map((t) => (
               <div key={t.title} className="border-f1-border-secondary flex flex-col gap-2 rounded-md border p-4">
                 <h3 className="text-f1-foreground font-semibold">{t.title}</h3>
                 <dl className="grid gap-x-4 gap-y-1.5 sm:grid-cols-[8rem_1fr]">
-                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Datos</dt>
+                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Data</dt>
                   <dd>{t.data}</dd>
-                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Para qué</dt>
+                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">What for</dt>
                   <dd>{t.purpose}</dd>
-                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Base legal</dt>
+                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Legal basis</dt>
                   <dd>{t.basis}</dd>
-                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">Cuánto tiempo</dt>
+                  <dt className="text-f1-foreground-tertiary text-sm sm:text-base">How long</dt>
                   <dd>{t.retention}</dd>
                 </dl>
               </div>
             ))}
           </div>
           <p>
-            Los datos de tu cuenta son necesarios para usar Hackboard: sin ellos no puedo crearla. Todo lo marcado como
-            opcional depende de que tú lo actives.
+            Your account data is needed to use Hackboard: without it I cannot create your account. Everything marked as
+            optional depends on you turning it on.
           </p>
         </Section>
 
-        <Section id="no-usuarios" title="Si no usas Hackboard pero aparece tu nombre">
+        <Section id="non-users" title="If you do not use Hackboard but your name shows up">
           <p>
-            Si has hecho commits en un repositorio que un equipo vincula a Hackboard, se guardan tu nombre, tu email de git
-            y los metadatos de esos commits, obtenidos de GitHub. Se usan solo para el feed de actividad de ese equipo y se
-            borran con los plazos de arriba. Si más adelante te unes a ese equipo, esos commits se asocian a tu cuenta por tu
-            login o tu email de git. Puedes oponerte o pedir que se borren escribiendo a <Mail />.
+            If you have made commits in a repository that a team links to Hackboard, your name, your git email and the
+            metadata of those commits, taken from GitHub, are stored. They are used only for that team&apos;s activity
+            feed and are deleted within the periods above. If you later join that team, those commits are linked to your
+            account by your login or your git email. You can object or ask for them to be deleted by writing to <Mail />.
           </p>
         </Section>
 
-        <Section id="no-guardo" title="Lo que no guardo nunca">
+        <Section id="never-stored" title="What I never store">
           <ul className="flex list-disc flex-col gap-1 pl-5">
-            <li>El texto de tus prompts ni las respuestas de Claude.</li>
-            <li>Diffs ni contenido de ficheros.</li>
-            <li>Tu contraseña en claro ni los tokens de Google o GitHub.</li>
-            <li>El contenido de los webhooks que recibo de GitHub, más allá de lo necesario para procesarlos.</li>
+            <li>The text of your prompts or Claude&apos;s replies.</li>
+            <li>Diffs or file contents.</li>
+            <li>Your password in plain text, or your Google or GitHub tokens.</li>
+            <li>The content of the webhooks I receive from GitHub, beyond what is needed to process them.</li>
           </ul>
-          <p>No vendo tus datos, no hago publicidad ni creo perfiles comerciales.</p>
+          <p>I do not sell your data, I do not run ads and I do not build commercial profiles.</p>
         </Section>
 
-        <Section id="terceros" title="Con quién se comparten">
-          <p>
-            Hackboard funciona en un servidor propio en España. Estos proveedores reciben datos, solo los necesarios para
-            su función:
-          </p>
+        <Section id="third-parties" title="Who it is shared with">
+          <p>Hackboard runs on its own server in Spain. These providers receive data, only what they need for their job:</p>
           <ul className="flex flex-col gap-2">
             {PROVIDERS.map((p) => (
               <li key={p.name} className="flex flex-col gap-0.5">
@@ -232,127 +230,126 @@ export default function PrivacyPage() {
             ))}
           </ul>
           <p>
-            Además, los miembros de tu equipo ven lo que se comparte en él; un owner puede enviar eventos del equipo a
-            las herramientas que elija mediante webhooks (nunca la actividad de Claude Code), y las apps a las que
-            des un token acceden a lo que permitan sus permisos. Lo que esos terceros hagan con los datos depende de sus
-            propias condiciones.
+            Also, the members of your team see what is shared in it; an owner can send team events to the tools they
+            choose through webhooks (never Claude Code activity), and the apps you give a token to can access whatever
+            their permissions allow. What those third parties do with the data depends on their own terms.
           </p>
           <p>
-            La clave de Gemini es tuya, así que lo que Google haga con lo que se le envía depende de tu plan. En el plan
-            gratuito de la API de Gemini, Google puede usar ese contenido para mejorar sus productos; si no quieres que
-            ocurra, usa una clave de un plan de pago.
+            The Gemini key is yours, so what Google does with what is sent to it depends on your plan. On the free tier
+            of the Gemini API, Google may use that content to improve its products; if you do not want that, use a key
+            from a paid plan.
           </p>
-          <p>Solo cedo datos a autoridades cuando una ley me obliga.</p>
+          <p>I only hand data to authorities when the law requires me to.</p>
         </Section>
 
-        <Section id="transferencias" title="Transferencias fuera de la Unión Europea">
+        <Section id="transfers" title="Transfers outside the European Union">
           <p>
-            GitHub, Google, Anthropic y Cloudflare están en Estados Unidos, y MongoDB y Upstash son empresas
-            estadounidenses aunque guarden los datos en Europa. Estas transferencias se amparan en el Marco de Privacidad de Datos UE-EE. UU.
-            cuando la empresa está adherida a él y, si no, en las cláusulas contractuales tipo aprobadas por la Comisión
-            Europea (art. 46 RGPD). Puedes pedirme una copia de estas garantías.
+            GitHub, Google, Anthropic and Cloudflare are in the United States, and MongoDB and Upstash are US companies
+            even though they store the data in Europe. These transfers rely on the EU-US Data Privacy Framework when the
+            company has signed up to it and, if not, on the standard contractual clauses approved by the European
+            Commission (GDPR art. 46). You can ask me for a copy of these safeguards.
           </p>
         </Section>
 
-        <Section id="google" title="Datos de las cuentas de Google">
+        <Section id="google" title="Google account data">
           <p>
-            Si entras con Google, Hackboard solo pide los permisos <code className="text-sm">openid</code>,{" "}
-            <code className="text-sm">email</code> y <code className="text-sm">profile</code>: recibe tu identificador,
-            tu email (y si está verificado), tu nombre y tu foto. Los usa exclusivamente para crear tu cuenta, dejarte
-            entrar y mostrarte a tu equipo. No accede a Gmail, Drive, Calendar ni a ningún otro dato de Google, no guarda
-            tus tokens de Google, no transfiere estos datos a terceros salvo lo descrito en esta política y no los usa
-            para publicidad ni para entrenar modelos de IA.
+            If you sign in with Google, Hackboard only asks for the <code className="text-sm">openid</code>,{" "}
+            <code className="text-sm">email</code> and <code className="text-sm">profile</code> scopes: it receives your
+            ID, your email (and whether it is verified), your name and your photo. It uses them only to create your
+            account, let you log in and show you to your team. It does not access Gmail, Drive, Calendar or any other
+            Google data, does not store your Google tokens, does not transfer this data to third parties except as
+            described in this policy and does not use it for ads or to train AI models.
           </p>
           <p>
-            El uso que hace Hackboard de la información recibida de las API de Google se ajusta a la{" "}
+            Hackboard&apos;s use of information received from Google APIs adheres to the{" "}
             <a
               href="https://developers.google.com/terms/api-services-user-data-policy"
               className="text-f1-foreground focus-visible:ring-f1-special-ring rounded-2xs underline focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-none"
             >
-              Política de datos de usuario de los servicios de las API de Google
+              Google API Services User Data Policy
             </a>
-            , incluidos los requisitos de uso limitado.
+            , including the Limited Use requirements.
           </p>
         </Section>
 
-        <Section id="cookies" title="Cookies y almacenamiento local">
-          <p>Hackboard solo usa cookies técnicas, imprescindibles para funcionar, así que no necesitan tu consentimiento:</p>
+        <Section id="cookies" title="Cookies and local storage">
+          <p>Hackboard only uses technical cookies that it needs to work, so they do not need your consent:</p>
           <ul className="flex list-disc flex-col gap-1 pl-5">
             <li>
-              <code className="text-sm">hb_session</code>: mantiene tu sesión abierta. Dura 30 días desde el último uso.
+              <code className="text-sm">hb_session</code>: keeps you logged in. It lasts 30 days from the last use.
             </li>
             <li>
-              <code className="text-sm">hb_csrf_seed</code>: protege los formularios frente a peticiones falsificadas.
-              Se borra al cerrar el navegador.
+              <code className="text-sm">hb_csrf_seed</code>: protects forms against forged requests. It is deleted when
+              you close the browser.
             </li>
           </ul>
           <p>
-            En el almacenamiento local del navegador se guarda el tema (claro u oscuro) que eliges. No hay analítica,
-            publicidad ni cookies de terceros. Las fotos de perfil se cargan directamente desde GitHub o Google, que
-            reciben tu dirección IP al mostrarlas.
+            The browser&apos;s local storage keeps the theme (light or dark) you choose. There is no analytics, no ads
+            and no third-party cookies. Profile photos load straight from GitHub or Google, which receive your IP
+            address when they are shown.
           </p>
         </Section>
 
-        <Section id="derechos" title="Tus derechos">
-          <p>Puedes, en cualquier momento y gratis:</p>
+        <Section id="rights" title="Your rights">
+          <p>At any time and for free, you can:</p>
           <ul className="flex list-disc flex-col gap-1 pl-5">
-            <li>Acceder a tus datos y saber cómo se tratan.</li>
-            <li>Rectificarlos si son inexactos.</li>
-            <li>Suprimirlos, borrando tu cuenta o tus eventos de Claude Code.</li>
-            <li>Limitar su tratamiento.</li>
-            <li>Oponerte a los tratamientos basados en interés legítimo.</li>
-            <li>Recibirlos en un formato estructurado y de uso común (portabilidad).</li>
+            <li>Access your data and know how it is processed.</li>
+            <li>Correct it if it is inaccurate.</li>
+            <li>Erase it, by deleting your account or your Claude Code events.</li>
+            <li>Restrict its processing.</li>
+            <li>Object to processing based on legitimate interest.</li>
+            <li>Receive it in a structured, commonly used format (portability).</li>
           </ul>
           <p>
-            Muchas cosas las puedes hacer tú mismo desde Ajustes: editar tu perfil, revocar tokens y apps, pausar o
-            desconectar Claude Code y borrar sus eventos, y borrar tu cuenta. Para lo demás, escríbeme a <Mail /> desde el
-            email de tu cuenta. Te responderé en un plazo máximo de un mes.
+            You can do many of these things yourself from Settings: edit your profile, revoke tokens and apps, pause or
+            disconnect Claude Code and delete its events, and delete your account. For anything else, write to me at{" "}
+            <Mail /> from your account email. I will reply within one month at most.
           </p>
           <p>
-            Si crees que no he tratado bien tus datos, puedes reclamar ante la{" "}
+            If you think I have not handled your data properly, you can file a complaint with the{" "}
             <a
               href="https://www.aepd.es"
               className="text-f1-foreground focus-visible:ring-f1-special-ring rounded-2xs underline focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-none"
             >
-              Agencia Española de Protección de Datos
+              Spanish Data Protection Agency (AEPD)
             </a>{" "}
-            o ante la autoridad de control de tu país.
+            or with the supervisory authority in your country.
           </p>
           <p>
-            Cuando borras tu cuenta se eliminan tu perfil, tus sesiones, tu clave de Gemini y tu actividad de Claude Code,
-            y se revocan tus tokens y apps conectadas. En la actividad de GitHub, que es historia del repositorio, pasas a
-            aparecer como «Usuario eliminado» junto a tu login. Lo que escribiste en un equipo (features, argumentos…)
-            sigue siendo del equipo. Si quedan en alguna copia de seguridad, desaparecen de ella cuando caduca.
-          </p>
-        </Section>
-
-        <Section id="ia" title="Decisiones automatizadas">
-          <p>
-            El análisis con IA sugiere qué commits corresponden a cada feature y cuánto se ha cubierto de cada objetivo.
-            Son indicaciones para el equipo, que puede corregirlas: no se toman decisiones con efectos jurídicos ni
-            parecidos sobre nadie (art. 22 RGPD).
+            When you delete your account, your profile, sessions, Gemini key and Claude Code activity are deleted, and
+            your tokens and connected apps are revoked. In GitHub activity, which is part of the repository history, you
+            show up as “Deleted user” next to your login. What you wrote in a team (features, arguments…) still belongs
+            to the team. If any of it remains in a backup, it disappears from it when the backup expires.
           </p>
         </Section>
 
-        <Section id="seguridad" title="Seguridad">
+        <Section id="ai" title="Automated decisions">
           <p>
-            Toda la comunicación va cifrada con HTTPS. Las contraseñas y los tokens se guardan como hash, las claves y los
-            secretos, cifrados, y cada equipo solo puede acceder a sus propios datos. Si hubiera una brecha de seguridad
-            que afectase a tus datos, te avisaría y lo notificaría a la autoridad de control según exige la ley.
+            AI analysis suggests which commits belong to each feature and how much of each objective is covered. These
+            are hints for the team, which can correct them: no decisions with legal or similarly significant effects are
+            made about anyone (GDPR art. 22).
           </p>
         </Section>
 
-        <Section id="menores" title="Menores">
+        <Section id="security" title="Security">
           <p>
-            Hackboard no está dirigido a menores de 16 años y no pueden registrarse. Si sabes que un menor de 16 años ha
-            creado una cuenta, escríbeme y la borraré.
+            All communication is encrypted with HTTPS. Passwords and tokens are stored as hashes, keys and secrets are
+            encrypted, and each team can only access its own data. If there were a security breach affecting your data,
+            I would tell you and notify the supervisory authority as the law requires.
           </p>
         </Section>
 
-        <Section id="cambios" title="Cambios en esta política">
+        <Section id="minors" title="Minors">
           <p>
-            Si cambio algo importante, lo avisaré en la aplicación antes de que entre en vigor. La fecha de arriba
-            indica la última versión.
+            Hackboard is not meant for people under 16 and they cannot sign up. If you know that someone under 16 has
+            created an account, write to me and I will delete it.
+          </p>
+        </Section>
+
+        <Section id="changes" title="Changes to this policy">
+          <p>
+            If I change anything important, I will announce it in the app before it takes effect. The date at the top
+            shows the latest version.
           </p>
         </Section>
       </article>
@@ -362,7 +359,7 @@ export default function PrivacyPage() {
           href="/login"
           className="focus-visible:ring-f1-special-ring rounded-2xs underline focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-none"
         >
-          Volver a Hackboard
+          Back to Hackboard
         </Link>
       </footer>
     </main>

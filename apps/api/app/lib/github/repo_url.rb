@@ -1,5 +1,5 @@
-# Normaliza lo que pega el usuario ("https://github.com/org/repo",
-# "org/repo", con o sin ".git") a "org/repo" (RF-GH-020).
+# Normalizes what the user pastes ("https://github.com/org/repo", "org/repo",
+# with or without ".git") to "org/repo" (RF-GH-020).
 module Github
   module RepoUrl
     PATTERN = %r{\A(?:https?://github\.com/)?(?<full_name>[\w.-]+/[\w.-]+?)(?:\.git)?/?\z}

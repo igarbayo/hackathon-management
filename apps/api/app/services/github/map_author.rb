@@ -1,7 +1,7 @@
-# Cascada para resolver actor.user_id en eventos de GitHub
-# (07-integracion-github.md#mapeo-de-autores). Sea o no miembro, el actor
-# guarda siempre la identidad del autor (login, email y nombre), para poder
-# asignarle el evento cuando se dé de alta (ADR-0018).
+# Cascade to resolve actor.user_id on GitHub events
+# (07-integracion-github.md#mapeo-de-autores). Member or not, the actor always
+# keeps the author's identity (login, email and name), so the event can be
+# assigned to them when they sign up (ADR-0018).
 module Github
   class MapAuthor
     def self.call(team:, login: nil, email: nil, display_name: nil)

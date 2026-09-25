@@ -1,8 +1,8 @@
-# Cifra la clave de Gemini que cada usuario guarda en su perfil
-# (06-analisis-ia.md#proveedor, RF-AI-021) con GEMINI_API_KEY_ENCRYPTION_KEY.
-# Mismo esquema que WebhookSecretCipher (AES-256-GCM directo, sin depender
-# del formato de mensaje de ActiveSupport::MessageEncryptor), pero con su
-# propia clave de cifrado para no acoplar dos secretos sin relación.
+# Encrypts the Gemini key each user stores in their profile
+# (06-analisis-ia.md#proveedor, RF-AI-021) with GEMINI_API_KEY_ENCRYPTION_KEY.
+# Same scheme as WebhookSecretCipher (AES-256-GCM directly, without depending on
+# ActiveSupport::MessageEncryptor's message format), but with its own encryption
+# key so two unrelated secrets are not coupled.
 module GeminiApiKeyCipher
   class MissingKeyError < StandardError; end
 
@@ -38,7 +38,7 @@ module GeminiApiKeyCipher
 
   def key
     raw_key = ENV.fetch("GEMINI_API_KEY_ENCRYPTION_KEY") do
-      raise MissingKeyError, "Falta la variable de entorno GEMINI_API_KEY_ENCRYPTION_KEY"
+      raise MissingKeyError, "Missing environment variable GEMINI_API_KEY_ENCRYPTION_KEY"
     end
 
     Digest::SHA256.digest(raw_key)
