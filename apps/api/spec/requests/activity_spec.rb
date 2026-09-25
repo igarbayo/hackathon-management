@@ -33,6 +33,21 @@ RSpec.describe "Activity", type: :request do
       expect(ids).to contain_exactly(unattributed.id.to_s)
     end
 
+    it "filters by branch, including commits that reached it from another one (RF-GH-026)" do
+      membership = create(:membership)
+      team = membership.team
+      on_feature = create(:activity_event, :github_commit, team: team, branch: "f-3", branches: %w[f-3])
+      merged = create(:activity_event, :github_commit, team: team, branch: "f-3", branches: %w[f-3 main])
+      legacy = create(:activity_event, :github_commit, team: team, branch: "main")
+      sign_in_as(membership.user)
+
+      get "/api/v1/teams/#{team.id}/activity", params: { branch: "main" }
+
+      expect(json_response["data"].map { |e| e["id"] }).to contain_exactly(merged.id.to_s, legacy.id.to_s)
+      expect(json_response["data"].find { |e| e["id"] == legacy.id.to_s }["branches"]).to eq([ "main" ])
+      expect(on_feature).to be_persisted
+    end
+
     it "isolates by team (RNF-SEC-001)" do
       membership = create(:membership)
       other_team = create(:team)

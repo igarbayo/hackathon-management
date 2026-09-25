@@ -15,6 +15,9 @@ module Api
         # is explicitly accepted so it can be removed.
         current_user.gemini_api_key = params[:gemini_api_key].presence if params.key?(:gemini_api_key)
 
+        # RF-TEAM-014: it can only be set, not unset.
+        current_user.profile_completed_at ||= Time.current if ActiveModel::Type::Boolean.new.cast(params[:profile_completed])
+
         current_user.save!
 
         render json: MeSerializer.new(current_user).as_json

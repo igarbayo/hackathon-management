@@ -24,10 +24,11 @@ module Api
           )
         end
 
-        result = Github::LinkRepository.call(team: current_team, user: current_user, full_name: full_name)
+        result = Github::LinkRepository.call(team: current_team, user: current_user, full_name: full_name,
+                                              return_to: params[:return_to])
 
         if result.linked
-          Github::ImportHistoryJob.perform_async(result.repository.id.to_s)
+          Github::ImportHistoryJob.enqueue(result.repository)
           render json: RepositorySerializer.new(result.repository).as_json, status: :created
         else
           render json: { needs_install: true, install_url: result.install_url }
@@ -39,7 +40,7 @@ module Api
         repository = Repository.where(team_id: current_team.id, id: params[:id]).first
         raise ApiError::NotFound.new(message: "repository not found") unless repository
 
-        Github::ImportHistoryJob.perform_async(repository.id.to_s)
+        Github::ImportHistoryJob.enqueue(repository)
         head :accepted
       end
 

@@ -25,6 +25,10 @@ class ActivityEvent
   field :actor, type: Hash, default: {}
   field :repository_id, type: BSON::ObjectId
   field :branch, type: String
+  # Commits only (RF-GH-026): every branch the commit has been seen on.
+  # `branch` is the first one it showed up on, preferably not the default
+  # branch.
+  field :branches, type: Array, default: []
   field :sha, type: String
   field :pr_number, type: Integer
   field :url, type: String
@@ -61,6 +65,7 @@ class ActivityEvent
 
   index({ team_id: 1, dedupe_key: 1 }, { unique: true })
   index({ team_id: 1, occurred_at: -1 })
+  index({ team_id: 1, branches: 1, occurred_at: -1 })
   index({ team_id: 1, "attribution.feature_id" => 1, occurred_at: -1 })
   index({ team_id: 1, "actor.user_id" => 1, occurred_at: -1 })
   index({ team_id: 1, "attribution.status" => 1 })
@@ -68,6 +73,11 @@ class ActivityEvent
 
   scope :pending_attribution, -> { where("attribution.status" => "suggested") }
   scope :for_feature, ->(feature) { where("attribution.feature_id" => feature.id) }
+
+  # Events older than RF-GH-026 only have `branch`.
+  def all_branches
+    branches.presence || [ branch ].compact
+  end
 
   private
 

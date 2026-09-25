@@ -90,7 +90,7 @@ RSpec.describe "MCP read tools" do
 
       result = call(described_class, { "feature_key" => feature.key })
 
-      expect(result[:branch_name]).to eq("#{feature.key.downcase}-login-con-github")
+      expect(result[:branch_name]).to eq("#{feature.key.downcase}-login-with-github")
     end
   end
 

@@ -34,6 +34,10 @@ module Github
       paginate("/repos/#{full_name}/pulls/#{number}/files")
     end
 
+    def branches(full_name)
+      paginate("/repos/#{full_name}/branches")
+    end
+
     def get_commits(full_name, sha:, since:)
       paginate("/repos/#{full_name}/commits", params: { per_page: 100, sha: sha, since: since.iso8601 })
     end
@@ -47,6 +51,9 @@ module Github
     attr_reader :installation_id
 
     def get(path, params = {})
+      exhausted_until = Github::RateBudget.exhausted_until(installation_id)
+      raise RateLimited, exhausted_until if exhausted_until
+
       response = connection.get(path, params)
       handle_rate_limit(response)
       raise NotFound, path if response.status == 404
@@ -76,10 +83,9 @@ module Github
       limit = response.headers["x-ratelimit-limit"]&.to_i
       return unless remaining && limit && limit.positive?
 
-      return unless remaining < limit * 0.2
-
       reset_at = Time.at(response.headers["x-ratelimit-reset"].to_i)
-      raise RateLimited, reset_at
+      Github::RateBudget.record(installation_id, limit: limit, remaining: remaining, reset_at: reset_at)
+      raise RateLimited, reset_at if Github::RateBudget.below_reserve?(remaining, limit)
     end
 
     def connection

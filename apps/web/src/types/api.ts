@@ -15,6 +15,7 @@ export interface Me {
   has_password: boolean;
   gemini_api_key_configured: boolean;
   last_team_id: string | null;
+  profile_completed: boolean;
   memberships: Membership[];
 }
 
@@ -90,6 +91,8 @@ export interface Feature {
   updated_at: string;
   created_at: string;
   arguments?: Argument[];
+  // RF-GH-026: only in the detail.
+  activity_branches?: string[];
 }
 
 export interface Argument {

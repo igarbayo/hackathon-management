@@ -23,6 +23,8 @@ test("OAuth consent: approving from the web app leaves a token ready for the cli
   await page.getByRole("button", { name: "Sign up" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: profile first, with the sign-up name already filled in.
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("Create team").click();
   await page.getByLabel("Team name").fill("OAuth E2E Team");
   await page.getByLabel("Hackathon name").fill("HackUSC OAuth E2E");
@@ -30,6 +32,7 @@ test("OAuth consent: approving from the web app leaves a token ready for the cli
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Create team" }).click();
+  await page.getByRole("button", { name: "Skip for now" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 

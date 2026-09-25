@@ -1,12 +1,14 @@
 "use client";
 
 import { use, useMemo, useState } from "react";
-import { ActivityIcon, GitCommitIcon, MessageSquareIcon, RadioIcon, Settings2Icon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ActivityIcon, GitCommitIcon, MessageSquareIcon, RadioIcon, Settings2Icon, XIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
+import { BranchTag } from "@/components/github/branch-tag";
 import { PageHeader } from "@/components/f0/page-header";
 import { useActivity, useDecideAttribution } from "@/hooks/use-activity";
 import { useFeatures } from "@/hooks/use-features";
@@ -33,6 +35,9 @@ const SOURCE_ICON = { github: GitCommitIcon, claude_code: MessageSquareIcon, mcp
 // for unlinked authors and selection of GitHub events for "These are mine".
 export default function ActivityPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
+  const router = useRouter();
+  // RF-GH-026: `?branch=` filters by branch (linked from the branch tags).
+  const branch = useSearchParams().get("branch") ?? undefined;
   const [attributionStatus, setAttributionStatus] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [includeFuture, setIncludeFuture] = useState(true);
@@ -42,8 +47,10 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
   const decide = useDecideAttribution(teamId);
 
   const unlinkedOnly = attributionStatus === "unlinked";
-  const filters =
-    attributionStatus === "all" ? {} : unlinkedOnly ? { actor_status: "unlinked" } : { attribution_status: attributionStatus };
+  const filters = {
+    ...(attributionStatus === "all" ? {} : unlinkedOnly ? { actor_status: "unlinked" } : { attribution_status: attributionStatus }),
+    ...(branch ? { branch } : {}),
+  };
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useActivity(teamId, filters);
 
   const events = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -90,6 +97,16 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
         }
       />
 
+      {branch && (
+        <div className="flex items-center gap-2 text-base text-f1-foreground-secondary">
+          Branch
+          <BranchTag name={branch} />
+          <Button variant="ghost" size="sm" onClick={() => router.replace(`/t/${teamId}/activity`)}>
+            <XIcon className="size-3.5" /> Clear filter
+          </Button>
+        </div>
+      )}
+
       {unlinkedOnly && (
         <UnlinkedAuthorsPanel teamId={teamId} includeFuture={includeFuture} onIncludeFutureChange={setIncludeFuture} />
       )}
@@ -122,6 +139,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
           {events.map((event) => (
             <EventRow
               key={event.id}
+              teamId={teamId}
               event={event}
               features={features ?? []}
               selectable={canSelectEvent(event, viewer)}
@@ -145,6 +163,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
 }
 
 function EventRow({
+  teamId,
   event,
   features,
   selectable,
@@ -154,6 +173,7 @@ function EventRow({
   onReject,
   onAssign,
 }: {
+  teamId: string;
   event: ActivityEvent;
   features: import("@/types/api").Feature[];
   selectable: boolean;
@@ -190,6 +210,7 @@ function EventRow({
         )}{" "}
         {event.title}
       </span>
+      {event.source === "github" && event.branch && <EventBranches teamId={teamId} event={event} />}
       {(event.stats.additions !== undefined || event.stats.deletions !== undefined) && (
         <span className="shrink-0 text-sm text-f1-foreground-secondary">
           +{event.stats.additions ?? 0} -{event.stats.deletions ?? 0}
@@ -200,5 +221,24 @@ function EventRow({
         <AttributionChip attribution={event.attribution} features={features} onConfirm={onConfirm} onReject={onReject} onAssign={onAssign} />
       </div>
     </div>
+  );
+}
+
+// RF-GH-026: the event's branch and, if the commit is on more (e.g. already
+// merged), how many more, with the list in the title.
+function EventBranches({ teamId, event }: { teamId: string; event: ActivityEvent }) {
+  const branch = event.branch as string;
+  const others = (event.branches ?? []).filter((name) => name !== branch);
+  const href = (name: string) => `/t/${teamId}/activity?branch=${encodeURIComponent(name)}`;
+
+  return (
+    <span className="hidden shrink-0 items-center gap-1 sm:flex">
+      <BranchTag name={branch} href={href(branch)} />
+      {others.length > 0 && (
+        <span className="text-sm text-f1-foreground-secondary" title={`Also on: ${others.join(", ")}`}>
+          +{others.length}
+        </span>
+      )}
+    </span>
   );
 }

@@ -32,7 +32,14 @@ module Api
 
         current_team.assign_attributes(attrs)
         current_team.hackathon.assign_attributes(hackathon_params.to_h) if hackathon_params
+        starts_at_changed = current_team.hackathon&.starts_at_changed?
         current_team.save!
+
+        # RF-TEAM-015: the import starts at starts_at, so moving it imports
+        # again. Events already imported are not duplicated.
+        if starts_at_changed
+          Repository.where(team_id: current_team.id, active: true).each { |r| Github::ImportHistoryJob.enqueue(r) }
+        end
 
         render json: TeamSerializer.new(current_team).as_json
       end

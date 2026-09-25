@@ -9,6 +9,9 @@ class Repository
   field :installation_id, type: Integer
   field :active, type: Mongoid::Boolean, default: true
   field :remote_urls, type: Array, default: []
+  # RF-GH-025: result of the last history import, so the UI can say how many
+  # commits and PRs it brought (or why none).
+  field :last_import, type: Hash
 
   has_many :activity_events, dependent: :nullify
 

@@ -42,6 +42,7 @@ User 1──* Membership *──1 Team 1──* Repository
 | `google_sub` | String | Único y disperso. `sub` del ID token de Google |
 | `avatar_url` | String | |
 | `last_team_id` | ObjectId | Último equipo abierto, para redirigir tras el login. Se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo (RF-TEAM-013 [04](04-pantallas.md#onboarding--rf-team)) |
+| `profile_completed_at` | Time | Cuándo terminó el paso de perfil del onboarding (RF-TEAM-014). `nil` = no lo ha hecho; no vuelve a `nil` |
 | `gemini_api_key_encrypted` | String | Clave personal de Gemini, cifrada (`GeminiApiKeyCipher`). Nunca se expone en claro; la API solo informa de si está configurada ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) |
 
 Índices: `{email: 1}` único, `{github_uid: 1}` único y disperso.
@@ -73,7 +74,7 @@ Sesiones web con cookie opaca.
 | `github_installation_ids` | Array<Integer> | Instalaciones de la GitHub App vinculadas |
 | `deleted_at` | Time | Borrado lógico. El borrado físico lo hace el job de retención |
 
-**Hackathon** (embebido): `name`, `starts_at`, `ends_at`, `timezone` (IANA, p. ej. `Europe/Madrid`), `url` (opcional), `challenge_text` (texto del reto, opcional, máx. 10.000 caracteres; se usa en el análisis).
+**Hackathon** (embebido): `name`, `starts_at` (si no se indica al crear el equipo, el momento de crearlo), `ends_at`, `timezone` (IANA, p. ej. `Europe/Madrid`), `url` (opcional), `challenge_text` (texto del reto, opcional, máx. 10.000 caracteres; se usa en el análisis).
 
 Índices: `{code: 1}` único.
 
@@ -218,6 +219,7 @@ Máximo 5 por equipo.
 | `installation_id` | Integer | |
 | `active` | Boolean | `false` si se revoca el acceso |
 | `remote_urls` | Array<String> | URLs normalizadas (`github.com/org/repo`) para que el CLI pueda hacer match |
+| `last_import` | Hash | Última importación del histórico (RF-GH-025): `status` (`queued` \| `running` \| `done` \| `failed`) y, al acabar, `commits`, `branches` (ramas activas recorridas), `pull_requests`, `since` (el `starts_at` usado), `reason` (`no_starts_at` si el hackathon no tenía inicio) y `finished_at`. Solo cuentas, nada del contenido |
 
 Índices: `{github_repo_id: 1, active: 1}`. Invariante: **un repositorio activo pertenece a un solo equipo** ([ADR-0007](decisiones.md#adr-0007)).
 
@@ -288,7 +290,8 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `received_at` | Time | |
 | `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable). Solo en eventos de GitHub: `email` (nullable, en minúsculas, solo commits), `author_name` (nombre del autor en git, se conserva aunque el evento se asigne a un miembro), `mapped_by` (`auto` \| `manual` \| nil) y `unclaimed_by` (Array de `membership_id` que han dicho "No son míos"; la asignación automática no se los vuelve a dar). La API no expone `email` ni `unclaimed_by` en el evento ([07](07-integracion-github.md#mapeo-de-autores)) |
 | `repository_id` | ObjectId | Nullable |
-| `branch` | String | Nullable |
+| `branch` | String | Nullable. En commits, la primera rama en la que apareció; en la importación se prefiere una que no sea la por defecto |
+| `branches` | Array<String> | Solo commits (RF-GH-026): todas las ramas en las que se ha visto. Si el commit llega por otra rama (p. ej. al mergear), se añade aquí y no se crea otro evento. Los eventos anteriores a este campo solo tienen `branch`, y la API devuelve `[branch]` |
 | `sha` | String | Nullable |
 | `pr_number` | Integer | Nullable |
 | `url` | String | Enlace a GitHub si lo hay |
@@ -331,6 +334,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 - `{team_id: 1, "actor.user_id": 1, occurred_at: -1}`
 - `{team_id: 1, "attribution.status": 1}` (para buscar pendientes)
 - `{team_id: 1, "via.token_id": 1, occurred_at: -1}` disperso (para "Ver lo que ha hecho" un token)
+- `{team_id: 1, branches: 1, occurred_at: -1}` (filtro por rama, RF-GH-026)
 
 ## AiAnalysis
 

@@ -1,12 +1,27 @@
 # RF-GH-023: linking a repo imports its recent history. Scope: commits on the
-# default branch since hackathon.starts_at (max. 200) and open PRs. RNF-GH-003:
-# it is also used for "Resync".
+# active branches since hackathon.starts_at (max. 1000 in total, from up to 50
+# branches) and open PRs. RNF-GH-003: it is also used for "Resync".
+# RF-GH-025: the result is stored in repository.last_import.
 module Github
   class ImportHistoryJob
     include Sidekiq::Job
     sidekiq_options queue: "github", retry: 3
 
-    MAX_COMMITS = 200
+    MAX_COMMITS = 1000
+    # RNF-GH-002: each commit's stats are one more request to GitHub. They are
+    # spread at this rate (1800/h, 36% of the 5000/h quota) to leave room for
+    # webhooks and other imports; RateBudget stops at 80%.
+    STATS_PER_MINUTE = 30
+    # Max. branches per import: each branch is at least one request to GitHub
+    # (RNF-GH-002).
+    MAX_BRANCHES = 50
+
+    # Enqueues the import and marks it as pending, so the UI does not show the
+    # previous result in the meantime.
+    def self.enqueue(repository)
+      repository.set(last_import: { "status" => "queued" })
+      perform_async(repository.id.to_s)
+    end
 
     def perform(repository_id)
       repository = ::Repository.where(id: repository_id).first
@@ -15,49 +30,107 @@ module Github
       team = ::Team.where(id: repository.team_id).first
       return unless team
 
+      repository.set(last_import: { "status" => "running" })
+      since = team.hackathon&.starts_at
+
       client = Github::Client.new(repository.installation_id)
-      import_commits(client, team, repository)
-      import_open_pull_requests(client, team, repository)
+      commits, branches = since ? import_commits(client, team, repository, since) : [ 0, 0 ]
+      pull_requests = import_open_pull_requests(client, team, repository)
+
+      repository.set(last_import: {
+        "status" => "done", "commits" => commits, "branches" => branches, "pull_requests" => pull_requests,
+        "since" => since&.utc&.iso8601, "reason" => (since ? nil : "no_starts_at"),
+        "finished_at" => Time.current.utc.iso8601
+      }.compact)
     rescue Github::Client::RateLimited => e
+      repository&.set(last_import: { "status" => "queued" })
       self.class.perform_at(e.reset_at, repository_id)
+    rescue StandardError
+      repository&.set(last_import: { "status" => "failed", "finished_at" => Time.current.utc.iso8601 })
+      raise
     end
 
     private
 
-    def import_commits(client, team, repository)
-      since = team.hackathon&.starts_at
-      return unless since
+    # RF-GH-023/026: walks the active branches (the ones with commits since
+    # `since`) and creates one event per commit, with every branch it is on.
+    # Non-default branches go first, so `branch` is the working branch and
+    # attribution by branch works. Returns [commits, active branches], whether
+    # already imported or not: that is what the user is shown.
+    def import_commits(client, team, repository, since)
+      commits_by_sha = {}
+      branches_by_sha = Hash.new { |h, k| h[k] = [] }
+      active_branches = 0
 
-      commits = client.get_commits(repository.full_name, sha: repository.default_branch, since: since).first(MAX_COMMITS)
-
-      commits.each do |commit|
-        dedupe_key = "gh:commit:#{commit['sha']}"
-        next if ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).exists?
-
-        message = commit.dig("commit", "message").to_s
-        first_line, *rest = message.split("\n", 2)
-
-        actor = Github::MapAuthor.call(
-          team: team,
-          login: commit.dig("author", "login"),
-          email: commit.dig("commit", "author", "email"),
-          display_name: commit.dig("commit", "author", "name")
-        )
-
-        ActivityEvent.create!(
-          team_id: team.id, source: "github", kind: "commit", dedupe_key: dedupe_key,
-          occurred_at: Time.parse(commit.dig("commit", "author", "date")),
-          actor: actor, repository_id: repository.id, branch: repository.default_branch, sha: commit["sha"],
-          url: commit["html_url"], title: first_line.to_s.first(200),
-          payload: { "message_body" => rest.first.to_s.first(1000) }
-        )
-
-        Github::FetchCommitStatsJob.perform_async(team.id.to_s, repository.id.to_s, commit["sha"])
+      branch_names(client, repository).each do |branch|
+        commits = branch_commits(client, repository, branch, since)
+        active_branches += 1 if commits.any?
+        commits.each do |commit|
+          commits_by_sha[commit["sha"]] ||= commit
+          branches_by_sha[commit["sha"]] << branch
+        end
       end
+
+      newest = commits_by_sha.values.sort_by { |c| c.dig("commit", "author", "date").to_s }.reverse.first(MAX_COMMITS)
+      stats_enqueued = 0
+      newest.each do |commit|
+        created = import_commit(team, repository, commit, branches_by_sha[commit["sha"]])
+        next unless created
+
+        delay = (stats_enqueued / STATS_PER_MINUTE).minutes
+        Github::FetchCommitStatsJob.perform_in(delay, team.id.to_s, repository.id.to_s, commit["sha"])
+        stats_enqueued += 1
+      end
+
+      [ newest.size, active_branches ]
+    end
+
+    # A branch deleted between listing it and fetching its commits is skipped.
+    def branch_commits(client, repository, branch, since)
+      client.get_commits(repository.full_name, sha: branch, since: since)
+    rescue Github::Client::NotFound
+      []
+    end
+
+    def branch_names(client, repository)
+      names = client.branches(repository.full_name).map { |b| b["name"] }
+      others = (names - [ repository.default_branch ]).first(MAX_BRANCHES - 1)
+      others + [ repository.default_branch ].compact
+    end
+
+    # true if it creates the event; if it already existed it only adds the branches.
+    def import_commit(team, repository, commit, branches)
+      dedupe_key = "gh:commit:#{commit['sha']}"
+      existing = ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).first
+      if existing
+        existing.add_to_set(branches: existing.all_branches + branches)
+        return false
+      end
+
+      message = commit.dig("commit", "message").to_s
+      first_line, *rest = message.split("\n", 2)
+
+      actor = Github::MapAuthor.call(
+        team: team,
+        login: commit.dig("author", "login"),
+        email: commit.dig("commit", "author", "email"),
+        display_name: commit.dig("commit", "author", "name")
+      )
+
+      ActivityEvent.create!(
+        team_id: team.id, source: "github", kind: "commit", dedupe_key: dedupe_key,
+        occurred_at: Time.parse(commit.dig("commit", "author", "date")),
+        actor: actor, repository_id: repository.id, branch: branches.first, branches: branches, sha: commit["sha"],
+        url: commit["html_url"], title: first_line.to_s.first(200),
+        payload: { "message_body" => rest.first.to_s.first(1000) }
+      )
+      true
     end
 
     def import_open_pull_requests(client, team, repository)
-      client.pull_requests(repository.full_name, state: "open").each do |pr|
+      pull_requests = client.pull_requests(repository.full_name, state: "open")
+
+      pull_requests.each do |pr|
         dedupe_key = "gh:pr:#{pr['number']}:pr_opened"
         next if ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).exists?
 
@@ -71,6 +144,8 @@ module Github
 
         Github::FetchPullRequestFilesJob.perform_async(team.id.to_s, repository.id.to_s, event.id.to_s, pr["number"])
       end
+
+      pull_requests.size
     end
   end
 end

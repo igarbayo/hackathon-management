@@ -12,6 +12,9 @@ class User
   field :avatar_url, type: String
   field :last_team_id, type: BSON::ObjectId
   field :gemini_api_key_encrypted, type: String
+  # RF-TEAM-014: set when the onboarding profile step is finished (or
+  # skipped), so it is not shown again.
+  field :profile_completed_at, type: Time
 
   has_secure_password validations: false
 

@@ -13,6 +13,8 @@ test("after logging out and back in, the user lands on their team without going 
   await page.getByRole("button", { name: "Sign up" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: profile first, with the sign-up name already filled in.
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("Create team").click();
   await page.getByLabel("Team name").fill("Last Team Team");
   await page.getByLabel("Hackathon name").fill("HackUSC Last Team");
@@ -20,6 +22,7 @@ test("after logging out and back in, the user lands on their team without going 
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Create team" }).click();
+  await page.getByRole("button", { name: "Skip for now" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
   const teamUrl = page.url();
@@ -47,6 +50,8 @@ test("with several teams and no last_team_id, onboarding lets the user choose wh
   await page.getByRole("button", { name: "Sign up" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: profile first, with the sign-up name already filled in.
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("Create team").click();
   await page.getByLabel("Team name").fill("First team");
   await page.getByLabel("Hackathon name").fill("HackUSC One");
@@ -54,6 +59,7 @@ test("with several teams and no last_team_id, onboarding lets the user choose wh
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Create team" }).click();
+  await page.getByRole("button", { name: "Skip for now" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 
@@ -67,6 +73,7 @@ test("with several teams and no last_team_id, onboarding lets the user choose wh
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Create team" }).click();
+  await page.getByRole("button", { name: "Skip for now" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 

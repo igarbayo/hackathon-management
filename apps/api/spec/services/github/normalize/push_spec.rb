@@ -24,6 +24,16 @@ RSpec.describe Github::Normalize::Push do
     expect(event.title).to eq("something")
   end
 
+  it "if the commit was already on another branch, only records the new branch (RF-GH-026)" do
+    described_class.call(team: team, repository: repository, payload: push_payload(commits: [ commit("sha1") ]))
+    described_class.call(team: team, repository: repository, payload: push_payload(ref: "refs/heads/main", commits: [ commit("sha1") ]))
+
+    events = ActivityEvent.where(dedupe_key: "gh:commit:sha1")
+    expect(events.count).to eq(1)
+    expect(events.first.branch).to eq("f-12-login")
+    expect(events.first.branches).to contain_exactly("f-12-login", "main")
+  end
+
   it "ignores tag pushes" do
     payload = push_payload(ref: "refs/tags/v1.0.0", commits: [ commit("sha1") ])
 

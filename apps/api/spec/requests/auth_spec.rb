@@ -195,6 +195,98 @@ RSpec.describe "Auth", type: :request do
 
       expect(response).to have_http_status(:bad_request)
     end
+
+    describe "linking GitHub to the signed-in account (RF-TEAM-014)" do
+      around do |example|
+        original_app_url = ENV["APP_URL"]
+        ENV["APP_URL"] = "http://localhost:3000"
+        example.run
+        ENV["APP_URL"] = original_app_url
+      end
+
+      def stub_github_profile(id:, login:)
+        stub_request(:post, "https://github.com/login/oauth/access_token")
+          .to_return(status: 200, body: { access_token: "gh_token_123" }.to_json, headers: { "Content-Type" => "application/json" })
+        stub_request(:get, "https://api.github.com/user")
+          .to_return(status: 200, body: { id: id, login: login, name: "Ada", email: "otra@github.example.com", avatar_url: "https://avatars/ada.png" }.to_json,
+                     headers: { "Content-Type" => "application/json" })
+      end
+
+      def link_state
+        get "/api/v1/auth/github", params: { link: 1, return_to: "/onboarding" }
+        Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
+      end
+
+      it "adds the identity to the session's account even if the email does not match" do
+        user = create(:user, email: "ada@example.com")
+        sign_in_as(user)
+        stub_github_profile(id: 4242, login: "ada-gh")
+
+        get "/api/v1/auth/github/callback", params: { code: "abc123", state: link_state }
+
+        expect(response.location).to eq("http://localhost:3000/onboarding?github_link=linked")
+        expect(user.reload.github_login).to eq("ada-gh")
+        expect(user.github_uid).to eq(4242)
+        expect(User.count).to eq(1)
+      end
+
+      it "keeps the invite code when coming back" do
+        user = create(:user)
+        sign_in_as(user)
+        stub_github_profile(id: 4242, login: "ada-gh")
+        get "/api/v1/auth/github", params: { link: 1, return_to: "/onboarding?code=ABCD-2345" }
+        state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
+
+        get "/api/v1/auth/github/callback", params: { code: "abc123", state: state }
+
+        expect(response.location).to eq("http://localhost:3000/onboarding?code=ABCD-2345&github_link=linked")
+      end
+
+      it "does not allow going back to another path, host or parameter" do
+        sign_in_as(create(:user))
+        stub_github_profile(id: 4242, login: "ada-gh")
+
+        [ "https://evil.example/onboarding", "//evil.example/onboarding", "/t/x/settings", "/onboarding?next=/x",
+          "/onboarding?code=<script>" ].each do |return_to|
+          get "/api/v1/auth/github", params: { link: 1, return_to: return_to }
+          state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
+          get "/api/v1/auth/github/callback", params: { code: "abc123", state: state }
+
+          expect(response.location).to start_with("http://localhost:3000/onboarding?github_link=")
+        end
+      end
+
+      it "does not steal it if it already belongs to another account" do
+        create(:user, github_uid: 4242, github_login: "ada-gh")
+        user = create(:user)
+        sign_in_as(user)
+        stub_github_profile(id: 4242, login: "ada-gh")
+
+        get "/api/v1/auth/github/callback", params: { code: "abc123", state: link_state }
+
+        expect(response.location).to eq("http://localhost:3000/onboarding?github_link=taken")
+        expect(user.reload.github_uid).to be_nil
+      end
+
+      it "requires a session to ask for the link" do
+        get "/api/v1/auth/github", params: { link: 1 }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it "does not link if the callback session belongs to another account" do
+        user = create(:user)
+        sign_in_as(user)
+        state = link_state
+        sign_in_as(create(:user))
+        stub_github_profile(id: 4242, login: "ada-gh")
+
+        get "/api/v1/auth/github/callback", params: { code: "abc123", state: state }
+
+        expect(response.location).to eq("http://localhost:3000/onboarding?github_link=error")
+        expect(User.where(github_uid: 4242).exists?).to be false
+      end
+    end
   end
 
   describe "Google login (RF-AUTH-008)" do

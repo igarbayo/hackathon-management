@@ -179,6 +179,17 @@ Formato: contexto, decisión, alternativas y consecuencias. Una decisión no se 
 
 ## ADR-0019
 
+**El perfil es un paso propio del onboarding y el histórico solo se importa desde el inicio** · Aceptado · 2026-09-25
+
+- **Contexto:** al crear una cuenta solo se pedía crear o unirse a un equipo. Nadie vinculaba GitHub, así que los commits llegaban como "autor sin vincular" y había que reclamarlos a mano (ADR-0018). Además, el formulario de crear equipo no pedía la fecha de inicio ni la API la ponía por defecto, así que `starts_at` quedaba vacío y la importación del histórico (RF-GH-023) no traía ningún commit sin avisar.
+- **Decisión:** el onboarding empieza con un paso de perfil (nombre, foto y "Vincular GitHub") para quien aún no tiene equipo; se marca como completado y no vuelve a salir (RF-TEAM-014). Crear equipo pide la fecha de inicio, "ahora" por defecto, y la API la pone si falta. Los commits se importan solo desde `starts_at`: si un equipo quiere traer commits anteriores, adelanta el inicio en ajustes, lo que relanza la importación (RF-TEAM-015). La interfaz dice qué trajo cada importación (RF-GH-025).
+- **Alternativas:**
+  - **Perfil como tarea del checklist de Inicio:** no añade pantallas al onboarding (RF-TEAM-010), pero es fácil de ignorar y los primeros commits ya llegarían sin dueño.
+  - **Importar también los últimos N commits anteriores al inicio:** evita que un equipo que conecta un repo con trabajo previo vea el feed vacío, pero mezcla en el feed y en el análisis trabajo de antes del hackathon.
+- **Consecuencias:** el onboarding de crear equipo pasa de 3 a 4 pantallas la primera vez, lo que matiza RF-TEAM-010 y R4. Los equipos que ya existían siguen sin `starts_at` hasta que el owner lo ponga en ajustes, y hasta entonces su importación lo dice en vez de quedarse vacía en silencio. Vincular GitHub desde una sesión ya abierta no busca por email: la identidad va a la cuenta de la sesión, y si ya era de otra cuenta no se mueve.
+
+## ADR-0020
+
 **La interfaz web pasa a estar solo en inglés** · Aceptado · 2026-09-25
 
 - **Contexto:** la web estaba entera en español (textos, fechas `es-ES`, `lang="es"`, SEO con `es_ES` y un `/llms.txt` que decía "La interfaz está en español"), mientras que el README y la documentación pública del repo ya estaban en inglés ([ADR-0016](#adr-0016)). Hackboard apunta a equipos de hackathon de cualquier país.

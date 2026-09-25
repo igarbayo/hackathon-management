@@ -47,6 +47,37 @@ RSpec.describe Github::Client do
     expect { client.commit("org/repo", "abc123") }.to raise_error(Github::Client::RateLimited)
   end
 
+  describe "20% reserve shared between jobs (RNF-GH-002)" do
+    let(:reset_at) { 30.minutes.from_now.change(usec: 0) }
+
+    def stub_commit_with_budget(remaining:)
+      stub_request(:get, "https://api.github.com/repos/org/repo/commits/abc123")
+        .to_return(status: 200, body: { sha: "abc123" }.to_json, headers: {
+          "Content-Type" => "application/json", "X-RateLimit-Limit" => "5000",
+          "X-RateLimit-Remaining" => remaining.to_s, "X-RateLimit-Reset" => reset_at.to_i.to_s
+        })
+    end
+
+    it "with quota above the reserve, does not mark the installation as exhausted" do
+      stub_commit_with_budget(remaining: 4000)
+
+      client.commit("org/repo", "abc123")
+
+      expect(Github::RateBudget.exhausted_until(999)).to be_nil
+    end
+
+    it "below 20%, no client of that installation calls again until the reset" do
+      request = stub_commit_with_budget(remaining: 900)
+
+      expect { client.commit("org/repo", "abc123") }.to raise_error(Github::Client::RateLimited)
+      expect { described_class.new(999).commit("org/repo", "abc123") }
+        .to raise_error(Github::Client::RateLimited) { |e| expect(e.reset_at).to eq(reset_at) }
+
+      expect(request).to have_been_requested.once
+      expect(Github::RateBudget.exhausted_until(1)).to be_nil
+    end
+  end
+
   it "raises NotFound on a 404" do
     stub_request(:get, "https://api.github.com/repos/org/repo/commits/nope").to_return(status: 404, body: "{}")
 

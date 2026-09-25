@@ -54,7 +54,10 @@ module Github
 
       def create_event_for(commit)
         dedupe_key = "gh:commit:#{commit['id'] || commit['sha']}"
-        return if ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).exists?
+        existing = ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).first
+        # RF-GH-026: the same commit on another branch (e.g. after a merge)
+        # does not create another event, but the branch is recorded.
+        return existing.add_to_set(branches: existing.all_branches + [ branch ]) if existing
 
         sha = commit["id"] || commit["sha"]
         message = commit["message"].to_s
@@ -70,7 +73,7 @@ module Github
         ActivityEvent.create!(
           team_id: team.id, source: "github", kind: "commit", dedupe_key: dedupe_key,
           occurred_at: commit["timestamp"] ? Time.parse(commit["timestamp"]) : Time.current,
-          actor: actor, repository_id: repository.id, branch: branch, sha: sha,
+          actor: actor, repository_id: repository.id, branch: branch, branches: [ branch ], sha: sha,
           url: commit["url"], title: first_line.to_s.first(200),
           payload: { "message_body" => rest.first.to_s.first(1000) }
         )

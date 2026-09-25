@@ -22,6 +22,7 @@ function event(overrides: Partial<ActivityEvent> & { actor?: ActivityEvent["acto
     actor: { user_id: null, membership_id: null, display: "ana-dev" },
     repository_id: null,
     branch: null,
+    branches: [],
     sha: null,
     pr_number: null,
     url: null,
