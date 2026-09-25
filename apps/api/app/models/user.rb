@@ -12,6 +12,9 @@ class User
   field :avatar_url, type: String
   field :last_team_id, type: BSON::ObjectId
   field :gemini_api_key_encrypted, type: String
+  # RF-TEAM-014: se marca al terminar (o saltar) el paso de perfil del
+  # onboarding, para no volver a mostrarlo.
+  field :profile_completed_at, type: Time
 
   has_secure_password validations: false
 

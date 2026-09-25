@@ -44,21 +44,26 @@ Rutas: `/login`, `/signup`, `/privacy`, `/onboarding`, `/oauth/consent`, `/t/[te
 Objetivo: tener un equipo funcionando **en menos de 2 minutos**.
 
 1. **Registro o login** (email + contraseña, "Continuar con Google" o "Continuar con GitHub").
-2. **Elegir:** si ya pertenece a algún equipo, primero puede elegir entrar directamente en uno de ellos; si no, o si quiere otro, "Crear equipo" o "Unirme con código".
-3. **Crear:** nombre del equipo, nombre del hackathon y fecha de fin (el inicio es "ahora" por defecto y la zona horaria se detecta en el navegador). Un solo formulario.
-4. **Pegar repo:** un campo "URL del repositorio" con un botón que instala la GitHub App. Se puede saltar.
-5. **Invitar:** muestra el código `XXXX-XXXX` y un enlace `…/join?code=…` para copiar.
-6. Aterrizas en Inicio con un checklist: "Añade 3 objetivos", "Crea features", "Conecta Claude Code".
+2. **Perfil** (solo si aún no tiene equipo y no lo ha completado antes): nombre, foto y "Vincular GitHub" si la cuenta no tiene GitHub. Ver RF-TEAM-014.
+3. **Elegir:** si ya pertenece a algún equipo, primero puede elegir entrar directamente en uno de ellos; si no, o si quiere otro, "Crear equipo" o "Unirme con código". Al unirse con código se entra directamente en el equipo.
+4. **Crear:** nombre del equipo, nombre del hackathon, fecha de inicio (por defecto "ahora", editable, con el aviso "Importaremos los commits de GitHub desde esta fecha") y fecha de fin. La zona horaria se detecta en el navegador. Un solo formulario.
+5. **Pegar repo:** el mismo componente de la sección GitHub de ajustes (pegar el repo o instalar la GitHub App). Al vincularlo muestra qué trajo la importación (RF-GH-025). Se puede saltar.
+6. **Invitar:** muestra el código `XXXX-XXXX` y un enlace `…/onboarding?code=…` para copiar.
+7. Aterrizas en Inicio con un checklist: "Añade 3 objetivos", "Crea features", "Conecta Claude Code".
+
+Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; al unirse, Perfil · Equipo). Los pasos 5 y 6 van en la URL (`/onboarding?team=<id>&step=repo|invite`), para retomarlos al volver de instalar la GitHub App.
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-TEAM-010 | El flujo de crear el equipo tiene como máximo 3 pantallas y los pasos 4 y 5 se pueden saltar. | Aceptado [F1] |
+| RF-TEAM-010 | El flujo de crear el equipo tiene como máximo 3 pantallas (crear, repo e invitar) más el perfil, que solo aparece una vez ([ADR-0019](decisiones.md#adr-0019)). Los pasos de repo e invitar se pueden saltar. | Implementado [F1] |
 | RF-TEAM-011 | El enlace `…/join?code=` hace login o registro y la unión en un solo paso. | Aceptado [F1] |
 | RF-AUTH-010 | Login y registro muestran "Continuar con Google" y "Continuar con GitHub" encima del formulario de email, cada uno con el logo oficial de su proveedor delante del texto (la "G" de Google en sus colores y el GitHub mark en el color del texto). En el perfil se ven los proveedores vinculados y se pueden desvincular (RF-AUTH-009). | Aceptado [F1] |
 | RF-AUTH-011 | El pie del sidebar muestra la foto de perfil de Google o GitHub (`avatar_url` de `/me`). Se actualiza en cada login con ese proveedor, así que prevalece la del último con el que se entró; si el proveedor no trae foto se conserva la anterior. Sin foto, o si no carga, se muestran las iniciales. | Implementado [F1] |
 | RF-AUTH-012 | Los campos de contraseña de login y registro llevan un botón de ojo a la derecha que alterna entre mostrar y ocultar lo escrito. Empieza oculta; el botón es accesible ("Mostrar contraseña" / "Ocultar contraseña", `aria-pressed`) y no envía el formulario. | Implementado [F1] |
 | RF-AUTH-013 | Ajustes tiene una tarjeta "Borrar cuenta" (RF-AUTH-007, RF-SEC-004), al final de la página. Abre un diálogo que explica qué se borra y exige escribir el email de la cuenta para habilitar el botón (no basta con un sí/no). Si el servidor responde `409` (único owner de un equipo con más miembros) el error se muestra en el diálogo; si va bien, se vacía la caché y se vuelve a `/login`. | Implementado [F2] |
 | RF-TEAM-012 | Checklist de puesta en marcha en Inicio. Se oculta cuando está completo o si se descarta. | Aceptado [F2] |
+| RF-TEAM-014 | **Paso de perfil** al principio del onboarding para quien no tiene equipo: nombre (obligatorio, lo que ya tenga la cuenta), foto del proveedor o iniciales, y "Vincular GitHub" si la cuenta no tiene GitHub (explica que así sus commits se le asignan solos, RF-GH-024). Vincular GitHub añade la identidad a la cuenta de la sesión aunque el email de GitHub sea otro, y vuelve al paso; si esa cuenta de GitHub ya es de otro usuario, lo avisa y no la mueve. "Continuar" guarda el nombre y marca el perfil como completado (`profile_completed_at`), así que no vuelve a salir. | Implementado [F1] |
+| RF-TEAM-015 | En ajustes, el owner puede cambiar la fecha de inicio y la de fin del hackathon (el resto las ve). Al cambiar el inicio, la API vuelve a importar el histórico de GitHub de todos los repos activos (RF-GH-023), y ajustes lo avisa. | Implementado [F1] |
 | RF-TEAM-013 | Al volver a entrar, aterriza directamente en `last_team_id` (RF-AUTH-005), que se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo. Si no hay uno guardado (p. ej. la cuenta nunca abrió ningún equipo tras esta funcionalidad) pero ya es miembro de alguno, onboarding le deja elegir a cuál entrar en vez de forzarle a crear uno nuevo o unirse con código. | Aceptado [F1] |
 
 **Criterio de aceptación:** un usuario nuevo con cuenta de GitHub crea el equipo, vincula un repo e invita al equipo en menos de 2 minutos, medido en un test de usabilidad con 3 personas.

@@ -15,6 +15,7 @@ export interface Me {
   has_password: boolean;
   gemini_api_key_configured: boolean;
   last_team_id: string | null;
+  profile_completed: boolean;
   memberships: Membership[];
 }
 

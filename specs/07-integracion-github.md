@@ -33,7 +33,8 @@ La misma App sirve para el **login con GitHub** (user-to-server OAuth) y para la
 Reglas:
 - `RF-GH-021`: si el repo ya está vinculado **activo** a otro equipo, se responde `409 repo_already_linked`, y el mensaje sugiere unirse a ese equipo. Ver [ADR-0007](decisiones.md#adr-0007).
 - `RF-GH-022`: si el usuario no es admin de la org, la instalación queda pendiente de aprobación en GitHub. La interfaz explica esta situación con un enlace para que el admin la apruebe.
-- `RF-GH-023`: al vincular un repo se importa el histórico reciente: los commits de las ramas activas desde `hackathon.starts_at` (máx. 200 commits) y los PRs abiertos. Se hace en un job.
+- `RF-GH-023`: al vincular un repo se importa el histórico reciente: los commits de las ramas activas desde `hackathon.starts_at` (máx. 200 commits) y los PRs abiertos. Se hace en un job. Los commits anteriores a `starts_at` nunca se importan ([ADR-0019](decisiones.md#adr-0019)); para traerlos, se adelanta el inicio en ajustes (RF-TEAM-015), que relanza la importación. Si el hackathon no tiene `starts_at` (equipos creados antes de que se pusiera por defecto), no se importa ningún commit.
+- `RF-GH-025` Implementado: el resultado de la última importación se guarda en `Repository.last_import` (cuántos commits y PRs, desde qué fecha, o por qué ninguno) y se muestra bajo cada repo en ajustes y en el paso de repo del onboarding: "Importando el histórico…", "87 commits desde el 25 abr 2026 y 0 PRs abiertos." o "El hackathon no tiene fecha de inicio, así que no se han importado commits.". Mientras se importa, la web consulta cada 3 s.
 
 ## Recepción de webhooks — `RF-GH-006` [F3] Aceptado
 

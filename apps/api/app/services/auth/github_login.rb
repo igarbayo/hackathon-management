@@ -1,6 +1,7 @@
 module Auth
   class GithubLogin
     AuthorizationFailed = Class.new(StandardError)
+    IdentityTaken = Class.new(StandardError)
 
     AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
     TOKEN_URL = "https://github.com/login/oauth/access_token"
@@ -26,6 +27,20 @@ module Auth
       email = profile["email"] || fetch_primary_verified_email(access_token)
 
       find_or_create_user(profile, email)
+    end
+
+    # RF-TEAM-014: añade la identidad de GitHub a una cuenta ya abierta (p. ej.
+    # creada con email o Google). No busca por email: la cuenta es la de la
+    # sesión. Falla si esa identidad ya es de otra cuenta.
+    def self.link(code:, user:)
+      profile = fetch_profile(exchange_code(code))
+
+      owner = User.where(github_uid: profile["id"]).first
+      raise IdentityTaken, "esta cuenta de GitHub ya está vinculada a otro usuario" if owner && owner.id != user.id
+
+      user.update!(github_uid: profile["id"], github_login: profile["login"],
+                   avatar_url: profile["avatar_url"].presence || user.avatar_url)
+      user
     end
 
     def self.exchange_code(code)

@@ -13,14 +13,22 @@ test("un usuario nuevo se registra, crea un equipo y gestiona el kanban", async 
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await expect(page.getByLabel("Nombre")).toHaveValue("Ada Lovelace");
+  await expect(page.getByRole("link", { name: "Vincular GitHub" })).toBeVisible();
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
 
   await page.getByLabel("Nombre del equipo").fill("Los Bytes E2E");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC E2E");
+  // El inicio viene puesto a "ahora".
+  await expect(page.getByLabel("Fecha de inicio")).not.toHaveText("");
   await page.getByLabel("Fecha de fin").click();
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await expect(page.getByText("Conecta tu repositorio")).toBeVisible();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
 
   await expect(page.getByText(/^[23456789ABCDEFGHJKMNPQRSTVWXYZ]{4}-/)).toBeVisible();
   await page.getByRole("button", { name: "Continuar" }).click();

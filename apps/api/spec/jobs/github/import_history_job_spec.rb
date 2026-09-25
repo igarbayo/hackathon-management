@@ -34,5 +34,34 @@ RSpec.describe Github::ImportHistoryJob do
 
     expect(ActivityEvent.where(team_id: team.id, kind: "commit").count).to eq(1)
     expect(ActivityEvent.where(team_id: team.id, kind: "pr_opened").count).to eq(1)
+    expect(repository.reload.last_import).to include("status" => "done", "commits" => 1, "pull_requests" => 1)
+  end
+
+  it "sin starts_at no pide commits y lo dice en last_import (RF-GH-025)" do
+    team = create(:team, hackathon: build(:hackathon, starts_at: nil))
+    repository = create(:repository, team: team, full_name: "org/repo", default_branch: "main")
+
+    stub_request(:post, "https://api.github.com/app/installations/#{repository.installation_id}/access_tokens")
+      .to_return(status: 201, body: { token: "ghs_x" }.to_json, headers: { "Content-Type" => "application/json" })
+    stub_request(:get, "https://api.github.com/repos/org/repo/pulls")
+      .with(query: hash_including("state" => "open"))
+      .to_return(status: 200, body: [].to_json, headers: { "Content-Type" => "application/json" })
+
+    described_class.new.perform(repository.id.to_s)
+
+    expect(repository.reload.last_import).to include("status" => "done", "commits" => 0, "pull_requests" => 0, "reason" => "no_starts_at")
+  end
+
+  it "marca la importación como fallida si GitHub responde con error" do
+    team = create(:team, hackathon: build(:hackathon, starts_at: 2.days.ago))
+    repository = create(:repository, team: team, full_name: "org/repo", default_branch: "main")
+
+    stub_request(:post, "https://api.github.com/app/installations/#{repository.installation_id}/access_tokens")
+      .to_return(status: 201, body: { token: "ghs_x" }.to_json, headers: { "Content-Type" => "application/json" })
+    stub_request(:get, "https://api.github.com/repos/org/repo/commits").with(query: hash_including({}))
+      .to_return(status: 500, body: "{}", headers: { "Content-Type" => "application/json" })
+
+    expect { described_class.new.perform(repository.id.to_s) }.to raise_error(RuntimeError)
+    expect(repository.reload.last_import).to include("status" => "failed")
   end
 end

@@ -1,12 +1,20 @@
 # RF-GH-023: al vincular un repo se importa el histórico reciente. Alcance:
 # los commits de la rama por defecto desde hackathon.starts_at (máx. 200) y
 # los PRs abiertos. RNF-GH-003: también sirve para "Resincronizar".
+# RF-GH-025: el resultado queda en repository.last_import.
 module Github
   class ImportHistoryJob
     include Sidekiq::Job
     sidekiq_options queue: "github", retry: 3
 
     MAX_COMMITS = 200
+
+    # Encola la importación y la marca como pendiente, para que la interfaz
+    # no muestre el resultado de la anterior mientras tanto.
+    def self.enqueue(repository)
+      repository.set(last_import: { "status" => "queued" })
+      perform_async(repository.id.to_s)
+    end
 
     def perform(repository_id)
       repository = ::Repository.where(id: repository_id).first
@@ -15,19 +23,31 @@ module Github
       team = ::Team.where(id: repository.team_id).first
       return unless team
 
+      repository.set(last_import: { "status" => "running" })
+      since = team.hackathon&.starts_at
+
       client = Github::Client.new(repository.installation_id)
-      import_commits(client, team, repository)
-      import_open_pull_requests(client, team, repository)
+      commits = since ? import_commits(client, team, repository, since) : 0
+      pull_requests = import_open_pull_requests(client, team, repository)
+
+      repository.set(last_import: {
+        "status" => "done", "commits" => commits, "pull_requests" => pull_requests,
+        "since" => since&.utc&.iso8601, "reason" => (since ? nil : "no_starts_at"),
+        "finished_at" => Time.current.utc.iso8601
+      }.compact)
     rescue Github::Client::RateLimited => e
+      repository&.set(last_import: { "status" => "queued" })
       self.class.perform_at(e.reset_at, repository_id)
+    rescue StandardError
+      repository&.set(last_import: { "status" => "failed", "finished_at" => Time.current.utc.iso8601 })
+      raise
     end
 
     private
 
-    def import_commits(client, team, repository)
-      since = team.hackathon&.starts_at
-      return unless since
-
+    # Devuelve cuántos commits hay desde `since` (hasta MAX_COMMITS), estén ya
+    # importados o no: es lo que se enseña al usuario.
+    def import_commits(client, team, repository, since)
       commits = client.get_commits(repository.full_name, sha: repository.default_branch, since: since).first(MAX_COMMITS)
 
       commits.each do |commit|
@@ -54,10 +74,14 @@ module Github
 
         Github::FetchCommitStatsJob.perform_async(team.id.to_s, repository.id.to_s, commit["sha"])
       end
+
+      commits.size
     end
 
     def import_open_pull_requests(client, team, repository)
-      client.pull_requests(repository.full_name, state: "open").each do |pr|
+      pull_requests = client.pull_requests(repository.full_name, state: "open")
+
+      pull_requests.each do |pr|
         dedupe_key = "gh:pr:#{pr['number']}:pr_opened"
         next if ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).exists?
 
@@ -71,6 +95,8 @@ module Github
 
         Github::FetchPullRequestFilesJob.perform_async(team.id.to_s, repository.id.to_s, event.id.to_s, pr["number"])
       end
+
+      pull_requests.size
     end
   end
 end

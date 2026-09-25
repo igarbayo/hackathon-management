@@ -13,6 +13,8 @@ test("las pantallas de Actividad y Análisis IA cargan sin errores para un equip
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo Análisis");
   await page.getByLabel("Nombre del hackathon").fill("Hack Análisis");
@@ -20,6 +22,7 @@ test("las pantallas de Actividad y Análisis IA cargan sin errores para un equip
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 

@@ -9,6 +9,9 @@ class Repository
   field :installation_id, type: Integer
   field :active, type: Mongoid::Boolean, default: true
   field :remote_urls, type: Array, default: []
+  # RF-GH-025: resultado de la última importación del histórico, para que la
+  # interfaz diga cuántos commits y PRs trajo (o por qué ninguno).
+  field :last_import, type: Hash
 
   has_many :activity_events, dependent: :nullify
 

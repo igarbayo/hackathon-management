@@ -19,6 +19,24 @@ RSpec.describe "GET /api/v1/github/setup", type: :request do
     expect(membership.team.reload.github_installation_ids).to include(777)
   end
 
+  it "vuelve al paso de repo del onboarding si se instaló desde ahí (RF-TEAM-014)" do
+    membership = create(:membership)
+    state = Github::InstallState.generate(team: membership.team, user: membership.user, return_to: "onboarding")
+
+    get "/api/v1/github/setup", params: { installation_id: "777", state: state }
+
+    expect(response.location).to eq("http://localhost:3000/onboarding?team=#{membership.team.id}&step=repo")
+  end
+
+  it "ignora un return_to desconocido" do
+    membership = create(:membership)
+    state = Github::InstallState.generate(team: membership.team, user: membership.user, return_to: "https://evil.example")
+
+    get "/api/v1/github/setup", params: { installation_id: "777", state: state }
+
+    expect(response.location).to eq("http://localhost:3000/t/#{membership.team.id}/settings")
+  end
+
   it "403 si el usuario del state no es miembro del equipo" do
     team = create(:team)
     outsider = create(:user)

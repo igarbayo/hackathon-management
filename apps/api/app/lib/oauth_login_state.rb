@@ -10,8 +10,12 @@ module OAuthLoginState
     Rails.application.message_verifier(:oauth_login_state)
   end
 
-  def generate(nonce: nil)
-    verifier.generate({ nonce: nonce, issued_at: Time.current.to_i }, expires_in: TTL)
+  # `link_user_id` y `return_to` solo los usa "Vincular GitHub" desde una
+  # sesión abierta (RF-TEAM-014): el callback añade la identidad a esa cuenta
+  # en vez de iniciar sesión.
+  def generate(nonce: nil, link_user_id: nil, return_to: nil)
+    claims = { nonce: nonce, issued_at: Time.current.to_i, link_user_id: link_user_id, return_to: return_to }.compact
+    verifier.generate(claims, expires_in: TTL)
   end
 
   def verify(state)

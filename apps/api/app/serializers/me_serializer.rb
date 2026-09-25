@@ -14,6 +14,7 @@ class MeSerializer
       has_password: user.password_digest.present?,
       gemini_api_key_configured: user.gemini_api_key_configured?,
       last_team_id: user.last_team_id&.to_s,
+      profile_completed: user.profile_completed_at.present?,
       memberships: memberships
     }
   end

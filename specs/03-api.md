@@ -39,13 +39,13 @@
 | POST | `/auth/signup` | `{email, name, password}` → crea el usuario y la sesión | RF-AUTH-001 [F1] |
 | POST | `/auth/login` | `{email, password}` → sesión | RF-AUTH-002 [F1] |
 | POST | `/auth/logout` | Invalida la sesión actual | RF-AUTH-003 [F1] |
-| GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado) | RF-AUTH-004 [F1] |
-| GET | `/auth/github/callback` | Crea o vincula el usuario por `github_uid` y, si no, por email verificado. Abre sesión | RF-AUTH-004 |
+| GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado). Con `link=1` (exige sesión) y `return_to=/onboarding`, el `state` lleva el usuario de la sesión para vincularle GitHub en vez de iniciar sesión | RF-AUTH-004 [F1], RF-TEAM-014 |
+| GET | `/auth/github/callback` | Crea o vincula el usuario por `github_uid` y, si no, por email verificado. Abre sesión. Si el `state` es de vinculación: añade `github_uid`, `github_login` y la foto a la cuenta de la sesión (que tiene que ser la del `state`), no abre sesión y redirige a `return_to?github_link=linked\|taken\|error` (`taken` si ese GitHub ya es de otra cuenta) | RF-AUTH-004, RF-TEAM-014 |
 | GET | `/auth/google` | Redirige al login de Google (OpenID Connect, scopes `openid email profile`, `state` y `nonce` firmados, PKCE) | RF-AUTH-008 [F1] |
 | GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Actualiza `avatar_url` con `picture` (RF-AUTH-011). Abre sesión | RF-AUTH-008 |
 | DELETE | `/me/identities/:provider` | Desvincula Google o GitHub. Falla si es la única forma de entrar (sin contraseña ni otro proveedor) | RF-AUTH-009 [F2] |
 | GET | `/me` | Usuario, membresías (equipo y rol) y `last_team_id` | RF-AUTH-005 [F1] |
-| PATCH | `/me` | `name`, `password`, `gemini_api_key` (RF-AI-021 [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado); vacío la quita, ausente no la toca) | RF-AUTH-006 [F1] |
+| PATCH | `/me` | `name`, `password`, `gemini_api_key` (RF-AI-021 [06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado); vacío la quita, ausente no la toca), `profile_completed: true` (RF-TEAM-014; marca `profile_completed_at`, no se puede desmarcar). `/me` devuelve `profile_completed` | RF-AUTH-006 [F1] |
 | DELETE | `/me` | Borra la cuenta. Falla si el usuario es el único owner de un equipo con más miembros | RF-AUTH-007 [F2] |
 
 Reglas:
@@ -57,10 +57,10 @@ Reglas:
 
 | Método | Ruta | Rol | Descripción | Req |
 |--------|------|-----|-------------|-----|
-| POST | `/teams` | usuario | `{name, hackathon:{name, starts_at, ends_at, timezone}}` → equipo con el usuario como owner | RF-TEAM-001 [F1] |
+| POST | `/teams` | usuario | `{name, hackathon:{name, starts_at, ends_at, timezone}}` → equipo con el usuario como owner. Sin `starts_at`, el inicio es el momento de crearlo | RF-TEAM-001 [F1] |
 | POST | `/teams/join` | usuario | `{code}` → membresía `member`. Si ya era miembro, idempotente | RF-TEAM-002 [F1] |
 | GET | `/teams/:id` | miembro | Equipo, hackathon, ajustes (sin secretos) | RF-TEAM-003 [F1] |
-| PATCH | `/teams/:id` | owner | Nombre, hackathon, `challenge_text`, ajustes | RF-TEAM-004 [F1] |
+| PATCH | `/teams/:id` | owner | Nombre, hackathon (incluidos `starts_at` y `ends_at`), `challenge_text`, ajustes. Si cambia `starts_at`, reimporta el histórico de los repos activos | RF-TEAM-004 [F1], RF-TEAM-015 |
 | POST | `/teams/:id/code/rotate` | owner | Regenera el código. El anterior deja de servir | RF-TEAM-005 [F1] |
 | GET | `/teams/:id/members` | miembro | Lista con rol y estado de Claude Code (conectado, pausado, nivel) | RF-TEAM-006 [F1] |
 | PATCH | `/teams/:id/members/:mid` | owner | `role`. También `display_name` y `git_identities` (el propio miembro puede cambiar los suyos) | RF-TEAM-007 [F2] |
@@ -133,10 +133,10 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 | Método | Ruta | Descripción | Req |
 |--------|------|-------------|-----|
 | GET | `/teams/:id/github/install_url` | URL de instalación de la App con `state` firmado (team_id, user_id, exp) | RF-GH-001 [F3] |
-| GET | `/github/setup` | Setup URL de la App: recibe `installation_id` y `state`, vincula la instalación al equipo y redirige a la web | RF-GH-002 [F3] |
+| GET | `/github/setup` | Setup URL de la App: recibe `installation_id` y `state`, vincula la instalación al equipo y redirige a la web: a ajustes o, si el repo se pegó en el onboarding, a `/onboarding?team=<id>&step=repo` | RF-GH-002 [F3], RF-TEAM-014 |
 | GET | `/teams/:id/github/available_repos` | Repos accesibles por las instalaciones del equipo | RF-GH-003 [F3] |
-| GET | `/teams/:id/repositories` | Repos vinculados y activos del equipo, para la sección GitHub de ajustes (RF-GH-010) | RF-GH-004 [F3] |
-| POST | `/teams/:id/repositories` | `{full_name}` o `{url}`. Pegar el repo: si la App ya tiene acceso, lo vincula; si no, responde `needs_install` con la URL | RF-GH-004 [F3] |
+| GET | `/teams/:id/repositories` | Repos vinculados y activos del equipo, para la sección GitHub de ajustes (RF-GH-010), con `last_import` (RF-GH-025) | RF-GH-004 [F3] |
+| POST | `/teams/:id/repositories` | `{full_name}` o `{url}`, y `return_to` opcional (`settings` \| `onboarding`). Pegar el repo: si la App ya tiene acceso, lo vincula; si no, responde `needs_install` con la URL, cuyo `state` guarda a dónde volver | RF-GH-004 [F3] |
 | DELETE | `/teams/:id/repositories/:rid` | Desvincula el repo (no borra los eventos) | RF-GH-005 [F3] |
 | POST | `/teams/:id/repositories/:rid/resync` | "Resincronizar": relanza la importación del histórico reciente | RNF-GH-003 [F3] |
 | POST | `/webhooks/github` | Receptor de webhooks ([07](07-integracion-github.md)) | RF-GH-006 [F3] |

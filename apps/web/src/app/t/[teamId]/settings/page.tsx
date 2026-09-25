@@ -3,6 +3,7 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BotIcon, CopyIcon, TriangleAlertIcon, GitBranchIcon, PlugIcon, RefreshCwIcon, SettingsIcon, SparklesIcon, Trash2Icon, WebhookIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,10 @@ import {
   useUpdateMember,
   useUpdateTeam,
 } from "@/hooks/use-teams";
-import { useLinkRepository, useRepositories, useResyncRepository, useUnlinkRepository } from "@/hooks/use-github";
+import { repositoriesKey } from "@/hooks/use-github";
+import { RepositoryLinker } from "@/components/github/repository-linker";
+import { DatePicker } from "@/components/ui/date-picker";
+import { formatInTimezone } from "@/lib/format-date";
 import { useDisconnectMyClaudeCode, useUpdateMyClaudeCode } from "@/hooks/use-claude-code";
 import {
   useCreateIntegration,
@@ -59,7 +63,7 @@ import {
   useWebhooks,
 } from "@/hooks/use-api-access";
 import { ApiError } from "@/lib/api-client";
-import type { ClaudeCodeStatus, Me, Member } from "@/types/api";
+import type { ClaudeCodeStatus, Me, Member, Team } from "@/types/api";
 
 function copyToClipboard(text: string, message = "Copiado") {
   navigator.clipboard.writeText(text);
@@ -166,17 +170,37 @@ function TeamCodeCard({
   );
 }
 
+// RF-TEAM-015: el owner puede cambiar el inicio y el fin del hackathon. Al
+// mover el inicio, la API vuelve a importar el histórico de GitHub.
 function HackathonCard({
   teamId,
   team,
   isOwner,
 }: {
   teamId: string;
-  team: { name: string; hackathon: { name: string; timezone: string; challenge_text: string | null } | null };
+  team: Team;
   isOwner: boolean;
 }) {
+  const queryClient = useQueryClient();
   const updateTeam = useUpdateTeam(teamId);
   const [challengeText, setChallengeText] = useState(team.hackathon?.challenge_text ?? "");
+  const [datesError, setDatesError] = useState<string | null>(null);
+  const startsAt = team.hackathon?.starts_at ? new Date(team.hackathon.starts_at) : undefined;
+  const endsAt = team.hackathon?.ends_at ? new Date(team.hackathon.ends_at) : undefined;
+
+  function updateDate(field: "starts_at" | "ends_at", date: Date | undefined) {
+    if (!date) return;
+    setDatesError(null);
+    updateTeam.mutate(
+      { hackathon: { [field]: date.toISOString() } },
+      {
+        onSuccess: () => {
+          if (field === "starts_at") queryClient.invalidateQueries({ queryKey: repositoriesKey(teamId) });
+        },
+        onError: (err) => setDatesError(err instanceof ApiError ? err.message : "No se ha podido guardar la fecha"),
+      },
+    );
+  }
 
   return (
     <Card>
@@ -188,6 +212,35 @@ function HackathonCard({
           <Label>Nombre del hackathon</Label>
           <p className="text-base">{team.hackathon?.name}</p>
         </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="hackathon-starts-at">Inicio</Label>
+            {isOwner ? (
+              <DatePicker id="hackathon-starts-at" value={startsAt} onChange={(date) => updateDate("starts_at", date)} />
+            ) : (
+              <p className="text-base">{formatInTimezone(team.hackathon?.starts_at, team.hackathon?.timezone) || "Sin fecha"}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="hackathon-ends-at">Fin</Label>
+            {isOwner ? (
+              <DatePicker
+                id="hackathon-ends-at"
+                value={endsAt}
+                onChange={(date) => updateDate("ends_at", date)}
+                disabled={startsAt ? { before: startsAt } : undefined}
+              />
+            ) : (
+              <p className="text-base">{formatInTimezone(team.hackathon?.ends_at, team.hackathon?.timezone) || "Sin fecha"}</p>
+            )}
+          </div>
+        </div>
+        {isOwner && (
+          <p className="text-sm text-f1-foreground-secondary">
+            Los commits de GitHub se importan desde el inicio. Si lo cambias, se vuelve a importar el histórico.
+          </p>
+        )}
+        {datesError && <p className="text-base text-f1-foreground-critical">{datesError}</p>}
         <div>
           <Label>Zona horaria</Label>
           <p className="text-base">{team.hackathon?.timezone}</p>
@@ -275,32 +328,6 @@ function MembersCard({
 
 // RF-GH-010: repos vinculados, botón "Añadir repo" y estado de la instalación.
 function GitHubCard({ teamId }: { teamId: string }) {
-  const { data: repositories, isLoading } = useRepositories(teamId);
-  const linkRepository = useLinkRepository(teamId);
-  const unlinkRepository = useUnlinkRepository(teamId);
-  const resyncRepository = useResyncRepository(teamId);
-  const [input, setInput] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [installUrl, setInstallUrl] = useState<string | null>(null);
-
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault();
-    if (!input.trim()) return;
-    setError(null);
-    setInstallUrl(null);
-
-    try {
-      const result = await linkRepository.mutateAsync(input.trim());
-      if (result.needs_install && result.install_url) {
-        setInstallUrl(result.install_url);
-      } else {
-        setInput("");
-      }
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se ha podido vincular el repositorio");
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -308,50 +335,8 @@ function GitHubCard({ teamId }: { teamId: string }) {
           <GitBranchIcon className="size-4" /> GitHub
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        {isLoading && <p className="text-muted-foreground text-base">Cargando…</p>}
-        {repositories?.map((repo) => (
-          <div key={repo.id} className="flex items-center gap-3 rounded-md border p-2 text-base">
-            <Badge variant="positive">Conectado</Badge>
-            <span className="flex-1">{repo.full_name}</span>
-            <span className="text-muted-foreground text-sm">{repo.default_branch}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Resincronizar"
-              onClick={() => resyncRepository.mutate(repo.id)}
-              disabled={resyncRepository.isPending}
-            >
-              <RefreshCwIcon className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="Desvincular" onClick={() => unlinkRepository.mutate(repo.id)}>
-              <Trash2Icon className="size-4" />
-            </Button>
-          </div>
-        ))}
-        {repositories?.length === 0 && <p className="text-muted-foreground text-base">Todavía no hay repos vinculados.</p>}
-
-        <form onSubmit={handleAdd} className="flex gap-2">
-          <Input
-            placeholder="org/repo o https://github.com/org/repo"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
-          <Button type="submit" disabled={linkRepository.isPending}>
-            Añadir repo
-          </Button>
-        </form>
-
-        {error && <p className="text-destructive text-base">{error}</p>}
-
-        {installUrl && (
-          <div className="rounded-md border p-2 text-base">
-            <p>Hace falta instalar la GitHub App para acceder a este repositorio.</p>
-            <a href={installUrl} className="text-primary underline">
-              Instalar la App en GitHub
-            </a>
-          </div>
-        )}
+      <CardContent>
+        <RepositoryLinker teamId={teamId} />
       </CardContent>
     </Card>
   );

@@ -13,6 +13,8 @@ test("tras cerrar sesión y volver a entrar, aterriza en su equipo sin pasar por
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo Last Team");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC Last Team");
@@ -20,6 +22,7 @@ test("tras cerrar sesión y volver a entrar, aterriza en su equipo sin pasar por
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
   const teamUrl = page.url();
@@ -47,6 +50,8 @@ test("con varios equipos y sin last_team_id, onboarding deja elegir a cuál entr
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Primer equipo");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC Uno");
@@ -54,6 +59,7 @@ test("con varios equipos y sin last_team_id, onboarding deja elegir a cuál entr
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 
@@ -67,6 +73,7 @@ test("con varios equipos y sin last_team_id, onboarding deja elegir a cuál entr
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 

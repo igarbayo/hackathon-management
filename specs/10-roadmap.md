@@ -17,7 +17,7 @@ Cada fase dura aproximadamente 1 semana. Una fase no está terminada hasta que c
 - Monorepo, `docker-compose`, CI (lint + tests + escaneo de secretos y dependencias).
 - Rails 8 API + Mongoid + Sidekiq (sin jobs de negocio aún). Next.js + Tailwind + shadcn/ui.
 - RF-AUTH-001…006, 008, 010 (incluidos el login con GitHub, que ya usa la GitHub App, y el login con Google). RNF-SEC-015 en la parte de login.
-- RF-TEAM-001…006, 008, 010, 011, 020–022.
+- RF-TEAM-001…006, 008, 010, 011, 014, 015, 020–022.
 - Layout RF-UX-001, 002, 004, 005, 006.
 - Objetivos RF-OBJ-001…004, 010, 011, 014.
 - Features RF-FEAT-001…006, 010–012, 014, 015.

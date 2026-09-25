@@ -16,16 +16,23 @@ module Api
 
         link_pasted_repo(team, membership, installation_id, claims["pasted_full_name"])
 
-        redirect_to "#{ENV.fetch('APP_URL', '/')}/t/#{team.id}/settings", allow_other_host: true
+        redirect_to return_url(team, claims["return_to"]), allow_other_host: true
       end
 
       private
+
+      def return_url(team, return_to)
+        app_url = ENV.fetch("APP_URL", "")
+        return "#{app_url}/onboarding?team=#{team.id}&step=repo" if return_to == "onboarding"
+
+        "#{app_url}/t/#{team.id}/settings"
+      end
 
       def link_pasted_repo(team, membership, installation_id, full_name)
         return if full_name.blank?
 
         result = Github::LinkRepository.call(team: team, user: User.where(id: membership.user_id).first, full_name: full_name)
-        Github::ImportHistoryJob.perform_async(result.repository.id.to_s) if result.linked
+        Github::ImportHistoryJob.enqueue(result.repository) if result.linked
       end
     end
   end

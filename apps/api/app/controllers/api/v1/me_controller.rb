@@ -15,6 +15,9 @@ module Api
         # se acepta explícitamente vacía para poder quitarla.
         current_user.gemini_api_key = params[:gemini_api_key].presence if params.key?(:gemini_api_key)
 
+        # RF-TEAM-014: solo se puede marcar, no desmarcar.
+        current_user.profile_completed_at ||= Time.current if ActiveModel::Type::Boolean.new.cast(params[:profile_completed])
+
         current_user.save!
 
         render json: MeSerializer.new(current_user).as_json

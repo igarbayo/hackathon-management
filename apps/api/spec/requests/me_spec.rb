@@ -1,6 +1,25 @@
 require "rails_helper"
 
 RSpec.describe "PATCH /api/v1/me", type: :request do
+  describe "profile_completed (RF-TEAM-014)" do
+    it "marca el perfil como completado y no se puede desmarcar" do
+      user = create(:user)
+      sign_in_as(user)
+
+      get "/api/v1/me"
+      expect(json_response["profile_completed"]).to be false
+
+      patch "/api/v1/me", params: { name: "Ada L.", profile_completed: true }, headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response["profile_completed"]).to be true
+      expect(json_response["name"]).to eq("Ada L.")
+
+      patch "/api/v1/me", params: { profile_completed: false }, headers: csrf_headers, as: :json
+      expect(json_response["profile_completed"]).to be true
+    end
+  end
+
   describe "gemini_api_key (RF-AI-021)" do
     it "pone la clave personal y la serializa solo como booleano, nunca en claro" do
       user = create(:user)

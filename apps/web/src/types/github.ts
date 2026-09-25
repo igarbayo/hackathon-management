@@ -1,9 +1,20 @@
+// RF-GH-025: resultado de la última importación del histórico.
+export interface GithubImport {
+  status: "queued" | "running" | "done" | "failed";
+  commits?: number;
+  pull_requests?: number;
+  since?: string;
+  reason?: "no_starts_at";
+  finished_at?: string;
+}
+
 export interface GithubRepository {
   id: string;
   github_repo_id: number;
   full_name: string;
   default_branch: string;
   active: boolean;
+  last_import: GithubImport | null;
 }
 
 export interface LinkRepositoryResponse {

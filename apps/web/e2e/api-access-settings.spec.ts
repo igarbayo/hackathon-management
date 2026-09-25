@@ -13,6 +13,8 @@ test("Ajustes: crear un PAT muestra el token y el comando de claude mcp add una 
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo API E2E");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC API E2E");
@@ -20,6 +22,7 @@ test("Ajustes: crear un PAT muestra el token y el comando de claude mcp add una 
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
 

@@ -18,6 +18,28 @@ RSpec.describe "Teams", type: :request do
       expect(membership.role).to eq("owner")
       expect(user.reload.last_team_id.to_s).to eq(json_response["id"])
     end
+
+    it "sin starts_at, el hackathon empieza ahora (04-pantallas.md#onboarding)" do
+      sign_in_as(create(:user))
+
+      post "/api/v1/teams",
+           params: { name: "Los Bytes", hackathon: { name: "HackUSC", ends_at: 3.days.from_now, timezone: "Europe/Madrid" } },
+           headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(Time.parse(json_response["hackathon"]["starts_at"])).to be_within(5.seconds).of(Time.current)
+    end
+
+    it "respeta el starts_at que se le pasa" do
+      sign_in_as(create(:user))
+      starts_at = Time.utc(2026, 4, 25, 9, 0)
+
+      post "/api/v1/teams",
+           params: { name: "Los Bytes", hackathon: { name: "HackUPC", starts_at: starts_at.iso8601, ends_at: 3.days.from_now, timezone: "Europe/Madrid" } },
+           headers: csrf_headers, as: :json
+
+      expect(Time.parse(json_response["hackathon"]["starts_at"])).to eq(starts_at)
+    end
   end
 
   describe "POST /api/v1/teams/join" do
@@ -127,6 +149,49 @@ RSpec.describe "Teams", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_response["name"]).to eq("Nuevo nombre")
       expect(json_response["hackathon"]["challenge_text"]).to eq("Construir X")
+    end
+
+    it "el owner puede cambiar el inicio y el fin, y se reimportan los repos (RF-TEAM-015)" do
+      membership = create(:membership, :owner)
+      repository = create(:repository, team: membership.team)
+      create(:repository, team: membership.team, active: false)
+      sign_in_as(membership.user)
+      starts_at = Time.utc(2026, 4, 25, 9, 0)
+      ends_at = Time.utc(2026, 4, 27, 9, 0)
+
+      expect(Github::ImportHistoryJob).to receive(:perform_async).with(repository.id.to_s).once
+
+      patch "/api/v1/teams/#{membership.team.id}",
+            params: { hackathon: { starts_at: starts_at.iso8601, ends_at: ends_at.iso8601 } },
+            headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(Time.parse(json_response["hackathon"]["starts_at"])).to eq(starts_at)
+      expect(Time.parse(json_response["hackathon"]["ends_at"])).to eq(ends_at)
+      expect(repository.reload.last_import).to eq("status" => "queued")
+    end
+
+    it "no reimporta si no cambia el inicio" do
+      membership = create(:membership, :owner)
+      create(:repository, team: membership.team)
+      sign_in_as(membership.user)
+
+      expect(Github::ImportHistoryJob).not_to receive(:perform_async)
+
+      patch "/api/v1/teams/#{membership.team.id}", params: { hackathon: { challenge_text: "X" } }, headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "rechaza un fin anterior al inicio" do
+      membership = create(:membership, :owner)
+      sign_in_as(membership.user)
+
+      patch "/api/v1/teams/#{membership.team.id}",
+            params: { hackathon: { starts_at: 2.days.from_now.iso8601, ends_at: 1.day.from_now.iso8601 } },
+            headers: csrf_headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 

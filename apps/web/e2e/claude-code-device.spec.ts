@@ -15,6 +15,8 @@ test("device flow: aprobar desde la web deja el token listo para el CLI", async 
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
   await expect(page).toHaveURL(/\/onboarding/);
+  // RF-TEAM-014: primero el perfil, con el nombre del registro ya puesto.
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByText("Crear equipo").click();
   await page.getByLabel("Nombre del equipo").fill("Equipo Device Flow");
   await page.getByLabel("Nombre del hackathon").fill("HackUSC Device Flow");
@@ -22,6 +24,7 @@ test("device flow: aprobar desde la web deja el token listo para el CLI", async 
   await page.locator("#ends-at-search").fill("2026-12-31T23:59");
   await page.locator("#ends-at-search").press("Enter");
   await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.getByRole("button", { name: "Saltar por ahora" }).click();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page).toHaveURL(/\/t\/[^/]+\/home/);
   const homeUrl = page.url();
