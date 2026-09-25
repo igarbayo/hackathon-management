@@ -212,7 +212,7 @@ See [`specs/01-arquitectura.md`](specs/01-arquitectura.md) for the full list.
 | Browser | Current Chromium, Firefox and Safari | Chromium (Playwright end-to-end tests) |
 | `hackboard` CLI | Node.js ≥ 20 on Linux, macOS and Windows | `ubuntu-latest` (Vitest) |
 | MongoDB | 7.x | `mongo:7` |
-| Redis | 7.x | `redis:7` |
+| Redis | 7.x, or Valkey 8 | `redis:7` (production runs `valkey/valkey:8-alpine`) |
 
 ## Production
 
@@ -224,8 +224,10 @@ docker compose -f docker-compose.prod.yml build
 docker compose -f docker-compose.prod.yml up -d --force-recreate
 ```
 
-`docker-compose.prod.yml` runs only `api` and `worker`. MongoDB and Redis are external
-services, configured through `apps/api/.env.production`.
+`docker-compose.prod.yml` runs `api`, `worker` and `redis` (Valkey, capped at 64 MB of data
+and 96 MB of memory, with its data in the `redis_data` volume). MongoDB is an external
+service. Both are configured through `apps/api/.env.production`; with the bundled Valkey,
+`REDIS_URL=redis://redis:6379/0`.
 
 ## Tests
 

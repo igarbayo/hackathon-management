@@ -44,9 +44,9 @@
 | Anthropic (claude.ai), si un miembro lo conecta | Los resultados de las herramientas MCP que Claude llame, según los scopes aprobados | Que el miembro consulte y actualice el tablero desde el chat |
 | Destinos de webhooks salientes (los elige un owner) | Eventos de features, objetivos, milestones, análisis y actividad de GitHub y del sistema. **Nunca** eventos de Claude Code ni de MCP | Integrar con otras herramientas del equipo |
 | Google (Gemini API), con la clave de quien corresponda ([06](06-analisis-ia.md#clave-de-api--rf-ai-021-f4-aceptado)) | El contexto de [06](06-analisis-ia.md#construcción-del-contexto-analysisbuildcontext): títulos, descripciones, mensajes de commit, rutas y recuentos | Análisis y atribución |
-| Servidor propio en España (api, worker, web) | Todo | Infraestructura |
+| Servidor propio en España (api, worker, web y Redis) | Todo, incluidas las colas y los datos efímeros de Redis | Infraestructura |
 | Cloudflare (Tunnel) | Todo el tráfico HTTP en tránsito, con la IP del cliente | Exponer el servidor sin abrir puertos |
-| MongoDB Atlas y Upstash, en regiones de la UE | Todo lo persistido y las colas | Base de datos y Redis gestionados |
+| MongoDB Atlas, en una región de la UE | Todo lo persistido | Base de datos gestionada |
 | Apps y agentes que el miembro conecta con un token | Lo que permitan los scopes del token (como mínimo, todo lo que el miembro ve del equipo) | Lo decide el miembro. Hackboard no controla qué hace ese tercero con los datos; la web lo avisa al crear el token |
 
 [ABIERTO] Revisar los términos de uso de datos del plan de Gemini API que contrate cada persona (que no se usen los datos para entrenar) y documentarlo aquí; al ser una clave personal, Hackboard ya no puede garantizarlo por todo el mundo, solo avisar de qué se envía.

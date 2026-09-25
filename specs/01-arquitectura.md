@@ -141,7 +141,7 @@ Pesos de las colas: `webhooks: 5, ingest: 5, attribution: 3, github: 2, outbound
 | `staging` | Despliegue automático desde `main` |
 | `production` | Despliegue manual con tag |
 
-Hosting de producción: servidor propio en España (Raspberry Pi, `docker-compose.prod.yml`) expuesto con Cloudflare Tunnel, MongoDB Atlas y Upstash (Redis), ambos en regiones de la Unión Europea. Lo recoge la política de privacidad (RF-SEC-007).
+Hosting de producción: servidor propio en España (Raspberry Pi, `docker-compose.prod.yml`) expuesto con Cloudflare Tunnel, con api, worker y Redis (Valkey 8, sin puerto publicado, `maxmemory` 64 MB con `noeviction` y AOF) en la misma máquina ([ADR-0021](decisiones.md#adr-0021)), y MongoDB Atlas en una región de la Unión Europea. Lo recoge la política de privacidad (RF-SEC-007).
 
 ## Requisitos no funcionales
 

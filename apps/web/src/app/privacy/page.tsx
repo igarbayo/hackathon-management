@@ -13,7 +13,7 @@ export const metadata: Metadata = publicPageMetadata({
   path: "/privacy",
 });
 
-const UPDATED_AT = "September 24, 2026";
+const UPDATED_AT = "September 25, 2026";
 const CONTACT_EMAIL = "iggarbayo@gmail.com";
 
 type Treatment = {
@@ -99,11 +99,6 @@ const PROVIDERS: { name: string; what: string; where: string }[] = [
   {
     name: "MongoDB Atlas (MongoDB, Inc.)",
     what: "The database where everything above is stored. It acts as a data processor.",
-    where: "Servers in the European Union.",
-  },
-  {
-    name: "Upstash (Upstash, Inc.)",
-    what: "Queues and temporary data (background jobs, counters, idempotent responses kept for 24 hours). It acts as a data processor.",
     where: "Servers in the European Union.",
   },
   {
@@ -218,7 +213,11 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="third-parties" title="Who it is shared with">
-          <p>Hackboard runs on its own server in Spain. These providers receive data, only what they need for their job:</p>
+          <p>
+            Hackboard runs on its own server in Spain, which also holds the queues and temporary data (background jobs,
+            counters, idempotent responses kept for 24 hours). These providers receive data, only what they need for
+            their job:
+          </p>
           <ul className="flex flex-col gap-2">
             {PROVIDERS.map((p) => (
               <li key={p.name} className="flex flex-col gap-0.5">
@@ -244,8 +243,8 @@ export default function PrivacyPage() {
 
         <Section id="transfers" title="Transfers outside the European Union">
           <p>
-            GitHub, Google, Anthropic and Cloudflare are in the United States, and MongoDB and Upstash are US companies
-            even though they store the data in Europe. These transfers rely on the EU-US Data Privacy Framework when the
+            GitHub, Google, Anthropic and Cloudflare are in the United States, and MongoDB is a US company even though it
+            stores the data in Europe. These transfers rely on the EU-US Data Privacy Framework when the
             company has signed up to it and, if not, on the standard contractual clauses approved by the European
             Commission (GDPR art. 46). You can ask me for a copy of these safeguards.
           </p>

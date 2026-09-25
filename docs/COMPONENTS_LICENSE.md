@@ -261,6 +261,7 @@ They still matter to the people who operate HackBoard.
 |---|---|---|---|---|
 | **MongoDB 7** (`mongo:7`, 7.0.37 locally) | `docker-compose.yml` (development) | SSPL-1.0 | No | None on the code. SSPL only affects someone who offers *MongoDB itself* as a service. Self-hosting HackBoard on MongoDB is fine. Production uses an external MongoDB (`MONGODB_URI`). |
 | **Redis 7** (`redis:7`, which resolves to 7.4.11) | `docker-compose.yml` (development) | RSALv2 or SSPLv1 (since 7.4) | No | None on the code. For a fully OSI-approved stack, use **Valkey** (BSD-3-Clause) or Redis 8 under AGPL-3.0. Both are drop-in replacements for Sidekiq. |
+| Valkey 8 (`valkey/valkey:8-alpine`) | `docker-compose.prod.yml` (production) | BSD-3-Clause | Yes | None |
 | Ruby 3.3 (`ruby:3.3`, `ruby:3.3-slim`) | `apps/api/Dockerfile*` | Ruby or BSD-2-Clause, on a Debian base | Yes | None |
 | Node.js 20 (`node:20`) | `apps/web/Dockerfile` | MIT, on a Debian base | Yes | None |
 | **Brakeman** | `apps/api` development group, CI | Brakeman Public Use License | No | None. It is a static analyser run in CI and not shipped. Its license allows free use for scanning your own code; it restricts offering Brakeman as a commercial service. |
