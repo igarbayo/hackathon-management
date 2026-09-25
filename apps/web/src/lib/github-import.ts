@@ -12,6 +12,9 @@ function plural(count: number, singular: string, pluralForm: string): string {
 export function importSummary(lastImport: GithubImport | null | undefined): string | null {
   if (!lastImport) return null;
   if (isImporting(lastImport)) return "Importing history…";
+  if (lastImport.status === "failed" && lastImport.reason === "stalled") {
+    return "The history import got stuck and did not finish. Try resyncing.";
+  }
   if (lastImport.status === "failed") return "Could not import the history. Try resyncing.";
 
   const pullRequests = plural(lastImport.pull_requests ?? 0, "open PR", "open PRs");

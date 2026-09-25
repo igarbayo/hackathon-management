@@ -139,7 +139,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-ACT-010 | Feed cronológico inverso con scroll infinito. Cada fila muestra el icono de la fuente (GitHub, Claude Code, MCP o sistema), el actor, un texto ("hizo commit en `f-12-login`: …"), las stats (+/−, número de ficheros), la hora relativa y el chip de feature. | Aceptado [F3] |
+| RF-ACT-010 | Feed cronológico inverso con scroll infinito. Cada fila muestra el icono de la fuente (GitHub, Claude Code, MCP o sistema), la foto del actor (la de Google o GitHub si es miembro; si no, o si no tiene, el avatar de GitHub de su login; sin ninguna, o si no carga, sus iniciales), el actor, un texto ("hizo commit en `f-12-login`: …"), las stats (+/−, número de ficheros), la hora relativa y el chip de feature. | Aceptado [F3] |
 | RF-ACT-011 | Filtros: persona, feature, fuente, "sin atribuir" y "sugeridas". Se reflejan en la URL. También por rama (`?branch=`, RF-GH-026): se llega pulsando una etiqueta de rama y se quita con "Quitar filtro". | Aceptado [F3] |
 | RF-ACT-012 | Chip de atribución: **confirmada** (sólido), **sugerida** (borde discontinuo, con ✓ y ✗ en línea y el motivo en un tooltip) o **sin atribuir** (botón "Asignar a…"). | Aceptado [F3] |
 | RF-ACT-013 | Vista **"Quién hizo qué"**: matriz de personas × features con el número de eventos y el último, en una ventana configurable (3 h, 12 h o todo). | Aceptado [F3] |

@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BranchTag } from "@/components/github/branch-tag";
 import { PageHeader } from "@/components/f0/page-header";
 import { useActivity, useDecideAttribution } from "@/hooks/use-activity";
 import { useFeatures } from "@/hooks/use-features";
 import { useMe } from "@/hooks/use-me";
 import { useMembers } from "@/hooks/use-teams";
+import { actorAvatarUrl, actorInitials } from "@/lib/actor-avatar";
 import { relativeTime } from "@/lib/format-date";
 import { AttributionChip } from "./attribution-chip";
 import { canSelectEvent, SelectionBar, UnlinkedAuthorsPanel, type Viewer } from "./author-claims";
@@ -142,6 +144,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
               teamId={teamId}
               event={event}
               features={features ?? []}
+              members={members ?? []}
               selectable={canSelectEvent(event, viewer)}
               selected={selectedIds.has(event.id)}
               onSelectedChange={(checked) => toggleSelected(event.id, checked)}
@@ -166,6 +169,7 @@ function EventRow({
   teamId,
   event,
   features,
+  members,
   selectable,
   selected,
   onSelectedChange,
@@ -176,6 +180,7 @@ function EventRow({
   teamId: string;
   event: ActivityEvent;
   features: import("@/types/api").Feature[];
+  members: import("@/types/api").Member[];
   selectable: boolean;
   selected: boolean;
   onSelectedChange: (checked: boolean) => void;
@@ -184,6 +189,8 @@ function EventRow({
   onAssign: (featureId: string) => void;
 }) {
   const Icon = SOURCE_ICON[event.source];
+  const actorName = event.actor.display ?? "Someone";
+  const avatarUrl = actorAvatarUrl(event.actor, members);
 
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 text-base">
@@ -198,8 +205,15 @@ function EventRow({
         )}
       </span>
       <Icon className="size-4 shrink-0 text-f1-icon" />
+      {/* RF-ACT-010: the actor's photo, or their initials if there is none or it does not load. */}
+      <Avatar size="sm" aria-hidden>
+        {avatarUrl && <AvatarImage src={avatarUrl} alt="" referrerPolicy="no-referrer" />}
+        <AvatarFallback className="bg-f1-background-selected-bold font-medium text-f1-foreground-inverse">
+          {actorInitials(actorName)}
+        </AvatarFallback>
+      </Avatar>
       <span className="flex-1 truncate">
-        <span className="font-medium text-f1-foreground">{event.actor.display ?? "Someone"}</span>
+        <span className="font-medium text-f1-foreground">{actorName}</span>
         {event.actor.mapped_by === "manual" && (
           <span
             className="text-sm text-f1-foreground-tertiary"

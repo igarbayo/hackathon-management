@@ -12,6 +12,16 @@ RSpec.describe "Team members", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_response["data"].size).to eq(2)
     end
+
+    it "includes each member's profile photo (RF-ACT-010)" do
+      owner = create(:membership, :owner)
+      owner.user.update!(avatar_url: "https://avatars.githubusercontent.com/u/1")
+      sign_in_as(owner.user)
+
+      get "/api/v1/teams/#{owner.team.id}/members"
+
+      expect(json_response["data"].first["avatar_url"]).to eq("https://avatars.githubusercontent.com/u/1")
+    end
   end
 
   describe "PATCH /api/v1/teams/:team_id/members/:id" do

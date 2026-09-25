@@ -5,7 +5,9 @@ export interface GithubImport {
   branches?: number;
   pull_requests?: number;
   since?: string;
-  reason?: "no_starts_at";
+  // "stalled": queued or running past `expires_at`, reported as failed (RF-GH-025).
+  reason?: "no_starts_at" | "stalled";
+  expires_at?: string;
   finished_at?: string;
 }
 

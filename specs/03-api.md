@@ -64,7 +64,7 @@ Reglas:
 | GET | `/teams/:id` | miembro | Equipo, hackathon, ajustes (sin secretos) | RF-TEAM-003 [F1] |
 | PATCH | `/teams/:id` | owner | Nombre, hackathon (incluidos `starts_at` y `ends_at`), `challenge_text`, ajustes. Si cambia `starts_at`, reimporta el histórico de los repos activos | RF-TEAM-004 [F1], RF-TEAM-015 |
 | POST | `/teams/:id/code/rotate` | owner | Regenera el código. El anterior deja de servir | RF-TEAM-005 [F1] |
-| GET | `/teams/:id/members` | miembro | Lista con rol y estado de Claude Code (conectado, pausado, nivel) | RF-TEAM-006 [F1] |
+| GET | `/teams/:id/members` | miembro | Lista con rol, estado de Claude Code (conectado, pausado, nivel) y `avatar_url` (foto de Google o GitHub del usuario, para el feed, RF-ACT-010) | RF-TEAM-006 [F1] |
 | PATCH | `/teams/:id/members/:mid` | owner | `role`. También `display_name` y `git_identities` (el propio miembro puede cambiar los suyos) | RF-TEAM-007 [F2] |
 | DELETE | `/teams/:id/members/:mid` | owner o el propio miembro | Expulsar o salir. Revoca el token de Claude Code, sus PAT y tokens OAuth de ese equipo (`member_left`) y borra sus `OAuthGrant` (`Membership#revoke_access`) | RF-TEAM-008 [F1] |
 | DELETE | `/teams/:id` | owner | Borrado lógico (`Team#soft_delete!`). Revoca todos los tokens del equipo (`team_deleted`). Confirmación escribiendo el nombre del equipo | RF-TEAM-009 [F2] |

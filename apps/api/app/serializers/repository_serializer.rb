@@ -10,7 +10,7 @@ class RepositorySerializer
       full_name: repository.full_name,
       default_branch: repository.default_branch,
       active: repository.active,
-      last_import: repository.last_import
+      last_import: repository.current_import
     }
   end
 

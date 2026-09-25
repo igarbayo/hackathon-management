@@ -30,4 +30,9 @@ describe("importSummary (RF-GH-025)", () => {
   it("warns if it failed", () => {
     expect(importSummary({ status: "failed" })).toMatch(/Could not import/);
   });
+
+  it("says a stuck import did not finish and suggests resyncing", () => {
+    expect(isImporting({ status: "failed", reason: "stalled" })).toBe(false);
+    expect(importSummary({ status: "failed", reason: "stalled" })).toMatch(/got stuck.*Try resyncing\.$/);
+  });
 });

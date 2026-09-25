@@ -168,7 +168,7 @@ RSpec.describe "Teams", type: :request do
       expect(response).to have_http_status(:ok)
       expect(Time.parse(json_response["hackathon"]["starts_at"])).to eq(starts_at)
       expect(Time.parse(json_response["hackathon"]["ends_at"])).to eq(ends_at)
-      expect(repository.reload.last_import).to eq("status" => "queued")
+      expect(repository.reload.last_import).to include("status" => "queued")
     end
 
     it "does not import again if the start does not change" do

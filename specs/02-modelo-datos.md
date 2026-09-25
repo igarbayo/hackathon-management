@@ -219,7 +219,7 @@ Máximo 5 por equipo.
 | `installation_id` | Integer | |
 | `active` | Boolean | `false` si se revoca el acceso |
 | `remote_urls` | Array<String> | URLs normalizadas (`github.com/org/repo`) para que el CLI pueda hacer match |
-| `last_import` | Hash | Última importación del histórico (RF-GH-025): `status` (`queued` \| `running` \| `done` \| `failed`) y, al acabar, `commits`, `branches` (ramas activas recorridas), `pull_requests`, `since` (el `starts_at` usado), `reason` (`no_starts_at` si el hackathon no tenía inicio) y `finished_at`. Solo cuentas, nada del contenido |
+| `last_import` | Hash | Última importación del histórico (RF-GH-025): `status` (`queued` \| `running` \| `done` \| `failed`) y, al acabar, `commits`, `branches` (ramas activas recorridas), `pull_requests`, `since` (el `starts_at` usado), `reason` (`no_starts_at` si el hackathon no tenía inicio) y `finished_at`. Mientras está en `queued` o `running` lleva `expires_at`; pasado ese momento (o sin él) la API la devuelve como `failed` con `reason: "stalled"` (`Repository#current_import`). Solo cuentas, nada del contenido |
 
 Índices: `{github_repo_id: 1, active: 1}`. Invariante: **un repositorio activo pertenece a un solo equipo** ([ADR-0007](decisiones.md#adr-0007)).
 

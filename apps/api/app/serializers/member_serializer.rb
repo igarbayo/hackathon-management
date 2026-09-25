@@ -9,6 +9,8 @@ class MemberSerializer
       user_id: membership.user_id.to_s,
       role: membership.role,
       display_name: membership.display_name,
+      # RF-ACT-010: the Google or GitHub photo, shown next to the actor in the feed.
+      avatar_url: membership.user&.avatar_url,
       git_identities: membership.git_identities,
       claude_code: claude_code_json
     }

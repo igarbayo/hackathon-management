@@ -21,6 +21,18 @@ class Repository
 
   index({ github_repo_id: 1, active: 1 })
 
+  # RF-GH-025: last_import as the UI should see it. A queued or running import
+  # past its `expires_at` (or without one, from before it existed) was lost:
+  # it is reported as failed with reason "stalled", so the UI offers Resync.
+  def current_import
+    return last_import unless %w[queued running].include?(last_import&.dig("status"))
+
+    expires_at = last_import["expires_at"].presence && Time.zone.parse(last_import["expires_at"])
+    return last_import if expires_at && expires_at > Time.current
+
+    { "status" => "failed", "reason" => "stalled" }
+  end
+
   private
 
   def only_one_active_repo_per_github_repo_id

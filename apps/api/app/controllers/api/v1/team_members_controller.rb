@@ -7,7 +7,7 @@ module Api
       requires_scope "read", only: :index
 
       def index
-        memberships = Membership.where(team_id: current_team.id)
+        memberships = Membership.where(team_id: current_team.id).includes(:user)
         render json: { data: memberships.map { |m| MemberSerializer.new(m).as_json } }
       end
 

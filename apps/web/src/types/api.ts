@@ -53,6 +53,8 @@ export interface Member {
   user_id: string;
   role: Role;
   display_name: string;
+  // Google or GitHub photo (RF-ACT-010).
+  avatar_url: string | null;
   git_identities: string[];
   claude_code: ClaudeCodeStatus | null;
 }

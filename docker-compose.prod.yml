@@ -35,6 +35,14 @@ services:
     restart: unless-stopped
     mem_limit: 350m
     logging: *logging
+    # The image's HEALTHCHECK curls the API, which the worker does not serve:
+    # this one checks the Sidekiq heartbeat in Redis instead.
+    healthcheck:
+      test: ["CMD", "bin/sidekiq-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
 
   # Sidekiq queues, rate limiting and short-lived caches (01-arquitectura).
   # Valkey (BSD-3-Clause) instead of redis:7 keeps the stack OSI-approved

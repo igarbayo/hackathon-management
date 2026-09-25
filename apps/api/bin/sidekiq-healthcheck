@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+# Docker healthcheck for the worker (docker-compose.prod.yml). The image's
+# HEALTHCHECK curls the API on :3001, which the worker does not serve, so it
+# always reported "unhealthy". This one is healthy when a Sidekiq process in
+# this container sent its heartbeat to Redis in the last minute (Sidekiq beats
+# every 10 s). It loads only redis-client, not Rails, to stay cheap on the Pi.
+require "bundler/setup"
+require "redis_client"
+require "socket"
+
+MAX_BEAT_AGE = 60 # seconds
+
+begin
+  redis = RedisClient.new(url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"), timeout: 2)
+  # Sidekiq names each process "<hostname>:<pid>:<nonce>", and the hostname is
+  # the container's.
+  prefix = "#{Socket.gethostname}:"
+  healthy = redis.call("SMEMBERS", "processes").any? do |identity|
+    next false unless identity.start_with?(prefix)
+
+    beat = redis.call("HGET", identity, "beat")
+    beat && Time.now.to_f - beat.to_f < MAX_BEAT_AGE
+  end
+  exit(healthy ? 0 : 1)
+rescue StandardError
+  exit 1
+end

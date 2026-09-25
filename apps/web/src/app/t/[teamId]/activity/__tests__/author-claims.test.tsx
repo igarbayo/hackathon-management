@@ -37,8 +37,8 @@ function event(overrides: Partial<ActivityEvent> & { actor?: ActivityEvent["acto
 }
 
 const members = [
-  { id: "m-owner", user_id: "u1", role: "owner", display_name: "Olga", git_identities: [], claude_code: null },
-  { id: "m-ana", user_id: "u2", role: "member", display_name: "Ana", git_identities: [], claude_code: null },
+  { id: "m-owner", user_id: "u1", role: "owner", display_name: "Olga", avatar_url: null, git_identities: [], claude_code: null },
+  { id: "m-ana", user_id: "u2", role: "member", display_name: "Ana", avatar_url: null, git_identities: [], claude_code: null },
 ] satisfies Member[];
 
 describe("canSelectEvent", () => {

@@ -96,6 +96,34 @@ RSpec.describe Github::ImportHistoryJob do
     expect(repository.reload.last_import).to include("status" => "failed")
   end
 
+  describe "stuck imports (RF-GH-025)" do
+    it "enqueue marks it as queued with a deadline" do
+      repository = create(:repository)
+      allow(described_class).to receive(:perform_async)
+
+      described_class.enqueue(repository)
+
+      last_import = repository.reload.last_import
+      expect(last_import["status"]).to eq("queued")
+      expect(Time.zone.parse(last_import["expires_at"])).to be_within(5.seconds).of(described_class::STALE_AFTER.from_now)
+    end
+
+    it "when rate limited, the deadline counts from when the quota comes back" do
+      team = create(:team, hackathon: build(:hackathon, starts_at: 2.days.ago))
+      repository = create(:repository, team: team, full_name: "org/repo", default_branch: "main")
+      reset_at = 40.minutes.from_now.change(usec: 0)
+      allow(Github::Client).to receive(:new).and_raise(Github::Client::RateLimited.new(reset_at))
+      allow(described_class).to receive(:perform_at)
+
+      described_class.new.perform(repository.id.to_s)
+
+      expect(repository.reload.last_import).to eq(
+        "status" => "queued", "expires_at" => (reset_at + described_class::STALE_AFTER).utc.iso8601
+      )
+      expect(described_class).to have_received(:perform_at).with(reset_at, repository.id.to_s)
+    end
+  end
+
   describe "active branches (RF-GH-026)" do
     let(:team) { create(:team, hackathon: build(:hackathon, starts_at: 2.days.ago)) }
     let(:repository) { create(:repository, team: team, full_name: "org/repo", default_branch: "main") }

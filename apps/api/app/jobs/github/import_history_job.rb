@@ -16,11 +16,21 @@ module Github
     # (RNF-GH-002).
     MAX_BRANCHES = 50
 
+    # RF-GH-025: a queued or running import that has not finished by
+    # `expires_at` is shown as failed (Repository#current_import), so a job
+    # lost with its Redis, or killed with its worker, does not stay
+    # "Importing history…" forever. Generous: a normal import takes seconds.
+    STALE_AFTER = 15.minutes
+
     # Enqueues the import and marks it as pending, so the UI does not show the
     # previous result in the meantime.
     def self.enqueue(repository)
-      repository.set(last_import: { "status" => "queued" })
+      repository.set(last_import: pending("queued"))
       perform_async(repository.id.to_s)
+    end
+
+    def self.pending(status, from: Time.current)
+      { "status" => status, "expires_at" => (from + STALE_AFTER).utc.iso8601 }
     end
 
     def perform(repository_id)
@@ -30,7 +40,7 @@ module Github
       team = ::Team.where(id: repository.team_id).first
       return unless team
 
-      repository.set(last_import: { "status" => "running" })
+      repository.set(last_import: self.class.pending("running"))
       since = team.hackathon&.starts_at
 
       client = Github::Client.new(repository.installation_id)
@@ -43,7 +53,8 @@ module Github
         "finished_at" => Time.current.utc.iso8601
       }.compact)
     rescue Github::Client::RateLimited => e
-      repository&.set(last_import: { "status" => "queued" })
+      # It waits for the quota to come back, so it only goes stale after that.
+      repository&.set(last_import: self.class.pending("queued", from: e.reset_at))
       self.class.perform_at(e.reset_at, repository_id)
     rescue StandardError
       repository&.set(last_import: { "status" => "failed", "finished_at" => Time.current.utc.iso8601 })
