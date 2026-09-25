@@ -16,7 +16,7 @@ jobs:
     name: reuse · licenses and copyright
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: fsfe/reuse-action@v6
 
@@ -24,7 +24,7 @@ jobs:
     name: api · rubocop, brakeman, bundler-audit, rspec
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # apps/api/.env is in .gitignore (secrets only in environment variables,
       # RNF-SEC-010). The checks in this job do not call any external service,
@@ -64,7 +64,7 @@ jobs:
     name: web · eslint, vitest, next build (with typecheck)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -91,7 +91,7 @@ jobs:
     name: packages · cli, shared-schemas, npm audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
