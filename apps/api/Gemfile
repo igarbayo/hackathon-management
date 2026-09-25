@@ -43,7 +43,7 @@ gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
 
 # Google ID token verification (OpenID Connect login, ADR-0011)
-gem "jwt", "~> 2.9"
+gem "jwt", "~> 3.3"
 
 # Environment variables in development and test
 gem "dotenv-rails", groups: [ :development, :test ]
