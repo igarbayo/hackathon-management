@@ -36,7 +36,7 @@ gem "json_schemer", "~> 2.3"
 # (requested by json_schemer with ">= 2.3"), whose native extension does not
 # match the one this image already loads and caused `ArgumentError: wrong number
 # of arguments` on any JSON.parse.
-gem "json", "2.7.2"
+gem "json", "3.0.2"
 
 # HTTP client for the GitHub API and the Gemini API
 gem "faraday", "~> 2.9"
