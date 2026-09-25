@@ -27,7 +27,7 @@ gem "sidekiq", "~> 7.3"
 gem "sidekiq-cron", "~> 2.1"
 # connection_pool 3.x changed the signature of #pop and breaks the internal
 # Sidekiq::Scheduled thread ("wrong number of arguments") with sidekiq 7.3.x.
-gem "connection_pool", "~> 2.5"
+gem "connection_pool", "~> 3.0"
 
 # JSON Schema validation for ingest and AI output (01-arquitectura)
 gem "json_schemer", "~> 2.3"
