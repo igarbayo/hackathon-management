@@ -122,6 +122,16 @@ RSpec.describe "Activity claims (RF-ACT-018)", type: :request do
       expect(event.reload.actor).to include("membership_id" => member.id.to_s, "mapped_by" => "manual")
     end
 
+    it "an owner cannot give away their own events with their GitHub login" do
+      owner.user.update!(github_login: "olga-dev")
+      event = commit("github_login" => "Olga-Dev", "user_id" => owner.user_id.to_s, "membership_id" => owner.id.to_s)
+
+      claim(as: owner, event_ids: [ event.id.to_s ], membership_id: member.id.to_s, include_future: false)
+
+      expect(json_response["skipped"]).to eq(1)
+      expect(event.reload.actor["membership_id"]).to eq(owner.id.to_s)
+    end
+
     it "409 identity_taken if the identity already belongs to another member" do
       owner.update!(git_identities: [ "ana@uni.es" ])
       event = commit("email" => "ana@uni.es")
@@ -165,6 +175,17 @@ RSpec.describe "Activity claims (RF-ACT-018)", type: :request do
 
       Activity::ClaimForMembership.call(member, identities: [ "ana@uni.es" ])
       expect(event.reload.actor["user_id"]).to be_nil
+    end
+
+    it "'Not mine' skips your own events with your GitHub login" do
+      member.user.update!(github_login: "ana-dev")
+      event = commit("github_login" => "ANA-dev", "user_id" => member.user_id.to_s, "membership_id" => member.id.to_s)
+      sign_in_as(member.user)
+
+      post "/api/v1/teams/#{team.id}/activity/unclaim", params: { event_ids: [ event.id.to_s ] }, headers: csrf_headers, as: :json
+
+      expect(json_response["skipped"]).to eq(1)
+      expect(event.reload.actor["membership_id"]).to eq(member.id.to_s)
     end
 
     it "a member cannot unassign someone else's events; an owner can" do

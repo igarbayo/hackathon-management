@@ -34,6 +34,15 @@ module Activity
       identities.compact.uniq
     end
 
+    # A GitHub event the member holds and whose login is the one of their own
+    # GitHub account (RF-ACT-018): it is theirs for sure, so they can neither
+    # say "Not mine" about it nor give it to someone else.
+    def own_github_login?(event, membership)
+      login = normalize(membership.user&.github_login)
+      login.present? && event.actor["membership_id"] == membership.id.to_s &&
+        normalize(event.actor["github_login"]) == login
+    end
+
     # Mongo criteria for the events whose author has any of these identities
     # (exact case-insensitive login, exact email or a noreply email with that
     # login).

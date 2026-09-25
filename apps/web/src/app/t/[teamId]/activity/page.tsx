@@ -59,6 +59,7 @@ export default function ActivityPage({ params }: { params: Promise<{ teamId: str
   const viewer: Viewer = {
     membershipId: members?.find((member) => member.user_id === me?.id)?.id,
     isOwner: me?.memberships.find((membership) => membership.team_id === teamId)?.role === "owner",
+    githubLogin: me?.github_login,
   };
   const selectedEvents = events.filter((event) => selectedIds.has(event.id));
 

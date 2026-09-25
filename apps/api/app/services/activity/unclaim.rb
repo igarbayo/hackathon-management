@@ -1,7 +1,8 @@
 # "Not mine" (RF-ACT-018, ADR-0018): leaves GitHub events with no user. The
 # member who had them is kept in actor.unclaimed_by, so automatic assignment
 # does not give them back, and their identities are removed from their
-# git_identities. A member only on their own events; an owner, on any.
+# git_identities. A member only on their own events; an owner, on any. Never on
+# your own events with your GitHub login (AuthorIdentity.own_github_login?).
 module Activity
   class Unclaim
     def self.call(team:, by:, events:)
@@ -16,7 +17,7 @@ module Activity
 
     # Returns [unassigned events, number skipped].
     def call
-      allowed = events.select { |event| event.source == "github" && event.actor["membership_id"].present? && (by.owner? || event.actor["membership_id"] == by.id.to_s) }
+      allowed = events.select { |event| event.source == "github" && event.actor["membership_id"].present? && (by.owner? || event.actor["membership_id"] == by.id.to_s) && !AuthorIdentity.own_github_login?(event, by) }
 
       allowed.group_by { |event| event.actor["membership_id"] }.each do |membership_id, holder_events|
         holder = Membership.where(team_id: team.id, id: membership_id).first

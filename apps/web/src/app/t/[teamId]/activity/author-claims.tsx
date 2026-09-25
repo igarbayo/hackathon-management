@@ -17,12 +17,23 @@ import type { Member } from "@/types/api";
 export interface Viewer {
   membershipId: string | undefined;
   isOwner: boolean;
+  githubLogin?: string | null;
 }
 
 // A member can only change GitHub events with no user or their own; an owner,
-// any GitHub event.
+// any GitHub event. Nobody can change their own events with the login of their
+// GitHub account: those are theirs for sure.
+function isOwnGithubEvent(event: ActivityEvent, viewer: Viewer) {
+  return (
+    !!viewer.githubLogin &&
+    !!viewer.membershipId &&
+    event.actor.membership_id === viewer.membershipId &&
+    event.actor.github_login?.toLowerCase() === viewer.githubLogin.toLowerCase()
+  );
+}
+
 export function canSelectEvent(event: ActivityEvent, viewer: Viewer) {
-  if (event.source !== "github") return false;
+  if (event.source !== "github" || isOwnGithubEvent(event, viewer)) return false;
   if (viewer.isOwner) return true;
   return !event.actor.user_id || event.actor.membership_id === viewer.membershipId;
 }

@@ -1,6 +1,7 @@
 # "These are mine" / "Assign to…" (RF-ACT-018, ADR-0018): assigns GitHub events
 # to a member by hand. A member can only assign themselves events with no user;
-# an owner can assign any event to any member. With include_future, the
+# an owner can assign any event to any member, except their own events with
+# their GitHub login to someone else. With include_future, the
 # identities of those events are added to the recipient's git_identities so
 # their next commits reach them by themselves.
 module Activity
@@ -24,6 +25,7 @@ module Activity
 
       github_events = events.select { |event| event.source == "github" }
       allowed = github_events.select { |event| by.owner? || event.actor["user_id"].blank? }
+      allowed.reject! { |event| AuthorIdentity.own_github_login?(event, by) } if target.id != by.id
 
       if include_future
         new_identities = allowed.flat_map { |event| AuthorIdentity.for_event(event) }.uniq - AuthorIdentity.for_membership(target)

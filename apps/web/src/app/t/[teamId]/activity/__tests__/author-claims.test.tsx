@@ -55,6 +55,13 @@ describe("canSelectEvent", () => {
     expect(canSelectEvent(event({ actor: { user_id: "u2", membership_id: "m-ana" } }), owner)).toBe(true);
   });
 
+  it("nobody can select their own events with the login of their GitHub account", () => {
+    const withLogin = { ...owner, githubLogin: "Olga-Dev" };
+    expect(canSelectEvent(event({ actor: { user_id: "u1", membership_id: "m-owner", github_login: "olga-dev" } }), withLogin)).toBe(false);
+    expect(canSelectEvent(event({ actor: { user_id: "u1", membership_id: "m-owner", github_login: "other" } }), withLogin)).toBe(true);
+    expect(canSelectEvent(event({ actor: { user_id: "u2", membership_id: "m-ana", github_login: "olga-dev" } }), withLogin)).toBe(true);
+  });
+
   it("events that are not from GitHub are never selectable", () => {
     expect(canSelectEvent(event({ source: "claude_code" }), owner)).toBe(false);
   });

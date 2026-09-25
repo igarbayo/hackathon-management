@@ -2,6 +2,7 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-25 · 03, 04 · RF-ACT-018: tus propios eventos de GitHub con el login de tu cuenta ya no se pueden seleccionar en Actividad, y `unclaim` y `claim` (a otro miembro) los omiten: no tiene sentido decir "No son míos" de commits que GitHub atribuye a tu cuenta.
 - 2026-09-25 · 04 · RF-UX-001: el menú lateral deja de ser un panel flotante (borde, sombra y fondo blanco) y queda integrado en el fondo de la página, sin separadores entre cabecera, navegación y pie, como en la app de Factorial. El contenido sigue siendo un panel.
 - 2026-09-25 · 04 · RF-UX-001 (bug): el menú lateral se estiraba hasta la altura de la página, así que en páginas largas el pie con el perfil quedaba abajo del todo. Ahora es `sticky` y mide lo que la pantalla.
 - 2026-09-25 · 01, 02, 03, 04, 07 · Importaciones atascadas (RF-GH-025): `last_import` guarda `expires_at` mientras está en `queued` o `running` y, pasado ese plazo, se devuelve como `failed` con `reason: "stalled"`; la web pide resincronizar. Pasaba al cambiar de Redis: el job se perdía y el repo decía "Importing history…" sin fin. El worker de `docker-compose.prod.yml` tiene su propio healthcheck (latido de Sidekiq en Redis) en vez del de la API, que lo marcaba siempre `unhealthy`. El feed de Actividad muestra la foto de cada actor (RF-ACT-010) y `GET /teams/:id/members` devuelve `avatar_url`.
