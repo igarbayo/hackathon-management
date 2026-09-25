@@ -6,7 +6,7 @@
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Mide lo que la pantalla (menos los márgenes) y no se mueve al hacer scroll aunque la página crezca; si la navegación no cabe, hace scroll dentro del menú. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px, que se cierra al elegir cualquier opción (navegación, logo o cambio de equipo). | Aceptado [F1] |
+| RF-UX-001 | Menú lateral fijo con el estilo del sistema de diseño F0 de Factorial ([13](13-sistema-diseno.md)), iconos de Lucide y texto. Va integrado en el fondo de la página (`f1-special-page`), sin borde, sombra ni fondo propio y sin separadores entre cabecera, navegación y pie; solo el contenido flota como panel. Mide lo que la pantalla (menos los márgenes) y no se mueve al hacer scroll aunque la página crezca; si la navegación no cabe, hace scroll dentro del menú. Se colapsa a solo iconos en pantallas < 1024 px y pasa a un drawer en < 768 px, que se cierra al elegir cualquier opción (navegación, logo o cambio de equipo). | Aceptado [F1] |
 | RF-UX-002 | Arriba del menú: selector de equipo (si el usuario tiene más de uno), que muestra siempre el nombre del equipo y nunca su id, y nombre del hackathon. | Aceptado [F1] |
 | RF-UX-003 | Barra superior con una **cuenta atrás persistente** al siguiente milestone. Cambia a ámbar a menos de 3 h y a rojo a menos de 1 h. | Aceptado [F2] |
 | RF-UX-004 | Todas las fechas se muestran en la zona horaria del hackathon e indican la zona, con formato en inglés (`en-US`, RNF-UI-013). | Aceptado [F1] |

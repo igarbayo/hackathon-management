@@ -54,7 +54,7 @@ export function SidebarFooter({ me, iconOnly = false }: { me: Me | undefined; ic
   };
 
   return (
-    <div className="border-t border-f1-border-secondary p-2">
+    <div className="p-2">
       <DropdownMenu>
         <DropdownMenuTrigger
           className="flex w-full items-center gap-2 rounded p-1.5 text-left hover:bg-f1-background-secondary-hover focus-ring"

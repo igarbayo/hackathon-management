@@ -13,8 +13,9 @@ import { SidebarNav } from "./sidebar-nav";
 import { TeamSelector } from "./team-selector";
 
 // Copied from F0's ApplicationFrame/Sidebar: the page sits on an
-// f1-special-page background, and both the sidebar and the content are
-// floating panels (border, radius and shadow), 8px apart.
+// f1-special-page background. The sidebar blends into it (no border,
+// shadow or background of its own) and only the content is a floating
+// panel (border, radius and shadow), 8px apart.
 // RF-UX-001: full sidebar from 1024px, icons only between 768 and 1023px,
 // and a drawer below 768px. The sidebar is as tall as the screen (minus the
 // 8px margins) and stays put while the page scrolls; its nav scrolls inside.
@@ -27,7 +28,7 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
   return (
     <div className="min-h-screen bg-f1-special-page">
       <div className="flex min-h-screen gap-2 p-2">
-        <aside className="sticky top-2 hidden h-[calc(100dvh-1rem)] w-56 shrink-0 flex-col self-start rounded-xl border border-f1-border-secondary bg-f1-background shadow-lg lg:flex">
+        <aside className="sticky top-2 hidden h-[calc(100dvh-1rem)] w-56 shrink-0 flex-col self-start lg:flex">
           <SidebarHeader teamId={teamId} memberships={me?.memberships} hackathonName={team?.hackathon?.name} />
           <div className="flex-1 overflow-y-auto">
             <SidebarNav teamId={teamId} />
@@ -35,7 +36,7 @@ export function AppShell({ teamId, children }: { teamId: string; children: React
           <SidebarFooter me={me} />
         </aside>
 
-        <aside className="sticky top-2 hidden h-[calc(100dvh-1rem)] w-14 shrink-0 flex-col items-center self-start rounded-xl border border-f1-border-secondary bg-f1-background shadow-lg md:flex lg:hidden">
+        <aside className="sticky top-2 hidden h-[calc(100dvh-1rem)] w-14 shrink-0 flex-col items-center self-start md:flex lg:hidden">
           <Link
             href={`/t/${teamId}/home`}
             aria-label="Hackboard, go to home"
@@ -98,7 +99,7 @@ function SidebarHeader({
   onNavigate?: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-f1-border-secondary p-3">
+    <div className="flex flex-col gap-1 p-3">
       <Link
         href={`/t/${teamId}/home`}
         onClick={onNavigate}

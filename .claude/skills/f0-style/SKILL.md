@@ -102,7 +102,7 @@ Real source: `packages/react/src/components/tags/F0TagStatus/F0TagStatus.tsx` an
 
 Real source: `packages/react/src/patterns/Navigation/Sidebar/{Sidebar.tsx,Menu/index.tsx}`.
 
-- The panel floats over the `f1-special-page` background: `shadow-lg ring-1 ring-f1-border-secondary`, `rounded-xl` (12px), 8px from the window edges, `f1-background/60` background with blur.
+- The sidebar blends into the `f1-special-page` background: no border, shadow, radius or background of its own, and no dividers between header, nav and footer (like the Factorial app). Only the content is a floating panel, 8px from the window edges.
 - Menu item: `rounded py-1.5 pl-1.5 pr-2`, 16px icon (F0Icon `size="md"`). Active: `bg-f1-background-secondary text-f1-foreground` + `text-f1-icon-bold` icon. Inactive on hover: `hover:bg-f1-background-secondary` + `text-f1-icon` icon.
 
 ## CRUD patterns (F0's 10 principles)
