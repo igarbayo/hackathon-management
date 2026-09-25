@@ -39,7 +39,7 @@
 | POST | `/auth/signup` | `{email, name, password}` → crea el usuario y la sesión | RF-AUTH-001 [F1] |
 | POST | `/auth/login` | `{email, password}` → sesión | RF-AUTH-002 [F1] |
 | POST | `/auth/logout` | Invalida la sesión actual | RF-AUTH-003 [F1] |
-| GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado). Con `link=1` (exige sesión) y `return_to=/onboarding`, el `state` lleva el usuario de la sesión para vincularle GitHub en vez de iniciar sesión | RF-AUTH-004 [F1], RF-TEAM-014 |
+| GET | `/auth/github` | Redirige al OAuth de usuario de la GitHub App (`state` firmado). Con `link=1` (exige sesión) y `return_to` (`/onboarding`, opcionalmente con `?code=` de invitación; cualquier otro valor se cambia por `/onboarding`), el `state` lleva el usuario de la sesión para vincularle GitHub en vez de iniciar sesión | RF-AUTH-004 [F1], RF-TEAM-014 |
 | GET | `/auth/github/callback` | Crea o vincula el usuario por `github_uid` y, si no, por email verificado. Abre sesión. Si el `state` es de vinculación: añade `github_uid`, `github_login` y la foto a la cuenta de la sesión (que tiene que ser la del `state`), no abre sesión y redirige a `return_to?github_link=linked\|taken\|error` (`taken` si ese GitHub ya es de otra cuenta) | RF-AUTH-004, RF-TEAM-014 |
 | GET | `/auth/google` | Redirige al login de Google (OpenID Connect, scopes `openid email profile`, `state` y `nonce` firmados, PKCE) | RF-AUTH-008 [F1] |
 | GET | `/auth/google/callback` | Valida el ID token (firma, `iss`, `aud`, `nonce`, `exp`) y exige `email_verified`. Crea o vincula el usuario por `google_sub` y, si no, por email verificado. Actualiza `avatar_url` con `picture` (RF-AUTH-011). Abre sesión | RF-AUTH-008 |
@@ -84,7 +84,7 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 | Método | Ruta | Descripción | Req |
 |--------|------|-------------|-----|
 | GET | `/teams/:id/features` | Filtros: `status`, `assignee_id`, `objective_id`, `q`. Incluye `score` y `last_activity_at` | RF-FEAT-001 [F1] |
-| GET | `/teams/:id/features/:key` | Por clave (`F-12`) o id. Detalle con argumentos | RF-FEAT-002 [F1] |
+| GET | `/teams/:id/features/:key` | Por clave (`F-12`) o id. Detalle con argumentos y `activity_branches` (ramas con actividad de GitHub atribuida a la feature más sus `branch_names`, RF-GH-026) | RF-FEAT-002 [F1] |
 | POST | `/teams/:id/features` | `{title, description?, status?, objective_ids?, assignee_ids?, deadline?}`. Asigna `number` de forma atómica | RF-FEAT-003 [F1] |
 | PATCH | `/teams/:id/features/:key` | Campos editables. Los cambios de `status` y `assignee_ids` generan eventos `system` | RF-FEAT-004 [F1] |
 | POST | `/teams/:id/features/:key/move` | `{status, before_id?, after_id?}`: mueve la tarjeta en el kanban (calcula `position`) | RF-FEAT-005 [F1] |
@@ -111,7 +111,7 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 
 | Método | Ruta | Descripción | Req |
 |--------|------|-------------|-----|
-| GET | `/teams/:id/activity` | Filtros: `user_id`, `feature_id`, `source`, `kind`, `attribution_status` (`confirmed`\|`suggested`\|`none`), `actor_status` (`unlinked`: de GitHub y sin usuario), `via` (`web`\|`api`\|`mcp`), `token_id`, `since`, `until`. Paginado | RF-ACT-001 [F3] |
+| GET | `/teams/:id/activity` | Filtros: `user_id`, `feature_id`, `source`, `kind`, `attribution_status` (`confirmed`\|`suggested`\|`none`), `actor_status` (`unlinked`: de GitHub y sin usuario), `via` (`web`\|`api`\|`mcp`), `token_id`, `branch` (eventos de esa rama, también los commits que llegaron a ella desde otra; RF-GH-026), `since`, `until`. Paginado. Cada evento lleva `branch` y `branches` | RF-ACT-001 [F3] |
 | GET | `/teams/:id/activity/summary` | Recuento por persona y por feature en una ventana (`?window=24h`) | RF-ACT-002 [F3] |
 | POST | `/teams/:id/activity/:eid/attribution` | `{action: "confirm" \| "reject" \| "set", feature_id?}` | RF-ATR-004 [F3] |
 | POST | `/teams/:id/activity/attribution/bulk` | `{event_ids[], action, feature_id?}` (máx. 100) | RF-ATR-005 [F4] |

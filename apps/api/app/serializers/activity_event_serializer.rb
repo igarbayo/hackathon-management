@@ -14,6 +14,7 @@ class ActivityEventSerializer
       actor: event.actor.except("email", "unclaimed_by"),
       repository_id: event.repository_id&.to_s,
       branch: event.branch,
+      branches: event.all_branches,
       sha: event.sha,
       pr_number: event.pr_number,
       url: event.url,

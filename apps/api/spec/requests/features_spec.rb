@@ -26,6 +26,20 @@ RSpec.describe "Features", type: :request do
       expect(json_response["id"]).to eq(feature.id.to_s)
     end
 
+    it "incluye las ramas de su actividad de GitHub (RF-GH-026)" do
+      membership = create(:membership)
+      feature = create(:feature, team: membership.team, branch_names: %w[f-1-login])
+      event = create(:activity_event, :github_commit, team: membership.team, branch: "f-1-api", branches: %w[f-1-api main])
+      event.build_attribution(feature_id: feature.id, method: "manual", status: "confirmed")
+      event.save!
+      create(:activity_event, :github_commit, team: membership.team, branch: "otra", branches: %w[otra])
+      sign_in_as(membership.user)
+
+      get "/api/v1/teams/#{membership.team.id}/features/#{feature.key}"
+
+      expect(json_response["activity_branches"]).to eq(%w[f-1-api f-1-login main])
+    end
+
     it "encuentra por id" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)

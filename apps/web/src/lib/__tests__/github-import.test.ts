@@ -16,6 +16,11 @@ describe("importSummary (RF-GH-025)", () => {
     expect(summary).toMatch(/^87 commits desde el 25 abr 2026 y 1 PR abierto\.$/);
   });
 
+  it("dice de cuántas ramas son (RF-GH-026)", () => {
+    const summary = importSummary({ status: "done", commits: 12, branches: 3, pull_requests: 2, since: "2026-04-25T09:00:00Z" });
+    expect(summary).toMatch(/^12 commits de 3 ramas desde el 25 abr 2026 y 2 PRs abiertos\.$/);
+  });
+
   it("explica que sin fecha de inicio no hay commits", () => {
     expect(importSummary({ status: "done", commits: 0, pull_requests: 0, reason: "no_starts_at" })).toBe(
       "El hackathon no tiene fecha de inicio, así que no se han importado commits. 0 PRs abiertos.",

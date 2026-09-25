@@ -40,6 +40,7 @@ import { useDeleteFeature, useFeature, useUpdateFeature } from "@/hooks/use-feat
 import { useCreateArgument, useDeleteArgument, useVoteArgument } from "@/hooks/use-arguments";
 import { useMe } from "@/hooks/use-me";
 import { suggestedBranchName } from "@/lib/branch-name";
+import { BranchTag } from "@/components/github/branch-tag";
 import type { Argument } from "@/types/api";
 
 export default function FeatureDetailPage({ params }: { params: Promise<{ teamId: string; key: string }> }) {
@@ -167,18 +168,33 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
         <CardHeader>
           <CardTitle className="text-base">Cómo vincular trabajo</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center gap-2">
-          <code className="rounded bg-muted px-2 py-1 text-sm">{branchName}</code>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              navigator.clipboard.writeText(branchName);
-              toast.success("Rama copiada");
-            }}
-          >
-            <CopyIcon className="size-3.5" /> Copiar
-          </Button>
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <code className="rounded bg-muted px-2 py-1 text-sm">{branchName}</code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(branchName);
+                toast.success("Rama copiada");
+              }}
+            >
+              <CopyIcon className="size-3.5" /> Copiar
+            </Button>
+          </div>
+          {/* RF-GH-026: ramas con actividad de GitHub de esta feature. */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium text-f1-foreground">Ramas</p>
+            {feature.activity_branches && feature.activity_branches.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {feature.activity_branches.map((branch) => (
+                  <BranchTag key={branch} name={branch} href={`/t/${teamId}/activity?branch=${encodeURIComponent(branch)}`} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-f1-foreground-secondary">Todavía no hay commits de esta feature en ninguna rama.</p>
+            )}
+          </div>
         </CardContent>
       </Card>
 

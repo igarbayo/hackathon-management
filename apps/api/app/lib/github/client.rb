@@ -34,6 +34,10 @@ module Github
       paginate("/repos/#{full_name}/pulls/#{number}/files")
     end
 
+    def branches(full_name)
+      paginate("/repos/#{full_name}/branches")
+    end
+
     def get_commits(full_name, sha:, since:)
       paginate("/repos/#{full_name}/commits", params: { per_page: 100, sha: sha, since: since.iso8601 })
     end

@@ -91,6 +91,8 @@ export interface Feature {
   updated_at: string;
   created_at: string;
   arguments?: Argument[];
+  // RF-GH-026: solo en el detalle.
+  activity_branches?: string[];
 }
 
 export interface Argument {

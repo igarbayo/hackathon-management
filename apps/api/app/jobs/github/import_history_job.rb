@@ -1,6 +1,6 @@
 # RF-GH-023: al vincular un repo se importa el histórico reciente. Alcance:
-# los commits de la rama por defecto desde hackathon.starts_at (máx. 200) y
-# los PRs abiertos. RNF-GH-003: también sirve para "Resincronizar".
+# los commits de las ramas activas desde hackathon.starts_at (máx. 200 en
+# total, de hasta 50 ramas) y los PRs abiertos. RNF-GH-003: también sirve para "Resincronizar".
 # RF-GH-025: el resultado queda en repository.last_import.
 module Github
   class ImportHistoryJob
@@ -8,6 +8,9 @@ module Github
     sidekiq_options queue: "github", retry: 3
 
     MAX_COMMITS = 200
+    # Tope de ramas por importación: cada rama es al menos una petición a
+    # GitHub (RNF-GH-002).
+    MAX_BRANCHES = 50
 
     # Encola la importación y la marca como pendiente, para que la interfaz
     # no muestre el resultado de la anterior mientras tanto.
@@ -27,11 +30,11 @@ module Github
       since = team.hackathon&.starts_at
 
       client = Github::Client.new(repository.installation_id)
-      commits = since ? import_commits(client, team, repository, since) : 0
+      commits, branches = since ? import_commits(client, team, repository, since) : [ 0, 0 ]
       pull_requests = import_open_pull_requests(client, team, repository)
 
       repository.set(last_import: {
-        "status" => "done", "commits" => commits, "pull_requests" => pull_requests,
+        "status" => "done", "commits" => commits, "branches" => branches, "pull_requests" => pull_requests,
         "since" => since&.utc&.iso8601, "reason" => (since ? nil : "no_starts_at"),
         "finished_at" => Time.current.utc.iso8601
       }.compact)
@@ -45,37 +48,69 @@ module Github
 
     private
 
-    # Devuelve cuántos commits hay desde `since` (hasta MAX_COMMITS), estén ya
-    # importados o no: es lo que se enseña al usuario.
+    # RF-GH-023/026: recorre las ramas activas (las que tienen commits desde
+    # `since`) y crea un evento por commit, con todas las ramas en las que
+    # está. Las ramas que no son la por defecto van primero, para que
+    # `branch` sea la rama de trabajo y la atribución por rama funcione.
+    # Devuelve [commits, ramas activas], estén ya importados o no: es lo que
+    # se enseña al usuario.
     def import_commits(client, team, repository, since)
-      commits = client.get_commits(repository.full_name, sha: repository.default_branch, since: since).first(MAX_COMMITS)
+      commits_by_sha = {}
+      branches_by_sha = Hash.new { |h, k| h[k] = [] }
+      active_branches = 0
 
-      commits.each do |commit|
-        dedupe_key = "gh:commit:#{commit['sha']}"
-        next if ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).exists?
-
-        message = commit.dig("commit", "message").to_s
-        first_line, *rest = message.split("\n", 2)
-
-        actor = Github::MapAuthor.call(
-          team: team,
-          login: commit.dig("author", "login"),
-          email: commit.dig("commit", "author", "email"),
-          display_name: commit.dig("commit", "author", "name")
-        )
-
-        ActivityEvent.create!(
-          team_id: team.id, source: "github", kind: "commit", dedupe_key: dedupe_key,
-          occurred_at: Time.parse(commit.dig("commit", "author", "date")),
-          actor: actor, repository_id: repository.id, branch: repository.default_branch, sha: commit["sha"],
-          url: commit["html_url"], title: first_line.to_s.first(200),
-          payload: { "message_body" => rest.first.to_s.first(1000) }
-        )
-
-        Github::FetchCommitStatsJob.perform_async(team.id.to_s, repository.id.to_s, commit["sha"])
+      branch_names(client, repository).each do |branch|
+        commits = branch_commits(client, repository, branch, since)
+        active_branches += 1 if commits.any?
+        commits.each do |commit|
+          commits_by_sha[commit["sha"]] ||= commit
+          branches_by_sha[commit["sha"]] << branch
+        end
       end
 
-      commits.size
+      newest = commits_by_sha.values.sort_by { |c| c.dig("commit", "author", "date").to_s }.reverse.first(MAX_COMMITS)
+      newest.each { |commit| import_commit(team, repository, commit, branches_by_sha[commit["sha"]]) }
+
+      [ newest.size, active_branches ]
+    end
+
+    # Una rama borrada entre listarla y pedir sus commits se salta.
+    def branch_commits(client, repository, branch, since)
+      client.get_commits(repository.full_name, sha: branch, since: since)
+    rescue Github::Client::NotFound
+      []
+    end
+
+    def branch_names(client, repository)
+      names = client.branches(repository.full_name).map { |b| b["name"] }
+      others = (names - [ repository.default_branch ]).first(MAX_BRANCHES - 1)
+      others + [ repository.default_branch ].compact
+    end
+
+    def import_commit(team, repository, commit, branches)
+      dedupe_key = "gh:commit:#{commit['sha']}"
+      existing = ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).first
+      return existing.add_to_set(branches: existing.all_branches + branches) if existing
+
+      message = commit.dig("commit", "message").to_s
+      first_line, *rest = message.split("\n", 2)
+
+      actor = Github::MapAuthor.call(
+        team: team,
+        login: commit.dig("author", "login"),
+        email: commit.dig("commit", "author", "email"),
+        display_name: commit.dig("commit", "author", "name")
+      )
+
+      ActivityEvent.create!(
+        team_id: team.id, source: "github", kind: "commit", dedupe_key: dedupe_key,
+        occurred_at: Time.parse(commit.dig("commit", "author", "date")),
+        actor: actor, repository_id: repository.id, branch: branches.first, branches: branches, sha: commit["sha"],
+        url: commit["html_url"], title: first_line.to_s.first(200),
+        payload: { "message_body" => rest.first.to_s.first(1000) }
+      )
+
+      Github::FetchCommitStatsJob.perform_async(team.id.to_s, repository.id.to_s, commit["sha"])
     end
 
     def import_open_pull_requests(client, team, repository)

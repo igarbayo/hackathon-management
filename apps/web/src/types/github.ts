@@ -2,6 +2,7 @@
 export interface GithubImport {
   status: "queued" | "running" | "done" | "failed";
   commits?: number;
+  branches?: number;
   pull_requests?: number;
   since?: string;
   reason?: "no_starts_at";

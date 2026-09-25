@@ -4,8 +4,10 @@ module Api
       class GithubController < Api::V1::BaseController
         skip_before_action :verify_csrf!, only: [ :new, :callback ]
 
-        # Rutas de la web a las que se puede volver tras vincular GitHub.
-        LINK_RETURN_PATHS = %w[/onboarding].freeze
+        # Tras vincular GitHub solo se vuelve al onboarding, conservando el
+        # código de invitación si lo había (RF-TEAM-014).
+        LINK_RETURN_PATH = "/onboarding"
+        TEAM_CODE = /\A[A-Za-z0-9-]{1,20}\z/
 
         def new
           state = link_requested? ? link_state : OAuthLoginState.generate
@@ -33,8 +35,7 @@ module Api
         # RF-TEAM-014: "Vincular GitHub" desde el onboarding, con sesión.
         def link_state
           authenticate_user!
-          return_to = LINK_RETURN_PATHS.include?(params[:return_to]) ? params[:return_to] : "/onboarding"
-          OAuthLoginState.generate(link_user_id: current_user.id.to_s, return_to: return_to)
+          OAuthLoginState.generate(link_user_id: current_user.id.to_s, return_to: safe_return_to(params[:return_to]))
         end
 
         # No abre sesión: la identidad se añade a la cuenta que pidió vincular,
@@ -55,8 +56,24 @@ module Api
               "error"
             end
 
-          return_to = LINK_RETURN_PATHS.include?(claims[:return_to]) ? claims[:return_to] : "/onboarding"
-          redirect_to "#{ENV.fetch('APP_URL', '')}#{return_to}?github_link=#{result}", allow_other_host: true
+          return_to = safe_return_to(claims[:return_to])
+          separator = return_to.include?("?") ? "&" : "?"
+          redirect_to "#{ENV.fetch('APP_URL', '')}#{return_to}#{separator}github_link=#{result}", allow_other_host: true
+        end
+
+        # Solo `/onboarding`, con `code` como único parámetro y con forma de
+        # código de equipo; cualquier otra cosa vuelve a `/onboarding` a secas.
+        def safe_return_to(value)
+          uri = URI.parse(value.to_s)
+          return LINK_RETURN_PATH unless uri.path == LINK_RETURN_PATH && uri.host.nil? && uri.scheme.nil?
+
+          query = Rack::Utils.parse_query(uri.query.to_s)
+          code = query["code"]
+          return LINK_RETURN_PATH unless query.keys == [ "code" ] && code.is_a?(String) && code.match?(TEAM_CODE)
+
+          "#{LINK_RETURN_PATH}?code=#{code}"
+        rescue URI::InvalidURIError
+          LINK_RETURN_PATH
         end
       end
     end

@@ -9,7 +9,7 @@ interface ActivityPage {
 
 export function useActivity(
   teamId: string | undefined,
-  filters: { attribution_status?: string; feature_id?: string; actor_status?: string },
+  filters: { attribution_status?: string; feature_id?: string; actor_status?: string; branch?: string },
 ) {
   return useInfiniteQuery({
     queryKey: ["teams", teamId, "activity", filters],

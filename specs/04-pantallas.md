@@ -62,7 +62,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | RF-AUTH-012 | Los campos de contraseña de login y registro llevan un botón de ojo a la derecha que alterna entre mostrar y ocultar lo escrito. Empieza oculta; el botón es accesible ("Mostrar contraseña" / "Ocultar contraseña", `aria-pressed`) y no envía el formulario. | Implementado [F1] |
 | RF-AUTH-013 | Ajustes tiene una tarjeta "Borrar cuenta" (RF-AUTH-007, RF-SEC-004), al final de la página. Abre un diálogo que explica qué se borra y exige escribir el email de la cuenta para habilitar el botón (no basta con un sí/no). Si el servidor responde `409` (único owner de un equipo con más miembros) el error se muestra en el diálogo; si va bien, se vacía la caché y se vuelve a `/login`. | Implementado [F2] |
 | RF-TEAM-012 | Checklist de puesta en marcha en Inicio. Se oculta cuando está completo o si se descarta. | Aceptado [F2] |
-| RF-TEAM-014 | **Paso de perfil** al principio del onboarding para quien no tiene equipo: nombre (obligatorio, lo que ya tenga la cuenta), foto del proveedor o iniciales, y "Vincular GitHub" si la cuenta no tiene GitHub (explica que así sus commits se le asignan solos, RF-GH-024). Vincular GitHub añade la identidad a la cuenta de la sesión aunque el email de GitHub sea otro, y vuelve al paso; si esa cuenta de GitHub ya es de otro usuario, lo avisa y no la mueve. "Continuar" guarda el nombre y marca el perfil como completado (`profile_completed_at`), así que no vuelve a salir. | Implementado [F1] |
+| RF-TEAM-014 | **Paso de perfil** al principio del onboarding para quien no tiene equipo: nombre (obligatorio, lo que ya tenga la cuenta), foto del proveedor o iniciales, y "Vincular GitHub" si la cuenta no tiene GitHub (explica que así sus commits se le asignan solos, RF-GH-024). Vincular GitHub añade la identidad a la cuenta de la sesión aunque el email de GitHub sea otro, y vuelve al paso conservando el código de invitación si se llegó con `?code=`; si esa cuenta de GitHub ya es de otro usuario, lo avisa y no la mueve. "Continuar" guarda el nombre y marca el perfil como completado (`profile_completed_at`), así que no vuelve a salir. | Implementado [F1] |
 | RF-TEAM-015 | En ajustes, el owner puede cambiar la fecha de inicio y la de fin del hackathon (el resto las ve). Al cambiar el inicio, la API vuelve a importar el histórico de GitHub de todos los repos activos (RF-GH-023), y ajustes lo avisa. | Implementado [F1] |
 | RF-TEAM-013 | Al volver a entrar, aterriza directamente en `last_team_id` (RF-AUTH-005), que se actualiza en cada petición de dominio con sesión y al crear o unirse a un equipo. Si no hay uno guardado (p. ej. la cuenta nunca abrió ningún equipo tras esta funcionalidad) pero ya es miembro de alguno, onboarding le deja elegir a cuál entrar en vez de forzarle a crear uno nuevo o unirse con código. | Aceptado [F1] |
 
@@ -107,7 +107,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | RF-FEAT-015 | Detalle de la feature (panel lateral o `/features/[key]`): descripción, objetivos, asignados, deadline, ramas vinculadas, sus pros y contras, y su actividad. | Aceptado [F1] |
 | RF-FEAT-016 | Al descartar se pide el motivo (opcional). | Aceptado [F2] |
 | RF-FEAT-017 | Filtros: persona, objetivo, "sin objetivo" y "sin asignar". | Aceptado [F2] |
-| RF-FEAT-018 | En el detalle, un bloque "Cómo vincular trabajo" con el nombre de rama sugerido (`f-12-titulo-en-kebab`) y un botón para copiarlo. | Aceptado [F3] |
+| RF-FEAT-018 | En el detalle, un bloque "Cómo vincular trabajo" con el nombre de rama sugerido (`f-12-titulo-en-kebab`) y un botón para copiarlo. Debajo, "Ramas": las ramas con commits de la feature (RF-GH-026), cada una enlazada a Actividad filtrada por esa rama. | Aceptado [F3] |
 
 ---
 
@@ -140,7 +140,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | ID | Requisito | Estado |
 |----|-----------|--------|
 | RF-ACT-010 | Feed cronológico inverso con scroll infinito. Cada fila muestra el icono de la fuente (GitHub, Claude Code, MCP o sistema), el actor, un texto ("hizo commit en `f-12-login`: …"), las stats (+/−, número de ficheros), la hora relativa y el chip de feature. | Aceptado [F3] |
-| RF-ACT-011 | Filtros: persona, feature, fuente, "sin atribuir" y "sugeridas". Se reflejan en la URL. | Aceptado [F3] |
+| RF-ACT-011 | Filtros: persona, feature, fuente, "sin atribuir" y "sugeridas". Se reflejan en la URL. También por rama (`?branch=`, RF-GH-026): se llega pulsando una etiqueta de rama y se quita con "Quitar filtro". | Aceptado [F3] |
 | RF-ACT-012 | Chip de atribución: **confirmada** (sólido), **sugerida** (borde discontinuo, con ✓ y ✗ en línea y el motivo en un tooltip) o **sin atribuir** (botón "Asignar a…"). | Aceptado [F3] |
 | RF-ACT-013 | Vista **"Quién hizo qué"**: matriz de personas × features con el número de eventos y el último, en una ventana configurable (3 h, 12 h o todo). | Aceptado [F3] |
 | RF-ACT-014 | Los eventos consecutivos de un mismo actor en la misma rama en menos de 10 min se agrupan ("Ana hizo 4 commits en f-12") y se pueden expandir. | Aceptado [F3] |

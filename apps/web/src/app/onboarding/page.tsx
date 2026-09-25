@@ -113,7 +113,7 @@ function OnboardingContent() {
   if (!me.profile_completed && me.memberships.length === 0) {
     return (
       <StepLayout steps={steps} current={0}>
-        <ProfileStep me={me} githubLink={searchParams.get("github_link")} />
+        <ProfileStep me={me} githubLink={searchParams.get("github_link")} inviteCode={code} />
       </StepLayout>
     );
   }
@@ -196,12 +196,14 @@ const GITHUB_LINK_ERRORS: Record<string, string> = {
 // RF-TEAM-014: nombre, foto y cuenta de GitHub. Vincular GitHub hace que los
 // commits se asignen solos a la persona (RF-GH-024), así que se recomienda,
 // pero se puede seguir sin hacerlo.
-function ProfileStep({ me, githubLink }: { me: Me; githubLink: string | null }) {
+function ProfileStep({ me, githubLink, inviteCode }: { me: Me; githubLink: string | null; inviteCode: string | null }) {
   const updateMe = useUpdateMe();
   const [name, setName] = useState(me.name);
   const [error, setError] = useState<string | null>(null);
   const linkError = githubLink ? GITHUB_LINK_ERRORS[githubLink] : undefined;
-  const githubHref = `${API_URL}/api/v1/auth/github?link=1&return_to=${encodeURIComponent("/onboarding")}`;
+  // Al volver de GitHub se conserva el código de invitación, si lo había.
+  const returnTo = inviteCode ? `/onboarding?code=${encodeURIComponent(inviteCode)}` : "/onboarding";
+  const githubHref = `${API_URL}/api/v1/auth/github?link=1&return_to=${encodeURIComponent(returnTo)}`;
 
   useEffect(() => {
     if (githubLink === "linked") toast.success("GitHub vinculado");

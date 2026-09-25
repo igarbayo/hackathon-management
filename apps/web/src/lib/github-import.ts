@@ -23,5 +23,6 @@ export function importSummary(lastImport: GithubImport | null | undefined): stri
     ? new Intl.DateTimeFormat("es-ES", { dateStyle: "medium" }).format(new Date(lastImport.since))
     : null;
   const commits = plural(lastImport.commits ?? 0, "commit", "commits");
-  return `${commits}${since ? ` desde el ${since}` : ""} y ${pullRequests}.`;
+  const branches = lastImport.branches ? ` de ${plural(lastImport.branches, "rama", "ramas")}` : "";
+  return `${commits}${branches}${since ? ` desde el ${since}` : ""} y ${pullRequests}.`;
 }

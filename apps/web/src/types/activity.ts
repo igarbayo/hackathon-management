@@ -23,6 +23,8 @@ export interface ActivityEvent {
   };
   repository_id: string | null;
   branch: string | null;
+  // RF-GH-026: todas las ramas en las que está el commit (`branch` es la primera).
+  branches: string[];
   sha: string | null;
   pr_number: number | null;
   url: string | null;

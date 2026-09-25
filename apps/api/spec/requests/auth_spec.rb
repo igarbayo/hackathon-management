@@ -230,6 +230,32 @@ RSpec.describe "Auth", type: :request do
         expect(User.count).to eq(1)
       end
 
+      it "conserva el código de invitación al volver" do
+        user = create(:user)
+        sign_in_as(user)
+        stub_github_profile(id: 4242, login: "ada-gh")
+        get "/api/v1/auth/github", params: { link: 1, return_to: "/onboarding?code=ABCD-2345" }
+        state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
+
+        get "/api/v1/auth/github/callback", params: { code: "abc123", state: state }
+
+        expect(response.location).to eq("http://localhost:3000/onboarding?code=ABCD-2345&github_link=linked")
+      end
+
+      it "no deja volver a otra ruta, host o parámetro" do
+        sign_in_as(create(:user))
+        stub_github_profile(id: 4242, login: "ada-gh")
+
+        [ "https://evil.example/onboarding", "//evil.example/onboarding", "/t/x/settings", "/onboarding?next=/x",
+          "/onboarding?code=<script>" ].each do |return_to|
+          get "/api/v1/auth/github", params: { link: 1, return_to: return_to }
+          state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
+          get "/api/v1/auth/github/callback", params: { code: "abc123", state: state }
+
+          expect(response.location).to start_with("http://localhost:3000/onboarding?github_link=")
+        end
+      end
+
       it "no la roba si ya es de otra cuenta" do
         create(:user, github_uid: 4242, github_login: "ada-gh")
         user = create(:user)

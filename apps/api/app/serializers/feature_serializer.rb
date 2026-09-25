@@ -25,7 +25,10 @@ class FeatureSerializer
       created_at: feature.created_at.iso8601
     }
 
-    base[:arguments] = feature.arguments.map { |a| argument_json(a) } if detail
+    if detail
+      base[:arguments] = feature.arguments.map { |a| argument_json(a) }
+      base[:activity_branches] = activity_branches
+    end
 
     base
   end
@@ -33,6 +36,14 @@ class FeatureSerializer
   private
 
   attr_reader :feature, :detail
+
+  # RF-GH-026: ramas en las que hay actividad de GitHub atribuida a la
+  # feature, más las que ha aprendido (branch_names). Solo en el detalle,
+  # para no hacer una consulta por tarjeta del kanban.
+  def activity_branches
+    events = ActivityEvent.where(team_id: feature.team_id, source: "github", "attribution.feature_id" => feature.id)
+    (feature.branch_names + events.distinct(:branches) + events.distinct(:branch)).compact.uniq.sort
+  end
 
   def argument_json(argument)
     {
