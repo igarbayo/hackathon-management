@@ -1,5 +1,5 @@
 # RF-GH-023: al vincular un repo se importa el histórico reciente. Alcance:
-# los commits de las ramas activas desde hackathon.starts_at (máx. 200 en
+# los commits de las ramas activas desde hackathon.starts_at (máx. 1000 en
 # total, de hasta 50 ramas) y los PRs abiertos. RNF-GH-003: también sirve para "Resincronizar".
 # RF-GH-025: el resultado queda en repository.last_import.
 module Github
@@ -7,7 +7,11 @@ module Github
     include Sidekiq::Job
     sidekiq_options queue: "github", retry: 3
 
-    MAX_COMMITS = 200
+    MAX_COMMITS = 1000
+    # RNF-GH-002: las stats de cada commit son una petición más a GitHub. Se
+    # reparten a este ritmo (1800/h, un 36 % del cupo de 5000/h) para dejar
+    # sitio a webhooks y otras importaciones; RateBudget corta al 80 %.
+    STATS_PER_MINUTE = 30
     # Tope de ramas por importación: cada rama es al menos una petición a
     # GitHub (RNF-GH-002).
     MAX_BRANCHES = 50
@@ -69,7 +73,15 @@ module Github
       end
 
       newest = commits_by_sha.values.sort_by { |c| c.dig("commit", "author", "date").to_s }.reverse.first(MAX_COMMITS)
-      newest.each { |commit| import_commit(team, repository, commit, branches_by_sha[commit["sha"]]) }
+      stats_enqueued = 0
+      newest.each do |commit|
+        created = import_commit(team, repository, commit, branches_by_sha[commit["sha"]])
+        next unless created
+
+        delay = (stats_enqueued / STATS_PER_MINUTE).minutes
+        Github::FetchCommitStatsJob.perform_in(delay, team.id.to_s, repository.id.to_s, commit["sha"])
+        stats_enqueued += 1
+      end
 
       [ newest.size, active_branches ]
     end
@@ -87,10 +99,14 @@ module Github
       others + [ repository.default_branch ].compact
     end
 
+    # true si crea el evento; si ya existía solo le añade las ramas.
     def import_commit(team, repository, commit, branches)
       dedupe_key = "gh:commit:#{commit['sha']}"
       existing = ActivityEvent.where(team_id: team.id, dedupe_key: dedupe_key).first
-      return existing.add_to_set(branches: existing.all_branches + branches) if existing
+      if existing
+        existing.add_to_set(branches: existing.all_branches + branches)
+        return false
+      end
 
       message = commit.dig("commit", "message").to_s
       first_line, *rest = message.split("\n", 2)
@@ -109,8 +125,7 @@ module Github
         url: commit["html_url"], title: first_line.to_s.first(200),
         payload: { "message_body" => rest.first.to_s.first(1000) }
       )
-
-      Github::FetchCommitStatsJob.perform_async(team.id.to_s, repository.id.to_s, commit["sha"])
+      true
     end
 
     def import_open_pull_requests(client, team, repository)

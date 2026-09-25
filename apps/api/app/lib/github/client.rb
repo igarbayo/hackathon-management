@@ -51,6 +51,9 @@ module Github
     attr_reader :installation_id
 
     def get(path, params = {})
+      exhausted_until = Github::RateBudget.exhausted_until(installation_id)
+      raise RateLimited, exhausted_until if exhausted_until
+
       response = connection.get(path, params)
       handle_rate_limit(response)
       raise NotFound, path if response.status == 404
@@ -80,10 +83,9 @@ module Github
       limit = response.headers["x-ratelimit-limit"]&.to_i
       return unless remaining && limit && limit.positive?
 
-      return unless remaining < limit * 0.2
-
       reset_at = Time.at(response.headers["x-ratelimit-reset"].to_i)
-      raise RateLimited, reset_at
+      Github::RateBudget.record(installation_id, limit: limit, remaining: remaining, reset_at: reset_at)
+      raise RateLimited, reset_at if Github::RateBudget.below_reserve?(remaining, limit)
     end
 
     def connection

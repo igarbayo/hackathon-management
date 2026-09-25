@@ -132,6 +132,18 @@ RSpec.describe Github::ImportHistoryJob do
       expect(ActivityEvent.where(dedupe_key: "gh:commit:merged").first.branches).to contain_exactly("f-3-login", "main")
     end
 
+    it "reparte las peticiones de stats en el tiempo (RNF-GH-002)" do
+      per_minute = described_class::STATS_PER_MINUTE
+      stub_branches(%w[main])
+      stub_branch_commits("main", Array.new(per_minute * 2 + 1) { |i| gh_commit("c#{i}", date: i.minutes.ago) })
+
+      started_at = Time.now.to_f
+      described_class.new.perform(repository.id.to_s)
+
+      minutes = Github::FetchCommitStatsJob.jobs.map { |job| ((job["at"] || started_at) - started_at) / 60.0 }.map(&:round)
+      expect(minutes.tally).to eq(0 => per_minute, 1 => per_minute, 2 => 1)
+    end
+
     it "se salta una rama borrada mientras importa" do
       stub_branches(%w[main borrada])
       stub_branch_commits("main", [ gh_commit("a") ])
