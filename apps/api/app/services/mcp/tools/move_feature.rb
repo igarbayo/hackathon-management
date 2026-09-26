@@ -23,7 +23,7 @@ module Mcp
         feature = Mcp::FindFeature.call(team: team, key: args["key"])
 
         feature.discarded_reason = args["discarded_reason"] if args["status"] == "discarded" && args["discarded_reason"].present?
-        ::Features::Move.call(feature: feature, status: args["status"], via: resolved_token.via(channel: "mcp"))
+        ::Features::Move.call(feature: feature, status: args["status"], via: resolved_token.via(channel: "mcp"), actor: Tracking::Actor.for(membership: membership, resolved_token: resolved_token))
 
         FeatureSerializer.new(feature, detail: true).as_json
       end

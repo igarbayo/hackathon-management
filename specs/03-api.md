@@ -87,8 +87,8 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 |--------|------|-------------|-----|
 | GET | `/teams/:id/features` | Filtros: `status`, `assignee_id`, `objective_id`, `q`. Incluye `score` y `last_activity_at` | RF-FEAT-001 [F1] |
 | GET | `/teams/:id/features/:key` | Por clave (`F-12`) o id. Detalle con argumentos y `activity_branches` (ramas con actividad de GitHub atribuida a la feature más sus `branch_names`, RF-GH-026) | RF-FEAT-002 [F1] |
-| POST | `/teams/:id/features` | `{title, description?, status?, objective_ids?, assignee_ids?, deadline?}`. Asigna `number` de forma atómica | RF-FEAT-003 [F1] |
-| PATCH | `/teams/:id/features/:key` | Campos editables. Los cambios de `status` y `assignee_ids` generan eventos `system` | RF-FEAT-004 [F1] |
+| POST | `/teams/:id/features` | `{title, description?, status?, objective_ids?, assignee_ids?, deadline?}`. Asigna `number` de forma atómica y genera un evento `system/feature_created` con quien la creó como `actor` | RF-FEAT-003 [F1] |
+| PATCH | `/teams/:id/features/:key` | Campos editables. Los cambios de `status` y `assignee_ids` generan eventos `system` con quien hizo el cambio como `actor` | RF-FEAT-004 [F1] |
 | POST | `/teams/:id/features/:key/move` | `{status, before_id?, after_id?}`: mueve la tarjeta en el kanban (calcula `position`) | RF-FEAT-005 [F1] |
 | DELETE | `/teams/:id/features/:key` | Solo si no tiene eventos atribuidos. Si los tiene, hay que usar `discarded` | RF-FEAT-006 [F1] |
 

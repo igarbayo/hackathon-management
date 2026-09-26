@@ -12,6 +12,34 @@ RSpec.describe "Features", type: :request do
       expect(json_response["key"]).to eq("F-1")
       expect(json_response["status"]).to eq("idea")
     end
+
+    it "records feature_created with the person who created it, not an anonymous actor" do
+      membership = create(:membership)
+      sign_in_as(membership.user)
+
+      post "/api/v1/teams/#{membership.team.id}/features", params: { title: "Login" }, headers: csrf_headers, as: :json
+
+      event = ActivityEvent.where(team_id: membership.team.id, kind: "feature_created").first
+      expect(event.actor).to include("user_id" => membership.user_id.to_s, "membership_id" => membership.id.to_s, "display" => membership.display_name)
+      expect(event.via).to be_nil
+    end
+  end
+
+  describe "feed actor for web changes" do
+    it "moving and assigning from the web app records the person as the actor" do
+      membership = create(:membership)
+      team = membership.team
+      feature = create(:feature, team: team, status: "idea")
+      sign_in_as(membership.user)
+
+      post "/api/v1/teams/#{team.id}/features/#{feature.key}/move", params: { status: "in_progress" }, headers: csrf_headers, as: :json
+      patch "/api/v1/teams/#{team.id}/features/#{feature.key}", params: { assignee_ids: [ membership.id.to_s ] }, headers: csrf_headers, as: :json
+
+      %w[feature_status_changed feature_assigned].each do |kind|
+        event = ActivityEvent.where(team_id: team.id, kind: kind).first
+        expect(event.actor["membership_id"]).to eq(membership.id.to_s), kind
+      end
+    end
   end
 
   describe "GET /api/v1/teams/:team_id/features/:key" do

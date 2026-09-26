@@ -123,6 +123,11 @@ module TeamScoping
 
   # via from RF-API-006: nil if the change comes from the web app with a
   # session.
+  # Who is making this request, for the events it creates (Tracking::Actor).
+  def current_actor
+    Tracking::Actor.for(membership: current_membership, resolved_token: @resolved_token)
+  end
+
   def current_via(client: nil)
     return nil unless @resolved_token
 

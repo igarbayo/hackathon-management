@@ -2,7 +2,8 @@
 # between its neighbors, so the rest of the column does not need reindexing.
 module Features
   class Move
-    def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil)
+    # `actor` (Tracking::Actor) is who moved it, so the feed does not show "Someone".
+    def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil, actor: {})
       siblings = Feature.where(team_id: feature.team_id, status: status).and(:id.ne => feature.id)
                          .order(position: :asc).to_a
 
@@ -20,6 +21,7 @@ module Features
           kind: "feature_status_changed",
           dedupe_key: "system:feature_status_changed:#{feature.id}:#{feature.updated_at.to_f}",
           occurred_at: Time.current,
+          actor: actor,
           title: "#{feature.key} moved to #{status}",
           payload: { entity: "feature", key: feature.key, action: "status_changed", fields: [ "status" ] },
           via: via

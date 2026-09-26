@@ -39,8 +39,10 @@ module Mcp
           attrs["assignee_ids"] = [ membership.id.to_s ]
         end
 
-        feature = ::Features::Create.call(team: team, created_by: membership&.user, attrs: attrs)
-        Tracking::RecordApiChange.call(team: team, membership: membership, resolved_token: resolved_token, entity: "feature", key: feature.key, fields: attrs.keys, channel: "mcp")
+        feature = ::Features::Create.call(
+          team: team, created_by: membership&.user, attrs: attrs,
+          actor: Tracking::Actor.for(membership: membership, resolved_token: resolved_token), via: resolved_token.via(channel: "mcp")
+        )
 
         result = { key: feature.key, id: feature.id.to_s }
         Mcp::Idempotency.store(resolved_token, "create_feature", args["idempotency_key"], result)

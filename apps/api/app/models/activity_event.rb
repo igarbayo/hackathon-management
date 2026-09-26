@@ -9,7 +9,7 @@ class ActivityEvent
     "github" => %w[commit pr_opened pr_merged pr_closed pr_reopened branch_created branch_deleted],
     "claude_code" => %w[cc_session_start cc_session_end cc_turn cc_prompt system_test],
     "mcp" => %w[progress_report],
-    "system" => %w[feature_status_changed feature_assigned member_joined api_change]
+    "system" => %w[feature_created feature_status_changed feature_assigned member_joined api_change]
   }.freeze
 
   MAX_FILES = 50

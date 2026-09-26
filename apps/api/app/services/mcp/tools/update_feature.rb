@@ -32,7 +32,7 @@ module Mcp
         attrs = { "title" => args["title"], "description" => args["description"], "deadline" => args["deadline"] }.compact
         attrs["objective_ids"] = objective_ids_for(team, args["objective_keys"]) if args.key?("objective_keys")
 
-        ::Features::Update.call(feature: feature, attrs: attrs, via: resolved_token.via(channel: "mcp"))
+        ::Features::Update.call(feature: feature, attrs: attrs, via: resolved_token.via(channel: "mcp"), actor: Tracking::Actor.for(membership: membership, resolved_token: resolved_token))
         Tracking::RecordApiChange.call(team: team, membership: membership, resolved_token: resolved_token, entity: "feature", key: feature.key, fields: attrs.keys, channel: "mcp")
 
         FeatureSerializer.new(feature, detail: true).as_json

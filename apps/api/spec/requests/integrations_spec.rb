@@ -83,7 +83,7 @@ RSpec.describe "Integration tokens", type: :request do
       expect(response).to have_http_status(:created)
       expect(json_response["created_by_id"]).to be_nil
 
-      event = ActivityEvent.where(team_id: owner.team.id, kind: "api_change").first
+      event = ActivityEvent.where(team_id: owner.team.id, kind: "feature_created").first
       expect(event.actor["integration_id"]).to eq(result.record.id.to_s)
       expect(event.via["token_kind"]).to eq("integration")
     end

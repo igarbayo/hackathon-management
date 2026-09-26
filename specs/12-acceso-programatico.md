@@ -189,8 +189,8 @@ Cada una exige su scope. Todas llevan `readOnlyHint: false` y `destructiveHint: 
 ### `RF-API-006` [F2] Aceptado
 
 - Toda escritura hecha con un token (por API o MCP) queda en el feed:
-  - Si ya genera un evento `system` (cambio de estado, asignación…), ese evento lleva el campo `via`.
-  - Si no genera ninguno (crear o editar una feature, un objetivo, un milestone, un argumento…), se crea un evento `system/api_change` con `via` y la lista de **campos** cambiados (no sus valores).
+  - Si ya genera un evento `system` (creación de feature, cambio de estado, asignación…), ese evento lleva el campo `via`.
+  - Si no genera ninguno (editar una feature, un objetivo, un milestone, un argumento…), se crea un evento `system/api_change` con `via` y la lista de **campos** cambiados (no sus valores).
 - `via = {channel: "api" | "mcp", token_kind: "member" | "pat" | "oauth" | "integration", token_id, token_prefix, client}` ([02](02-modelo-datos.md#activityevent)). Los cambios hechos desde la web no llevan `via`.
 - Las lecturas no generan eventos.
 

@@ -48,7 +48,7 @@ RSpec.describe "MCP write tools" do
 
       feature = Feature.where(id: result[:id]).first
       expect(feature.status).to eq("idea")
-      event = ActivityEvent.where(kind: "api_change").first
+      event = ActivityEvent.where(kind: "feature_created").first
       expect(event.via["channel"]).to eq("mcp")
     end
 

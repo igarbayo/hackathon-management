@@ -25,8 +25,10 @@ module Api
       end
 
       def create
-        feature = ::Features::Create.call(team: current_team, created_by: current_user, attrs: feature_params)
-        record_api_change!(entity: "feature", key: feature.key, fields: feature_params.keys)
+        # feature_created already records the change, with via if a token made it.
+        feature = ::Features::Create.call(
+          team: current_team, created_by: current_user, attrs: feature_params, actor: current_actor, via: current_via
+        )
 
         render json: FeatureSerializer.new(feature, detail: true).as_json, status: :created
       end
@@ -36,7 +38,7 @@ module Api
         check_if_match!(feature, ->(f) { FeatureSerializer.new(f, detail: true) })
 
         attrs = params.permit(:title, :description, :status, :deadline, objective_ids: [], assignee_ids: []).to_h
-        ::Features::Update.call(feature: feature, attrs: attrs, via: current_via)
+        ::Features::Update.call(feature: feature, attrs: attrs, via: current_via, actor: current_actor)
         record_api_change!(entity: "feature", key: feature.key, fields: attrs.keys - %w[status assignee_ids])
 
         render json: FeatureSerializer.new(feature, detail: true).as_json
@@ -46,7 +48,7 @@ module Api
         feature = find_feature
         check_if_match!(feature, ->(f) { FeatureSerializer.new(f, detail: true) })
 
-        ::Features::Move.call(feature: feature, status: params[:status], before_id: params[:before_id], after_id: params[:after_id], via: current_via)
+        ::Features::Move.call(feature: feature, status: params[:status], before_id: params[:before_id], after_id: params[:after_id], via: current_via, actor: current_actor)
 
         render json: FeatureSerializer.new(feature, detail: true).as_json
       end

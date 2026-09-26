@@ -288,7 +288,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | `dedupe_key` | String | Único por equipo. P. ej. `gh:commit:<sha>`, `cc:<client_event_id>` |
 | `occurred_at` | Time | Cuándo ocurrió (según la fuente) |
 | `received_at` | Time | |
-| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable). Solo en eventos de GitHub: `email` (nullable, en minúsculas, solo commits), `author_name` (nombre del autor en git, se conserva aunque el evento se asigne a un miembro), `mapped_by` (`auto` \| `manual` \| nil) y `unclaimed_by` (Array de `membership_id` que han dicho "No son míos"; la asignación automática no se los vuelve a dar). La API no expone `email` ni `unclaimed_by` en el evento ([07](07-integracion-github.md#mapeo-de-autores)) |
+| `actor` | Hash | `user_id` (nullable), `membership_id` (nullable), `integration_id` (nullable, token de integración), `display` (String), `github_login` (nullable). En los eventos `system` es quien hizo el cambio: el miembro (sesión web o token personal) o la integración (`Tracking::Actor`); nunca queda vacío si hay alguien detrás. Solo en eventos de GitHub: `email` (nullable, en minúsculas, solo commits), `author_name` (nombre del autor en git, se conserva aunque el evento se asigne a un miembro), `mapped_by` (`auto` \| `manual` \| nil) y `unclaimed_by` (Array de `membership_id` que han dicho "No son míos"; la asignación automática no se los vuelve a dar). La API no expone `email` ni `unclaimed_by` en el evento ([07](07-integracion-github.md#mapeo-de-autores)) |
 | `repository_id` | ObjectId | Nullable |
 | `branch` | String | Nullable. En commits, la primera rama en la que apareció; en la importación se prefiere una que no sea la por defecto |
 | `branches` | Array<String> | Solo commits (RF-GH-026): todas las ramas en las que se ha visto. Si el commit llega por otra rama (p. ej. al mergear), se añade aquí y no se crea otro evento. Los eventos anteriores a este campo solo tienen `branch`, y la API devuelve `[branch]` |
@@ -313,7 +313,7 @@ El log de actividad. Es append-only, salvo el sub-documento `attribution`.
 | github | `commit`, `pr_opened`, `pr_merged`, `pr_closed`, `pr_reopened`, `branch_created`, `branch_deleted` |
 | claude_code | `cc_session_start`, `cc_session_end`, `cc_turn` (turno completo: prompt + herramientas + stop), `cc_prompt` (solo con nivel `summaries`), `system_test` (`hackboard test`, [08](08-integracion-claude-code.md#contrato-de-ingesta)) |
 | mcp | `progress_report` |
-| system | `feature_status_changed`, `feature_assigned`, `member_joined`, `api_change` (escritura por API o MCP sin evento propio; `payload: {entity, key, action, fields[]}`, sin valores) |
+| system | `feature_created` (`payload: {entity, key, action: "created", fields[]}`), `feature_status_changed`, `feature_assigned`, `member_joined`, `api_change` (escritura por API o MCP sin evento propio; `payload: {entity, key, action, fields[]}`, sin valores) |
 
 **Attribution** (embebido, nullable):
 
