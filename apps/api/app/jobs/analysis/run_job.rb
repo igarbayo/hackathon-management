@@ -5,9 +5,14 @@
 module Analysis
   class RunJob
     include Sidekiq::Job
-    sidekiq_options queue: "ai", retry: 3
+    # No Sidekiq retries: a retry would find the analysis no longer queued and
+    # do nothing, so an error marks it failed instead (see perform).
+    sidekiq_options queue: "ai", retry: 0
 
     PROMPT_VERSION = "coverage_v2"
+    # With the team's lock taken, the analysis waits for the running one
+    # instead of staying queued forever.
+    LOCK_RETRY_SECONDS = 30
 
     def perform(analysis_id)
       analysis = AiAnalysis.where(id: analysis_id).first
@@ -16,10 +21,19 @@ module Analysis
 
       team = Team.where(id: analysis.team_id).first
       return unless team
-      return unless Analysis::Lock.acquire(analysis.team_id.to_s)
+      unless Analysis::Lock.acquire(analysis.team_id.to_s)
+        self.class.perform_in(LOCK_RETRY_SECONDS, analysis_id)
+        return
+      end
 
       begin
         run(analysis, team)
+      rescue StandardError => e
+        # Anything unexpected (a Gemini timeout, a key that cannot be
+        # decrypted…) must not leave the analysis queued or running forever:
+        # the web would keep waiting with no answer.
+        Rails.logger.error("Analysis::RunJob #{analysis_id} failed: #{e.class}: #{e.message}")
+        analysis.update!(status: "failed", error: "#{e.class}: #{e.message}".first(500), finished_at: Time.current)
       ensure
         Analysis::Lock.release(analysis.team_id.to_s)
       end

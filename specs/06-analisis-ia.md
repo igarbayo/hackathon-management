@@ -39,7 +39,8 @@
 - **Programado:** con `sidekiq-cron` cada minuto se buscan los equipos cuyo último análisis tiene más de `settings.analysis_interval_min` minutos **y** que han cambiado desde entonces (el `input_hash` difiere). Si no han cambiado, se crea el `AiAnalysis` con `status: skipped, skip_reason: no_changes`, y no se muestra en el historial.
 - **Solo durante el hackathon:** entre `starts_at − 12 h` y `ends_at + 1 h`. Fuera de esa ventana, solo se lanza bajo demanda.
 - **Bajo demanda:** botón "Analizar ahora" (RF-AI-004), sujeto a cuota.
-- Como mucho **un** análisis en curso por equipo (lock en Redis con TTL de 5 min).
+- Como mucho **un** análisis en curso por equipo (lock en Redis con TTL de 5 min). Si el lock está cogido, el job se reencola a los 30 s en vez de dejar el análisis en `queued` para siempre.
+- Cualquier error inesperado del job (un timeout de Gemini, una clave que no se puede descifrar…) marca el análisis `failed` con el error y libera el lock. `Analysis::RunJob` no usa los reintentos de Sidekiq: un reintento encontraría el análisis fuera de `queued` y no haría nada.
 
 ### Cuotas
 

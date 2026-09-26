@@ -159,7 +159,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | RF-AI-011 | **"Esto sobra":** lista de `orphan_features` con su justificación y acciones ("Vincular a objetivo…" y "Descartar"). | Aceptado [F4] |
 | RF-AI-012 | **Huecos:** `gaps` con el botón "Crear feature" (prerrellena el título). | Aceptado [F4] |
 | RF-AI-013 | **Alertas:** riesgos ordenados por severidad, combinando los de la IA y los deterministas. Cada alerta indica su origen (regla o IA). | Aceptado [F4] |
-| RF-AI-014 | Cabecera con la fecha del análisis ("hace 12 min"), el modelo, el botón "Analizar ahora" (con la cuota restante) y el estado si hay un análisis en curso. | Aceptado [F4] |
+| RF-AI-014 | Cabecera con la fecha del análisis ("hace 12 min"), el modelo, el botón "Analizar ahora" (con la cuota restante) y el estado si hay un análisis en curso. Mientras el más reciente está `queued` o `running`, la web consulta el historial cada 3 s y el botón dice "Analyzing…". Al terminar el que ha lanzado la persona, un aviso dice cómo fue: listo, fallido (con el error), sin cambios desde el último (`no_changes`) o sin clave (`no_api_key`). Si el último análisis falló, un aviso en la página muestra el error. | Aceptado [F4] |
 | RF-AI-015 | **Evolución:** gráfico de % de objetivos cubiertos a lo largo del tiempo, a partir de los snapshots. | Aceptado [F4] |
 | RF-AI-016 | Si `settings.ai_enabled = false`, la pantalla solo muestra las alertas deterministas y un CTA para activar la IA. | Aceptado [F4] |
 

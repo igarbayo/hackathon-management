@@ -105,6 +105,22 @@ RSpec.describe Analysis::RunJob do
     described_class.new.perform(analysis.id.to_s)
 
     expect(analysis.reload.status).to eq("queued")
+    # It waits for the running one instead of staying queued forever.
+    expect(described_class.jobs.last["args"]).to eq([ analysis.id.to_s ])
+    expect(described_class.jobs.last["at"]).to be_present
+  end
+
+  it "marks failed on an unexpected error, such as a Gemini timeout, and frees the lock" do
+    team = team_with_ai_key
+    stub_request(:post, /generativelanguage\.googleapis\.com/).to_timeout
+    analysis = enqueue(team)
+
+    described_class.new.perform(analysis.id.to_s)
+
+    analysis.reload
+    expect(analysis.status).to eq("failed")
+    expect(analysis.error).to start_with("Faraday::")
+    expect(Analysis::Lock.acquire(team.id.to_s)).to be true
   end
 
   it "is idempotent: does not run again an analysis that is no longer queued" do

@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SparklesIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -9,11 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { PageHeader } from "@/components/f0/page-header";
 import { Alert } from "@/components/f0/alert";
-import { useLatestAnalysis, useRunAnalysis } from "@/hooks/use-analyses";
+import { isAnalysisInProgress, useAnalysisHistory, useLatestAnalysis, useRunAnalysis } from "@/hooks/use-analyses";
 import { useTeam } from "@/hooks/use-teams";
 import { relativeTime } from "@/lib/format-date";
 import { ApiError } from "@/lib/api-client";
-import type { DeterministicAlert } from "@/types/analysis";
+import type { AiAnalysis, DeterministicAlert } from "@/types/analysis";
 import type { badgeVariants } from "@/components/ui/badge";
 import type { VariantProps } from "class-variance-authority";
 
@@ -42,6 +42,22 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
   const { data: team } = useTeam(teamId);
   const { data, isLoading, isError, refetch } = useLatestAnalysis(teamId);
   const runAnalysis = useRunAnalysis(teamId);
+  const { data: history } = useAnalysisHistory(teamId);
+  const newest = history?.[0];
+  const inProgress = isAnalysisInProgress(newest);
+  // The analysis this person just launched: when it finishes, they are told
+  // how it went (before, a failed or skipped run looked like nothing happened).
+  const [launchedId, setLaunchedId] = useState<string | null>(null);
+  const notifiedId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!launchedId || newest?.id !== launchedId || isAnalysisInProgress(newest)) return;
+    if (notifiedId.current === launchedId) return;
+
+    notifiedId.current = launchedId;
+    refetch();
+    notifyFinished(newest);
+  }, [launchedId, newest, refetch]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState onRetry={() => refetch()} />;
@@ -52,12 +68,15 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
 
   async function handleRun() {
     try {
-      await runAnalysis.mutateAsync();
+      const queued = await runAnalysis.mutateAsync();
+      setLaunchedId(queued.id);
     } catch (err) {
       if (err instanceof ApiError && err.code === "rate_limited") {
         toast.warning("You have reached today's limit of manual analyses.");
       } else if (err instanceof ApiError && err.code === "missing_gemini_api_key") {
         toast.warning("Set up your Gemini key in Team and settings to run an analysis.");
+      } else {
+        toast.error(err instanceof ApiError ? `Could not start the analysis: ${err.message}` : "Could not start the analysis");
       }
     }
   }
@@ -72,12 +91,20 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
         }
         actions={
           aiEnabled && (
-            <Button onClick={handleRun} loading={runAnalysis.isPending}>
-              <SparklesIcon className="size-4" /> Analyze now
+            <Button onClick={handleRun} loading={runAnalysis.isPending || inProgress}>
+              <SparklesIcon className="size-4" /> {inProgress ? "Analyzing…" : "Analyze now"}
             </Button>
           )
         }
       />
+
+      {newest?.status === "failed" && (
+        <Alert
+          variant="critical"
+          title={`The last analysis failed ${relativeTime(newest.finished_at ?? newest.created_at)}`}
+          description={newest.error ?? undefined}
+        />
+      )}
 
       <AlertsCard alerts={alerts} />
 
@@ -150,6 +177,18 @@ export default function AnalysisPage({ params }: { params: Promise<{ teamId: str
       )}
     </div>
   );
+}
+
+function notifyFinished(analysis: AiAnalysis) {
+  if (analysis.status === "succeeded") {
+    toast.success("Analysis ready");
+  } else if (analysis.status === "failed") {
+    toast.error(analysis.error ? `The analysis failed: ${analysis.error}` : "The analysis failed");
+  } else if (analysis.skip_reason === "no_changes") {
+    toast.info("Nothing changed since the last analysis, so it was not run again.");
+  } else if (analysis.skip_reason === "no_api_key") {
+    toast.warning("Set up your Gemini key in Team and settings to run an analysis.");
+  }
 }
 
 function AlertsCard({ alerts }: { alerts: DeterministicAlert[] }) {

@@ -15,11 +15,18 @@ export function useLatestAnalysis(teamId: string | undefined) {
   });
 }
 
+export function isAnalysisInProgress(analysis: AiAnalysis | undefined): boolean {
+  return analysis?.status === "queued" || analysis?.status === "running";
+}
+
+// RF-AI-014: while the newest analysis is queued or running, it is polled
+// every few seconds so the page can say when it finishes, fails or is skipped.
 export function useAnalysisHistory(teamId: string | undefined) {
   return useQuery({
     queryKey: key(teamId),
     queryFn: () => apiClient.get<{ data: AiAnalysis[] }>(`/api/v1/teams/${teamId}/analyses`).then((r) => r.data),
     enabled: Boolean(teamId),
+    refetchInterval: (query) => (isAnalysisInProgress(query.state.data?.[0]) ? 3_000 : false),
   });
 }
 
