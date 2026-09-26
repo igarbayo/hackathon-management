@@ -290,7 +290,6 @@ function ArgumentColumn({
   onDelete: (id: string) => void;
 }) {
   const Icon = kind === "pro" ? ThumbsUpIcon : ThumbsDownIcon;
-  const tone = kind === "pro" ? "text-f1-foreground-positive" : "text-f1-foreground-critical";
 
   return (
     <Card>
@@ -302,7 +301,7 @@ function ArgumentColumn({
           <div key={argument.id} className="flex items-center gap-2 rounded-md border border-f1-border p-2 text-base">
             <button
               onClick={() => onVote(argument.id, Boolean(argument.voted_by_me))}
-              className={`focus-ring flex items-center gap-1 rounded ${argument.voted_by_me ? tone : "text-f1-foreground-secondary"}`}
+              className={`focus-ring flex items-center gap-1 rounded ${argument.voted_by_me ? "text-f1-foreground" : "text-f1-foreground-secondary hover:text-f1-foreground"}`}
               aria-label={argument.voted_by_me ? "Remove your vote" : "Vote for this argument"}
               aria-pressed={Boolean(argument.voted_by_me)}
               title={argument.voted_by_me ? "You voted for this. Click to remove your vote." : "Vote if you agree. One vote per person."}
