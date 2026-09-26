@@ -47,6 +47,6 @@ apps/web/test-results/
 apps/web/playwright-report/
 apps/web/.env.local
 
-# Claude Code: local worktrees and third-party skills that are not versioned
+# Claude Code: local worktrees and skills, not versioned
 .claude/worktrees/
-.claude/skills/a11y/
+.claude/skills/
