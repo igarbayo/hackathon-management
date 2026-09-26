@@ -39,7 +39,8 @@
 `DatePicker` está adaptado de [a-good-date-picker](https://github.com/gulipad/a-good-date-picker) (Guli Moreno, MIT License). Ese repo **no es un paquete npm**: es un componente de un solo fichero pensado para copiarse a mano (estilo shadcn/ui), sin props (estado interno fijo) — el propio README documenta props (`value`/`onChange`/`locale`) que no existen en el código. Se han portado a mano las props controladas de la [PR #2 del repo](https://github.com/gulipad/a-good-date-picker/pull/2), sustituyendo sus primitivos (Radix, `react-day-picker@8`) por los de este repo (Base UI, `react-day-picker@10`, ya restilados a F0), y se añaden dos cosas que el original no tenía:
 
 - **se conserva la hora** al elegir solo el día en el calendario (o se pone 23:59 si no había ninguna) — clicar un día no debe borrar una hora ya escrita;
-- **`disabled`** (día mínimo/máximo o una función), pasado directamente a `react-day-picker`.
+- **`disabled`** (día mínimo/máximo o una función), pasado directamente a `react-day-picker`;
+- **campo de hora** (`HH:mm`, id `{id}-time`, etiqueta "Time") bajo el calendario y botón "Done". Elegir un día ya no cierra el popover, para poder poner la hora justo después: un hackathon puede durar solo unas horas y los deadlines necesitan la hora, no solo el día. El `<input type="time">` va dentro de `DatePicker`, así que no contradice RNF-UI-030.
 
 **Uso:**
 

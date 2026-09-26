@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -54,6 +56,8 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   const voteArgument = useVoteArgument(teamId, key);
   const deleteArgument = useDeleteArgument(teamId, key);
   const [description, setDescription] = useState<string | null>(null);
+  // `null` = not edited yet, show the server value.
+  const [deadline, setDeadline] = useState<Date | undefined | null>(null);
   const [newArgumentText, setNewArgumentText] = useState({ pro: "", con: "" });
   const [discardOpen, setDiscardOpen] = useState(false);
   const [discardReason, setDiscardReason] = useState("");
@@ -65,6 +69,19 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
   const branchName = suggestedBranchName(feature.key, feature.title);
   const pros = (feature.arguments ?? []).filter((a) => a.kind === "pro").sort((a, b) => b.votes - a.votes);
   const cons = (feature.arguments ?? []).filter((a) => a.kind === "con").sort((a, b) => b.votes - a.votes);
+
+  const shownDeadline = deadline !== null ? deadline : feature.deadline ? new Date(feature.deadline) : undefined;
+  const overdue = shownDeadline && shownDeadline < new Date() && !["done", "discarded"].includes(feature.status);
+
+  // RF-FEAT-015, RF-DL-012: date and time, because a hackathon can last only a
+  // few hours.
+  function handleDeadlineChange(next: Date | undefined) {
+    setDeadline(next);
+    updateFeature.mutate(
+      { key, deadline: next ? next.toISOString() : null },
+      { onError: () => toast.error("Could not save the deadline") },
+    );
+  }
 
   async function handleDiscard() {
     await updateFeature.mutateAsync({ key, status: "discarded", discarded_reason: discardReason || undefined });
@@ -161,6 +178,24 @@ export default function FeatureDetailPage({ params }: { params: Promise<{ teamId
             onBlur={() => description !== null && updateFeature.mutate({ key, description })}
             rows={4}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Deadline</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <Label htmlFor="feature-deadline">Date and time</Label>
+          <div className="flex items-center gap-2">
+            <DatePicker id="feature-deadline" value={shownDeadline} onChange={handleDeadlineChange} />
+            {shownDeadline && (
+              <Button variant="ghost" size="sm" onClick={() => handleDeadlineChange(undefined)}>
+                Remove
+              </Button>
+            )}
+          </div>
+          {overdue && <p className="text-sm text-f1-foreground-critical">Overdue</p>}
         </CardContent>
       </Card>
 

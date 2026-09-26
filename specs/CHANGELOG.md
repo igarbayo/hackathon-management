@@ -2,6 +2,8 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-26 · 04 · RF-FEAT-015: el detalle de feature tiene una tarjeta "Deadline" para poner, cambiar o quitar el deadline con fecha y hora; se guarda al momento con `PATCH` (`deadline: null` lo quita). Antes la web no tenía dónde ponerlo, aunque la API lo aceptaba.
+- 2026-09-26 · 04, 13 · RF-DL-012, RNF-UI-030: los deadlines admiten hora, no solo día (un hackathon puede durar unas horas). `DatePicker` añade un campo de hora y un botón "Done" bajo el calendario, y elegir un día ya no cierra el popover. La tarjeta de feature y la lista de Deadlines muestran la hora (`formatDeadline`) y el campo del nuevo milestone pasa a "Date and time". La API ya guardaba `Time`, no cambia.
 - 2026-09-26 · 04 · RF-TEAM-020: la tarjeta Miembros de Ajustes muestra la foto de cada miembro (`avatar_url`) y, sin ella o si no carga, sus iniciales, como el feed de Actividad (RF-ACT-010).
 - 2026-09-25 · 03, 04 · RF-ACT-018: tus propios eventos de GitHub con el login de tu cuenta ya no se pueden seleccionar en Actividad, y `unclaim` y `claim` (a otro miembro) los omiten: no tiene sentido decir "No son míos" de commits que GitHub atribuye a tu cuenta.
 - 2026-09-25 · 04 · RF-UX-001: el menú lateral deja de ser un panel flotante (borde, sombra y fondo blanco) y queda integrado en el fondo de la página, sin separadores entre cabecera, navegación y pie, como en la app de Factorial. El contenido sigue siendo un panel.

@@ -66,6 +66,21 @@ RSpec.describe "Features", type: :request do
       expect(event.payload["key"]).to eq(feature.key)
     end
 
+    it "sets the deadline with its time and removes it with null (RF-FEAT-015)" do
+      membership = create(:membership)
+      feature = create(:feature, team: membership.team)
+      sign_in_as(membership.user)
+      path = "/api/v1/teams/#{membership.team.id}/features/#{feature.key}"
+
+      patch path, params: { deadline: "2026-09-26T14:30:00Z" }, headers: csrf_headers, as: :json
+      expect(response).to have_http_status(:ok)
+      expect(feature.reload.deadline).to eq(Time.utc(2026, 9, 26, 14, 30))
+
+      patch path, params: { deadline: nil }, headers: csrf_headers, as: :json
+      expect(response).to have_http_status(:ok)
+      expect(feature.reload.deadline).to be_nil
+    end
+
     it "returns 409 with an outdated If-Match" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)

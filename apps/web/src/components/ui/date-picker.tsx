@@ -26,7 +26,11 @@
  *     (or 23:59 if there was none), because in Hackboard a date with no
  *     time almost always means "the end of the day";
  *   - it supports `disabled` (min/max day or a function), which the
- *     original did not have.
+ *     original did not have;
+ *   - it has a time field under the calendar, and picking a day no longer
+ *     closes the popover, so the time can be set right after: a hackathon
+ *     can last only a few hours, so deadlines need the hour, not just the
+ *     day.
  *
  * See specs/13-sistema-diseno.md#selector-de-fecha for the rest of the
  * docs (why it was chosen, what it does NOT include and how to move a new
@@ -50,6 +54,8 @@ const COPY = {
   placeholder: "Try 'tomorrow at 9' or 'in 2 weeks'",
   hint: "Press Enter to confirm",
   pickDate: "Pick a date",
+  time: "Time",
+  done: "Done",
 }
 
 export interface DatePickerProps {
@@ -81,6 +87,15 @@ function withPreservedTime(day: Date, previous: Date | undefined): Date {
   } else {
     next.setHours(23, 59, 0, 0)
   }
+  return next
+}
+
+/** Sets the `HH:mm` of `time` on `date` (or on today if there is no date yet). */
+function withTime(date: Date | undefined, time: string): Date | undefined {
+  const match = /^(\d{2}):(\d{2})$/.exec(time)
+  if (!match) return undefined
+  const next = date ? new Date(date) : new Date()
+  next.setHours(Number(match[1]), Number(match[2]), 0, 0)
   return next
 }
 
@@ -122,7 +137,11 @@ export function DatePicker({
     const next = day ? withPreservedTime(day, date) : undefined
     setDate(next)
     if (next) setCalendarMonth(next)
-    setOpen(false)
+  }
+
+  function handleTimeChange(time: string) {
+    const next = withTime(date, time)
+    if (next) setDate(next)
   }
 
   return (
@@ -172,6 +191,23 @@ export function DatePicker({
           disabled={disabled}
           locale={enUS}
         />
+        <div className="flex items-end gap-2">
+          <div className="flex flex-1 flex-col gap-1">
+            <label htmlFor={id ? `${id}-time` : undefined} className="text-sm text-muted-foreground">
+              {COPY.time}
+            </label>
+            <Input
+              id={id ? `${id}-time` : undefined}
+              type="time"
+              aria-label={id ? undefined : COPY.time}
+              value={date ? format(date, "HH:mm") : ""}
+              onChange={(e) => handleTimeChange(e.target.value)}
+            />
+          </div>
+          <Button type="button" onClick={() => setOpen(false)}>
+            {COPY.done}
+          </Button>
+        </div>
       </PopoverContent>
     </Popover>
   )

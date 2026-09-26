@@ -7,7 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { ScaleIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { relativeTime } from "@/lib/format-date";
+import { formatDeadline, relativeTime } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import type { Feature } from "@/types/api";
 
@@ -67,10 +67,10 @@ export function FeatureCardView({
       {feature.deadline && (
         <span>
           {overdue ? (
-            <Badge variant="destructive">Overdue · {new Date(feature.deadline).toLocaleDateString("en-US")}</Badge>
+            <Badge variant="destructive">Overdue · {formatDeadline(feature.deadline)}</Badge>
           ) : (
             <span className="text-sm text-f1-foreground-secondary">
-              {new Date(feature.deadline).toLocaleDateString("en-US")}
+              {formatDeadline(feature.deadline)}
             </span>
           )}
         </span>

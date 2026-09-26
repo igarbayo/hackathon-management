@@ -19,6 +19,17 @@ export function formatInTimezone(iso: string | null | undefined, timezone: strin
   return zoneAbbr ? `${formatted} (${zoneAbbr})` : formatted;
 }
 
+// RF-DL-012: a hackathon can last only a few hours, so a deadline always
+// shows the time, not just the day ("Sep 26, 3:30 PM").
+export function formatDeadline(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
 export function relativeTime(iso: string | null | undefined): string {
   if (!iso) return "";
 

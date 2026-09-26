@@ -104,7 +104,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | RF-FEAT-012 | La tarjeta muestra la clave `F-n`, el título, los avatares de los asignados, el deadline (en rojo si ha vencido y la tarjeta no está en `done` ni `discarded`), los chips de objetivos, el `score` de pros y contras y el tiempo desde la última actividad. | Aceptado [F1] |
 | RF-FEAT-013 | Para asignar, se arrastra el avatar de un miembro desde una barra de miembros hasta la tarjeta, o se usa el selector del detalle. | Aceptado [F2] |
 | RF-FEAT-014 | Creación rápida: un input al pie de cada columna (título + Enter). | Aceptado [F1] |
-| RF-FEAT-015 | Detalle de la feature (panel lateral o `/features/[key]`): descripción, objetivos, asignados, deadline, ramas vinculadas, sus pros y contras, y su actividad. | Aceptado [F1] |
+| RF-FEAT-015 | Detalle de la feature (panel lateral o `/features/[key]`): descripción, objetivos, asignados, deadline, ramas vinculadas, sus pros y contras, y su actividad. El deadline se pone, cambia o quita desde una tarjeta "Deadline" con `DatePicker` (fecha y hora) y se guarda al momento (`PATCH` con `deadline`, `null` para quitarlo). | Aceptado [F1] |
 | RF-FEAT-016 | Al descartar se pide el motivo (opcional). | Aceptado [F2] |
 | RF-FEAT-017 | Filtros: persona, objetivo, "sin objetivo" y "sin asignar". | Aceptado [F2] |
 | RF-FEAT-018 | En el detalle, un bloque "Cómo vincular trabajo" con el nombre de rama sugerido (`f-12-titulo-en-kebab`) y un botón para copiarlo. Debajo, "Ramas": las ramas con commits de la feature (RF-GH-026), cada una enlazada a Actividad filtrada por esa rama. | Aceptado [F3] |
@@ -129,7 +129,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 |----|-----------|--------|
 | RF-DL-010 | Timeline horizontal desde `hackathon.starts_at` hasta `ends_at`, con una línea de "ahora". | Aceptado [F2] |
 | RF-DL-011 | Los milestones aparecen como marcadores verticales con etiqueta. Las features con deadline, como puntos o barras por carril (un carril por asignado, más "sin asignar"). | Aceptado [F2] |
-| RF-DL-012 | Una feature va **tarde** si `deadline < ahora` y su estado no es `done` ni `discarded`. Se marca en rojo. Va **en riesgo** si le quedan menos de 2 h y sigue en `idea`, y se marca en ámbar. | Aceptado [F2] |
+| RF-DL-012 | Una feature va **tarde** si `deadline < ahora` y su estado no es `done` ni `discarded`. Se marca en rojo. Va **en riesgo** si le quedan menos de 2 h y sigue en `idea`, y se marca en ámbar. Los deadlines y milestones se guardan y se muestran con fecha **y hora** (un hackathon puede durar solo unas horas): la tarjeta de feature y la lista de Deadlines enseñan "Sep 26, 3:30 PM", y el selector permite fijar la hora. | Aceptado [F2] |
 | RF-DL-013 | Vista de lista alternativa, agrupada por "Vencidas", "Próximas 6 h" y "Más adelante". | Aceptado [F2] |
 | RF-DL-014 | Al crear el equipo se proponen milestones por defecto (entrega = `ends_at`), editables. | Aceptado [F2] |
 

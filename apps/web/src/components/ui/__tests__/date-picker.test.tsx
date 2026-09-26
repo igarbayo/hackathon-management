@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -29,6 +29,18 @@ describe("DatePicker", () => {
     await user.keyboard("{Enter}");
 
     expect(await screen.findByRole("button", { name: /Dec 31, 2026 · 23:59/ })).toBeInTheDocument();
+  });
+
+  it("picking a day keeps the popover open so the time can be set", async () => {
+    const user = userEvent.setup();
+    render(<ControlledDatePicker />);
+
+    await user.click(screen.getByRole("button", { name: "Pick a date" }));
+    await user.click(await screen.findByRole("button", { name: /15th/ }));
+    fireEvent.change(screen.getByLabelText("Time"), { target: { value: "14:30" } });
+    await user.click(screen.getByRole("button", { name: "Done" }));
+
+    expect(await screen.findByRole("button", { name: /15, \d{4} · 14:30/ })).toBeInTheDocument();
   });
 
   it("a date chrono-node does not understand confirms nothing", async () => {

@@ -23,6 +23,7 @@ import { PageHeader } from "@/components/f0/page-header";
 import { SectionHeader } from "@/components/f0/section-header";
 import { useCreateMilestone } from "@/hooks/use-milestones";
 import { useTimeline } from "@/hooks/use-milestones";
+import { formatDeadline } from "@/lib/format-date";
 import type { TimelineItem } from "@/types/api";
 
 // RF-DL-013: list view grouped into Overdue / Next 6 h / Later.
@@ -93,7 +94,7 @@ export default function DeadlinesPage({ params }: { params: Promise<{ teamId: st
                   </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="m-due">Date</Label>
+                  <Label htmlFor="m-due">Date and time</Label>
                   <DatePicker id="m-due" value={dueAt} onChange={setDueAt} />
                 </div>
                 <DialogFooter>
@@ -146,7 +147,7 @@ function Group({ title, items, tone }: { title: string; items: TimelineItem[]; t
               {item.type === "milestone" ? item.kind : item.key}
             </Badge>
             <span className="flex-1 text-base">{item.title}</span>
-            <span className={`text-sm ${dueClass}`}>{new Date(item.due_at).toLocaleString("en-US")}</span>
+            <span className={`text-sm ${dueClass}`}>{formatDeadline(item.due_at)}</span>
           </div>
         ))}
       </Card>
