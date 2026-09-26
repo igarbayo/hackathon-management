@@ -3,7 +3,7 @@
 # (RF-API-006). It lists the fields that were set, not their values.
 module Features
   class Create
-    def self.call(team:, created_by:, attrs:, actor: {}, via: nil)
+    def self.call(team:, created_by:, attrs:, actor:, via: nil)
       feature = Feature.new(attrs)
       feature.team = team
       feature.created_by_id = created_by&.id

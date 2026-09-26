@@ -18,6 +18,17 @@ RSpec.describe "Activity", type: :request do
       expect(json_response["next_cursor"]).to be_nil
     end
 
+    it "filters by user_id (actor.user_id is stored as a string)" do
+      membership = create(:membership)
+      mine = create(:activity_event, :github_commit, team: membership.team, actor: { "user_id" => membership.user_id.to_s })
+      create(:activity_event, :github_commit, team: membership.team)
+      sign_in_as(membership.user)
+
+      get "/api/v1/teams/#{membership.team.id}/activity", params: { user_id: membership.user_id.to_s }
+
+      expect(json_response["data"].map { |e| e["id"] }).to eq([ mine.id.to_s ])
+    end
+
     it "filters by attribution_status=none" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)

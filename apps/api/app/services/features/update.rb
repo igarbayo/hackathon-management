@@ -3,7 +3,7 @@
 # (Tracking::Actor) is who made it, so the feed does not show "Someone".
 module Features
   class Update
-    def self.call(feature:, attrs:, via: nil, actor: {})
+    def self.call(feature:, attrs:, via: nil, actor:)
       status_changing = attrs.key?("status") && attrs["status"] != feature.status
       assignees_changing = attrs.key?("assignee_ids") && Array(attrs["assignee_ids"]).sort != feature.assignee_ids.map(&:to_s).sort
 

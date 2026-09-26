@@ -37,7 +37,7 @@ module Api
       private
 
       def apply_filters(scope)
-        scope = scope.where("actor.user_id" => BSON::ObjectId.from_string(params[:user_id])) if params[:user_id].present?
+        scope = scope.where("actor.user_id" => params[:user_id].to_s) if params[:user_id].present?
         scope = scope.where("attribution.feature_id" => BSON::ObjectId.from_string(params[:feature_id])) if params[:feature_id].present?
         scope = scope.where(source: params[:source]) if params[:source].present?
         scope = scope.where(kind: params[:kind]) if params[:kind].present?

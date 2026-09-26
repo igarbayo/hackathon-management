@@ -112,5 +112,15 @@ RSpec.describe Analysis::DeterministicAlerts do
       expect(alert["owners_only"]).to be true
       expect(alert["member"]).to eq(membership.display_name)
     end
+
+    it "no alert for a member with recent activity (actor.user_id is stored as a string)" do
+      team = team_with_hackathon
+      membership = create(:membership, team: team)
+      create(:activity_event, :github_commit, team: team, occurred_at: 10.minutes.ago,
+                                              actor: { "user_id" => membership.user_id.to_s, "membership_id" => membership.id.to_s })
+
+      alerts = described_class.call(team).select { |a| a["code"] == "member_idle" }
+      expect(alerts).to be_empty
+    end
   end
 end

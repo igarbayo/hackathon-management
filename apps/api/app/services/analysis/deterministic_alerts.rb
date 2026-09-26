@@ -84,7 +84,7 @@ module Analysis
       return [] unless during_hackathon?
 
       Membership.where(team_id: team.id).filter_map do |membership|
-        last_event = ActivityEvent.where(team_id: team.id, "actor.user_id" => membership.user_id).order(occurred_at: :desc).first
+        last_event = ActivityEvent.where(team_id: team.id, "actor.user_id" => membership.user_id.to_s).order(occurred_at: :desc).first
         idle = last_event.nil? || last_event.occurred_at < now - 4.hours
         alert("member_idle", "low", [], member: membership.display_name, owners_only: true) if idle
       end

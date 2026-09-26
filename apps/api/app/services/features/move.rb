@@ -3,7 +3,7 @@
 module Features
   class Move
     # `actor` (Tracking::Actor) is who moved it, so the feed does not show "Someone".
-    def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil, actor: {})
+    def self.call(feature:, status:, before_id: nil, after_id: nil, via: nil, actor:)
       siblings = Feature.where(team_id: feature.team_id, status: status).and(:id.ne => feature.id)
                          .order(position: :asc).to_a
 
