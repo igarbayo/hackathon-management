@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
@@ -39,6 +39,7 @@ import {
 import { repositoriesKey } from "@/hooks/use-github";
 import { RepositoryLinker } from "@/components/github/repository-linker";
 import { DatePicker } from "@/components/ui/date-picker";
+import { actorInitials } from "@/lib/actor-avatar";
 import { formatInTimezone } from "@/lib/format-date";
 import { useDisconnectMyClaudeCode, useUpdateMyClaudeCode } from "@/hooks/use-claude-code";
 import {
@@ -269,7 +270,7 @@ function MembersCard({
   isOwner,
 }: {
   teamId: string;
-  members: { id: string; user_id: string; role: string; display_name: string; claude_code: unknown }[];
+  members: Member[];
   myUserId: string | undefined;
   isOwner: boolean;
 }) {
@@ -287,7 +288,8 @@ function MembersCard({
           return (
             <div key={member.id} className="flex items-center gap-3 rounded-md border border-f1-border p-2">
               <Avatar>
-                <AvatarFallback>{member.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                {member.avatar_url && <AvatarImage src={member.avatar_url} alt="" referrerPolicy="no-referrer" />}
+                <AvatarFallback>{actorInitials(member.display_name)}</AvatarFallback>
               </Avatar>
               <span className="flex-1 text-base text-f1-foreground">{member.display_name}</span>
               <Badge variant={member.claude_code ? "positive" : "outline"}>
@@ -464,8 +466,8 @@ function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
       await update.mutateAsync({ gemini_api_key: value.trim() });
       setValue("");
       toast.success("Gemini key saved");
-    } catch {
-      toast.error("Could not save the key");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? `Could not save the key: ${err.message}` : "Could not save the key");
     }
   }
 
@@ -473,8 +475,8 @@ function GeminiApiKeyCard({ me, isOwner }: { me: Me; isOwner: boolean }) {
     try {
       await update.mutateAsync({ gemini_api_key: "" });
       toast.success("Gemini key removed");
-    } catch {
-      toast.error("Could not remove the key");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? `Could not remove the key: ${err.message}` : "Could not remove the key");
     }
   }
 

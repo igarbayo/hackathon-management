@@ -2,6 +2,7 @@
 
 Formato: `AAAA-MM-DD · documento(s) · resumen`. Lo más reciente va arriba.
 
+- 2026-09-26 · 04 · RF-TEAM-020: la tarjeta Miembros de Ajustes muestra la foto de cada miembro (`avatar_url`) y, sin ella o si no carga, sus iniciales, como el feed de Actividad (RF-ACT-010).
 - 2026-09-25 · 03, 04 · RF-ACT-018: tus propios eventos de GitHub con el login de tu cuenta ya no se pueden seleccionar en Actividad, y `unclaim` y `claim` (a otro miembro) los omiten: no tiene sentido decir "No son míos" de commits que GitHub atribuye a tu cuenta.
 - 2026-09-25 · 04 · RF-UX-001: el menú lateral deja de ser un panel flotante (borde, sombra y fondo blanco) y queda integrado en el fondo de la página, sin separadores entre cabecera, navegación y pie, como en la app de Factorial. El contenido sigue siendo un panel.
 - 2026-09-25 · 04 · RF-UX-001 (bug): el menú lateral se estiraba hasta la altura de la página, así que en páginas largas el pie con el perfil quedaba abajo del todo. Ahora es `sticky` y mide lo que la pantalla.

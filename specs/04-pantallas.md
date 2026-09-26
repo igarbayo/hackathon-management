@@ -169,7 +169,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 
 | ID | Requisito | Estado |
 |----|-----------|--------|
-| RF-TEAM-020 | **Miembros:** avatar, nombre, rol, login de GitHub, estado de Claude Code (no conectado, conectado, pausado) y nivel de privacidad. El owner puede cambiar roles y expulsar. | Aceptado [F1] |
+| RF-TEAM-020 | **Miembros:** avatar (su foto de Google o GitHub; sin ella, o si no carga, sus iniciales), nombre, rol, login de GitHub, estado de Claude Code (no conectado, conectado, pausado) y nivel de privacidad. El owner puede cambiar roles y expulsar. | Aceptado [F1] |
 | RF-TEAM-021 | **Código de equipo:** se muestra con botones de copiar y copiar enlace. El owner puede regenerarlo. | Aceptado [F1] |
 | RF-TEAM-022 | **Hackathon:** nombre, fechas, zona horaria y texto del reto. | Aceptado [F1] |
 | RF-GH-010 | **GitHub:** repos vinculados, botón "Añadir repo" (pegar URL o elegir de la lista) y estado de la instalación. Indica si el último webhook tuvo éxito. | Aceptado [F3] |
