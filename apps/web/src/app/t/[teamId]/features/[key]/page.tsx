@@ -303,7 +303,9 @@ function ArgumentColumn({
             <button
               onClick={() => onVote(argument.id, Boolean(argument.voted_by_me))}
               className={`focus-ring flex items-center gap-1 rounded ${argument.voted_by_me ? tone : "text-f1-foreground-secondary"}`}
-              aria-label="Vote"
+              aria-label={argument.voted_by_me ? "Remove your vote" : "Vote for this argument"}
+              aria-pressed={Boolean(argument.voted_by_me)}
+              title={argument.voted_by_me ? "You voted for this. Click to remove your vote." : "Vote if you agree. One vote per person."}
             >
               <Icon className={argument.voted_by_me ? "size-4 fill-current" : "size-4"} />
               {argument.votes}

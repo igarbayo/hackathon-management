@@ -116,7 +116,7 @@ Arriba se ve en qué paso se está (Perfil · Equipo · Repositorio · Invitar; 
 | ID | Requisito | Estado |
 |----|-----------|--------|
 | RF-PC-010 | La vista lista las features en `idea` (por defecto) o todas, y al seleccionar una se abre su board. | Aceptado [F2] |
-| RF-PC-011 | El board tiene dos columnas, **Pros** y **Contras**. Cada argumento muestra el texto, el autor y un botón de voto con su contador. Un voto por persona y argumento. | Aceptado [F2] |
+| RF-PC-011 | El board tiene dos columnas, **Pros** y **Contras**. Cada argumento muestra el texto, el autor y un botón de voto con su contador. Un voto por persona y argumento: el botón se rellena si ya has votado, y otro clic quita el voto. | Aceptado [F2] |
 | RF-PC-012 | Los argumentos se ordenan por votos (descendente) y, en caso de empate, por antigüedad. | Aceptado [F2] |
 | RF-PC-013 | Resumen arriba: `score`, número de participantes y botones de decisión: "Pasar a En curso" y "Descartar". | Aceptado [F2] |
 | RF-PC-014 | "Pedir a la IA pros y contras": sugiere hasta 3 de cada que el usuario puede añadir. No se añaden solos. | Propuesto [F4] |

@@ -99,7 +99,7 @@ Rate limit en `/teams/join`: 20 intentos por hora por usuario, para que no se pu
 | POST | `/teams/:id/features/:key/arguments` | `{kind, text}` | RF-PC-001 [F2] |
 | PATCH | `/teams/:id/features/:key/arguments/:aid` | Solo el autor: `text` | RF-PC-002 [F2] |
 | DELETE | `/teams/:id/features/:key/arguments/:aid` | El autor o un owner | RF-PC-003 [F2] |
-| PUT / DELETE | `/teams/:id/features/:key/arguments/:aid/vote` | Vota o quita el voto (idempotente, con `$addToSet`/`$pull`) | RF-PC-004 [F2] |
+| PUT / DELETE | `/teams/:id/features/:key/arguments/:aid/vote` | Vota o quita el voto (idempotente, con `$addToSet`/`$pull`). El detalle de la feature (`GET /teams/:id/features/:key`) devuelve `voted_by_me` en cada argumento para quien pregunta | RF-PC-004 [F2] |
 
 ## Milestones — `RF-DL`
 

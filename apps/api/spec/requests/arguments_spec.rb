@@ -69,6 +69,20 @@ RSpec.describe "Arguments (pros and cons)", type: :request do
       expect(json_response["votes"]).to eq(1)
     end
 
+    it "the feature detail says which arguments the viewer has voted (voted_by_me)" do
+      membership = create(:membership)
+      feature = create(:feature, team: membership.team)
+      voted = feature.arguments.create!(kind: "pro", text: "Good", author_id: membership.user_id, voter_ids: [ membership.user_id ])
+      not_voted = feature.arguments.create!(kind: "con", text: "Risk", author_id: membership.user_id)
+      sign_in_as(membership.user)
+
+      get "/api/v1/teams/#{membership.team.id}/features/#{feature.key}"
+
+      by_id = json_response["arguments"].index_by { |a| a["id"] }
+      expect(by_id[voted.id.to_s]["voted_by_me"]).to be true
+      expect(by_id[not_voted.id.to_s]["voted_by_me"]).to be false
+    end
+
     it "removes the vote" do
       membership = create(:membership)
       feature = create(:feature, team: membership.team)

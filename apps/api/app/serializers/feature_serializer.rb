@@ -1,8 +1,12 @@
 # RF-FEAT-001/002: includes score and last_activity_at.
 class FeatureSerializer
-  def initialize(feature, detail: false)
+  # `viewer_id` (the person asking) adds `voted_by_me` to each argument
+  # (RF-PC-011), so the web knows whether a click votes or removes the vote.
+  # Without it (webhooks, MCP) the field is left out.
+  def initialize(feature, detail: false, viewer_id: nil)
     @feature = feature
     @detail = detail
+    @viewer_id = viewer_id
   end
 
   def as_json
@@ -35,7 +39,7 @@ class FeatureSerializer
 
   private
 
-  attr_reader :feature, :detail
+  attr_reader :feature, :detail, :viewer_id
 
   # RF-GH-026: branches with GitHub activity attributed to the feature, plus
   # the ones it has learned (branch_names). Only in the detail, to avoid one
@@ -53,7 +57,7 @@ class FeatureSerializer
       author_id: argument.author_id&.to_s,
       votes: argument.votes,
       created_at: argument.created_at.iso8601
-    }
+    }.tap { |json| json[:voted_by_me] = argument.voter_ids.include?(viewer_id) if viewer_id }
   end
 
   def last_activity_at
